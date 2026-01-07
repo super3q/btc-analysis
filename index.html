@@ -3,48 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTC 全方位趨勢分析儀表板 (含 Ahr999 & 情緒指數)</title>
+    <title>BTC 智能斐波那契分析儀表板</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #131722; color: #d1d4dc; margin: 0; padding: 20px; }
         .container { max-width: 1400px; margin: 0 auto; }
-        h1 { text-align: center; color: #F0B90B; margin-bottom: 30px; font-weight: 700; }
-        h2 { border-left: 4px solid #F0B90B; padding-left: 10px; margin-top: 0; }
+        h1 { text-align: center; color: #F0B90B; margin-bottom: 20px; font-weight: 700; }
+        h2 { border-left: 4px solid #F0B90B; padding-left: 10px; margin-top: 0; color: #fff; }
         
+        /* 版面配置 */
         .grid-top { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .grid-mid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
         .grid-bottom { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         
-        .card { background: #1e222d; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); overflow: hidden; }
+        .card { background: #1e222d; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .chart-box { height: 600px; }
         .gauge-box { height: 600px; }
         .info-box { height: auto; min-height: 250px; }
-        
-        .btn-link {
-            display: inline-block;
-            background-color: #F0B90B;
-            color: #000;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            margin-top: 10px;
-            text-align: center;
+
+        /* 斐波那契計算機樣式 */
+        .fib-controls { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #2a2e39; padding-bottom: 15px; }
+        .fib-btn { 
+            background: #2a2e39; color: #aaa; border: 1px solid #434651; padding: 8px 20px; 
+            border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; 
         }
-        .btn-link:hover { background-color: #d9a507; }
+        .fib-btn:hover { background: #363a45; color: #fff; }
+        .fib-btn.active { background: #F0B90B; color: #000; border-color: #F0B90B; }
+        
+        .fib-table-container { overflow-x: auto; }
+        .fib-table { width: 100%; border-collapse: collapse; text-align: center; }
+        .fib-table th { background: #2a2e39; color: #aaa; padding: 12px; font-size: 0.9rem; }
+        .fib-table td { padding: 12px; border-bottom: 1px solid #2a2e39; font-size: 1.1rem; font-family: 'Roboto Mono', monospace; }
+        
+        /* 斐波那契顏色強調 */
+        .fib-row-golden { background: rgba(240, 185, 11, 0.1); }
+        .fib-ratio { color: #F0B90B; font-weight: bold; }
+        .fib-price { color: #fff; font-weight: bold; }
+        .fib-desc { font-size: 0.85rem; color: #787b86; }
+        
+        .trend-up { color: #00c853; }
+        .trend-down { color: #ff5252; }
 
-        .indicator-value { font-size: 1.2rem; font-weight: bold; color: #fff; margin-bottom: 5px; }
-        .zone-green { color: #00c853; font-weight: bold; }
-        .zone-yellow { color: #ffd600; font-weight: bold; }
-        .zone-red { color: #ff5252; font-weight: bold; }
-
-        /* Ahr999 說明表格 */
-        .ahr-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
-        .ahr-table th, .ahr-table td { border: 1px solid #434651; padding: 8px; text-align: left; }
-        .ahr-table th { background-color: #2a2e39; }
-
-        /* 響應式設計 */
+        /* Ahr999 與情緒按鈕 */
+        .btn-link {
+            display: inline-block; width: 100%; box-sizing: border-box;
+            background-color: #2a2e39; border: 1px solid #F0B90B; color: #F0B90B;
+            padding: 10px 0; text-decoration: none; border-radius: 5px; font-weight: bold;
+            margin-top: 10px; text-align: center; transition: 0.3s;
+        }
+        .btn-link:hover { background-color: #F0B90B; color: #000; }
+        
+        /* 響應式 */
         @media (max-width: 1024px) {
-            .grid-top { grid-template-columns: 1fr; }
-            .grid-bottom { grid-template-columns: 1fr; }
+            .grid-top, .grid-bottom { grid-template-columns: 1fr; }
             .chart-box, .gauge-box { height: 500px; }
         }
     </style>
@@ -52,11 +62,11 @@
 <body>
 
 <div class="container">
-    <h1>BTC/USDT 專業分析儀表板</h1>
+    <h1>BTC/USDT 智能斐波那契分析儀表板</h1>
 
     <div class="grid-top">
         <div class="card chart-box">
-            <h3 style="margin-top:0; color:#eee;">📈 即時走勢與斐波那契分析</h3>
+            <h3 style="margin-top:0; color:#eee;">📈 即時走勢 (含 MACD, RSI, VOL)</h3>
             <div class="tradingview-widget-container" style="height:calc(100% - 40px);width:100%">
                 <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
@@ -71,22 +81,16 @@
                 "enable_publishing": false,
                 "withdateranges": true,
                 "hide_side_toolbar": false,
-                "allow_symbol_change": true,
                 "details": true,
-                "studies": [
-                    "MACD@tv-basicstudies",
-                    "RSI@tv-basicstudies",
-                    "StochasticRSI@tv-basicstudies",
-                    "Volume@tv-basicstudies"
-                ],
+                "studies": ["MACD@tv-basicstudies","RSI@tv-basicstudies","StochasticRSI@tv-basicstudies","Volume@tv-basicstudies"],
                 "support_host": "https://www.tradingview.com"
                 }
                 </script>
             </div>
         </div>
-
+        
         <div class="card gauge-box">
-            <h3 style="margin-top:0; color:#eee;">⚡ 技術評級</h3>
+            <h3 style="margin-top:0; color:#eee;">⚡ 買賣力道指針</h3>
             <div class="tradingview-widget-container" style="height:calc(100% - 40px);width:100%">
                 <div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>
                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
@@ -106,76 +110,141 @@
         </div>
     </div>
 
+    <div class="grid-mid">
+        <div class="card">
+            <h2>📐 斐波那契回測智能計算 (Fibonacci Retracement)</h2>
+            <p style="color:#aaa; font-size:0.9rem;">系統自動抓取 Binance 歷史數據，計算該區間的最高價(100%)與最低價(0%)，並推算出關鍵支撐回調位。</p>
+            
+            <div class="fib-controls">
+                <button class="fib-btn active" onclick="calculateFib(30, this)">近 1 個月</button>
+                <button class="fib-btn" onclick="calculateFib(90, this)">近 3 個月</button>
+                <button class="fib-btn" onclick="calculateFib(180, this)">近 6 個月</button>
+                <button class="fib-btn" onclick="calculateFib(365, this)">近 1 年</button>
+                <span id="loading-text" style="display:none; color:#F0B90B; align-self: center; margin-left: 10px;">數據計算中...</span>
+            </div>
+
+            <div class="fib-table-container">
+                <table class="fib-table">
+                    <thead>
+                        <tr>
+                            <th>比例 (Ratio)</th>
+                            <th>價格 (Price)</th>
+                            <th>技術意義</th>
+                            <th>區間說明</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fib-body">
+                        </tbody>
+                </table>
+            </div>
+            <p style="text-align:right; font-size:0.8rem; color:#555; margin-top:10px;">*數據來源: Binance API (每日更新)</p>
+        </div>
+    </div>
+
     <div class="grid-bottom">
-        
         <div class="card info-box">
-            <h2>😱 恐懼與貪婪指數</h2>
-            <p style="font-size: 0.9rem; color:#aaa;">數據來源: Alternative.me</p>
+            <h3>😱 恐懼與貪婪指數</h3>
             <div style="text-align: center;">
-                <img src="https://alternative.me/crypto/fear-and-greed-index.png" alt="Latest Crypto Fear & Greed Index" style="width: 100%; max-width: 350px; border-radius: 8px;">
-            </div>
-            <div style="margin-top: 15px; font-size: 0.9rem;">
-                <p><strong>解讀方式：</strong></p>
-                <ul>
-                    <li><span class="zone-green">0-25 (極度恐懼)</span>：通常是<strong>買入</strong>機會。</li>
-                    <li><span class="zone-red">75-100 (極度貪婪)</span>：市場過熱，風險增加，考慮<strong>賣出</strong>。</li>
-                </ul>
+                <img src="https://alternative.me/crypto/fear-and-greed-index.png" alt="Fear & Greed Index" style="width: 100%; max-width: 300px; border-radius: 8px;">
             </div>
         </div>
 
         <div class="card info-box">
-            <h2>💎 Ahr999 囤幣指標</h2>
-            <p style="font-size: 0.9rem;">判斷比特幣價格是否被低估的硬核指標。</p>
-            
-            <table class="ahr-table">
-                <thead>
-                    <tr>
-                        <th>數值區間</th>
-                        <th>建議操作</th>
-                        <th>含義</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="zone-green">&lt; 0.45</td>
-                        <td class="zone-green">抄底 (大額買入)</td>
-                        <td>價格極度被低估</td>
-                    </tr>
-                    <tr>
-                        <td class="zone-yellow">0.45 - 1.2</td>
-                        <td class="zone-yellow">定投 (DCA)</td>
-                        <td>價格合理，適合持續投入</td>
-                    </tr>
-                    <tr>
-                        <td class="zone-red">&gt; 1.2</td>
-                        <td class="zone-red">停止買入 / 觀望</td>
-                        <td>價格偏高，等待回調</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <p style="font-size: 0.85rem; color: #aaa; margin-top: 10px;">
-                *註：因 Ahr999 為 Coinglass 專有數據，無法直接嵌入圖表，請點擊下方按鈕查看即時數據。
+            <h3>💎 Ahr999 囤幣指標</h3>
+            <p style="font-size:0.9rem; color:#ccc;">
+                <span style="color:#00c853">● &lt; 0.45 抄底區</span><br>
+                <span style="color:#ffd600">● 0.45-1.2 定投區</span><br>
+                <span style="color:#ff5252">● &gt; 1.2 起飛區(暫停買入)</span>
             </p>
-            <a href="https://www.coinglass.com/zh-TW/pro/i/ahr999" target="_blank" class="btn-link" style="width: 90%;">查看即時 Ahr999 數據</a>
+            <a href="https://www.coinglass.com/zh-TW/pro/i/ahr999" target="_blank" class="btn-link">查看 Coinglass 即時數據</a>
         </div>
 
         <div class="card info-box">
-            <h2>📝 綜合分析建議</h2>
-            <div class="desc" style="font-size: 0.95rem; line-height: 1.6;">
-                <p><strong>1. 斐波那契 (Fibonacci)：</strong><br>在上方大圖左側工具列選「Fib 回調」。<br>若回撤至 <span class="zone-green">0.618</span> 處獲支撐，為強力買點。</p>
-                <p><strong>2. 趨勢與動能：</strong><br>
-                - <strong>MACD：</strong> 零軸上方金叉 = 多頭強勢。<br>
-                - <strong>RSI：</strong> 觸碰 30 = 超賣(買)，觸碰 70 = 超買(賣)。</p>
-                <p><strong>3. 何時賣出？</strong><br>
-                當恐懼貪婪指數 > 75 且 Ahr999 > 1.2，同時 RSI > 70 時，建議分批獲利了結。</p>
-                <p><strong>4. 何時買入？</strong><br>
-                當 Ahr999 < 0.45 或 恐懼指數 < 20，且 K 線在斐波那契支撐位時，勝率極高。</p>
-            </div>
+            <h3>📝 操作建議 Summary</h3>
+            <ul style="padding-left: 20px; line-height: 1.6; color: #ccc; font-size: 0.95rem;">
+                <li><strong>強支撐位：</strong>參考上方表格的 <span style="color:#F0B90B">0.618</span> 價位，若幣價回調至此未破，為最佳買點。</li>
+                <li><strong>分批止盈：</strong>若 RSI > 70 且價格接近上方 <span style="color:#ff5252">100% (前高)</span>，建議減倉。</li>
+                <li><strong>趨勢判斷：</strong>若 0.5 (中軸) 被跌破，趨勢可能轉弱。</li>
+            </ul>
         </div>
-
     </div>
 </div>
+
+<script>
+    // 斐波那契計算邏輯
+    async function calculateFib(days, btnElement) {
+        // 更新按鈕樣式
+        document.querySelectorAll('.fib-btn').forEach(b => b.classList.remove('active'));
+        if(btnElement) btnElement.classList.add('active');
+        
+        const loading = document.getElementById('loading-text');
+        loading.style.display = 'inline';
+
+        try {
+            // 呼叫 Binance API 獲取 K 線數據 (1天 K棒)
+            const response = await fetch(`https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=${days}`);
+            const data = await response.json();
+
+            // 解析數據: data[i][2] is High, data[i][3] is Low
+            let maxPrice = -Infinity;
+            let minPrice = Infinity;
+
+            data.forEach(candle => {
+                const high = parseFloat(candle[2]);
+                const low = parseFloat(candle[3]);
+                if (high > maxPrice) maxPrice = high;
+                if (low < minPrice) minPrice = low;
+            });
+
+            // 計算斐波那契回調位 (假設從低點漲到高點後的回調)
+            // 0% = Low, 100% = High. 回調是用 High 往下減
+            // 這裡展示一般通用的回撤支撐位：
+            // Level = High - (Range * ratio)
+            const range = maxPrice - minPrice;
+            
+            const levels = [
+                { ratio: 0, percent: "0% (最低點)", price: minPrice, desc: "區間最低支撐 (Floor)", style: "color:#00c853" },
+                { ratio: 0.236, percent: "23.6%", price: maxPrice - (range * 0.236), desc: "強勢整理區 (淺回調)", style: "" },
+                { ratio: 0.382, percent: "38.2%", price: maxPrice - (range * 0.382), desc: "第一道重要支撐", style: "" },
+                { ratio: 0.5, percent: "50%", price: maxPrice - (range * 0.5), desc: "多空分界線 (中軸)", style: "font-weight:bold" },
+                { ratio: 0.618, percent: "61.8%", price: maxPrice - (range * 0.618), desc: "黃金口袋 (最佳買點)", style: "color:#F0B90B; font-weight:900;" },
+                { ratio: 0.786, percent: "78.6%", price: maxPrice - (range * 0.786), desc: "深層回調 (最後防線)", style: "" },
+                { ratio: 1, percent: "100% (最高點)", price: maxPrice, desc: "區間最高壓力 (Ceiling)", style: "color:#ff5252" }
+            ];
+
+            // 重新排序，讓 100% (高價) 在上面，0% (低價) 在下面，符合視覺邏輯
+            levels.sort((a, b) => b.price - a.price);
+
+            // 渲染表格
+            const tbody = document.getElementById('fib-body');
+            tbody.innerHTML = '';
+
+            levels.forEach(lvl => {
+                const rowClass = (lvl.ratio === 0.618 || lvl.ratio === 0.5) ? 'fib-row-golden' : '';
+                const html = `
+                    <tr class="${rowClass}">
+                        <td class="fib-ratio" style="${lvl.style}">${lvl.percent}</td>
+                        <td class="fib-price">${lvl.price.toFixed(2)}</td>
+                        <td class="fib-desc" style="${lvl.style}">${lvl.desc}</td>
+                        <td class="fib-desc">距離高點回落 ${(lvl.ratio * 100).toFixed(1)}%</td>
+                    </tr>
+                `;
+                tbody.innerHTML += html;
+            });
+
+        } catch (error) {
+            console.error(error);
+            document.getElementById('fib-body').innerHTML = `<tr><td colspan="4" style="color:red; text-align:center;">無法獲取數據，請稍後再試 (API連線限制)</td></tr>`;
+        } finally {
+            loading.style.display = 'none';
+        }
+    }
+
+    // 初始化：預設載入 30 天數據
+    window.onload = function() {
+        calculateFib(30, document.querySelector('.fib-btn'));
+    };
+</script>
 
 </body>
 </html>
