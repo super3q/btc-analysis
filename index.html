@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC/USDT 專業技術分析儀表板</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #131722; color: #d1d4dc; margin: 0; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #F0B90B; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .card { background: #1e222d; border-radius: 8px; padding: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .full-width { grid-column: 1 / -1; height: 600px; }
+        .analysis-box { height: 500px; }
+        .desc { font-size: 0.9rem; color: #787b86; margin-top: 10px; line-height: 1.5; }
+        
+        /* 響應式設計：手機版變成單欄 */
+        @media (max-width: 768px) {
+            .grid { grid-template-columns: 1fr; }
+            .full-width { height: 500px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>BTC/USDT 即時趨勢與技術分析</h1>
+
+    <div class="grid">
+        <div class="card full-width">
+            <div class="tradingview-widget-container" style="height:100%;width:100%">
+                <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+                {
+                "autosize": true,
+                "symbol": "BINANCE:BTCUSDT",
+                "interval": "D",
+                "timezone": "Asia/Taipei",
+                "theme": "dark",
+                "style": "1",
+                "locale": "zh_TW",
+                "enable_publishing": false,
+                "withdateranges": true,
+                "hide_side_toolbar": false,
+                "allow_symbol_change": true,
+                "details": true,
+                "calendar": false,
+                "studies": [
+                    "MACD@tv-basicstudies",
+                    "RSI@tv-basicstudies",
+                    "StochasticRSI@tv-basicstudies",
+                    "Volume@tv-basicstudies"
+                ],
+                "support_host": "https://www.tradingview.com"
+                }
+                </script>
+            </div>
+            </div>
+
+        <div class="card analysis-box">
+            <div class="tradingview-widget-container" style="height:100%;width:100%">
+                <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+                {
+                "interval": "1D",
+                "width": "100%",
+                "isTransparent": true,
+                "height": "100%",
+                "symbol": "BINANCE:BTCUSDT",
+                "showIntervalTabs": true,
+                "displayMode": "single",
+                "locale": "zh_TW",
+                "colorTheme": "dark"
+                }
+                </script>
+            </div>
+        </div>
+
+        <div class="card analysis-box">
+            <h3 style="color: #fff; margin-top:0;">📊 分析操作指南</h3>
+            <div class="desc">
+                <p><strong>1. 時間週期切換：</strong><br>請在圖表上方點選 1M, 3M, 6M, 1Y (或上方時間軸) 查看不同長度的趨勢。</p>
+                <p><strong>2. 斐波那契回測 (Fibonacci)：</strong><br>點選圖表左側工具列的第三個圖示（三條橫線圖案），選擇「斐波那契回調」，自行連接波段高點與低點即可看到支撐壓力位。</p>
+                <p><strong>3. 指標判讀：</strong><br>
+                <ul>
+                    <li><strong>RSI：</strong>超過 70 為過熱（考慮賣出），低於 30 為超賣（考慮買入）。</li>
+                    <li><strong>MACD：</strong>快線(藍)向上突破慢線(橘)為金叉(買入訊號)。</li>
+                    <li><strong>KDJ/Stoch：</strong>觀察高位鈍化或低位反轉。</li>
+                </ul>
+                </p>
+                <p><strong>4. 買賣建議：</strong><br>參考左側儀表板，若指針指向「強力買入」且圖表位於支撐位，勝率較高。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
