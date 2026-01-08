@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (Gradient Pro)</title>
+    <title>Crypto AI Quant Analyst (Timeframe Sync)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; background-color: #0b0e11; color: #eaecef; margin: 0; padding: 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
@@ -16,6 +16,9 @@
             margin: 0 0 15px 0; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; 
         }
         
+        /* Controls Container */
+        .controls-wrapper { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; }
+
         /* Coin Switcher */
         .coin-switcher { display: flex; gap: 8px; background: #1e2329; padding: 8px; border-radius: 30px; flex-wrap: wrap; justify-content: center; border: 1px solid #2b3139; }
         .coin-btn { background: transparent; border: none; color: #848e9c; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.3s; }
@@ -25,68 +28,40 @@
             color: #000; box-shadow: 0 0 15px rgba(240, 185, 11, 0.4); 
         }
 
-        /* --- 🔥 核心漸層定義 (CSS Gradients) --- */
-        /* 文字漸層 */
-        .grad-text-green {
-            background: linear-gradient(90deg, #11998e, #38ef7d);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: 800;
-        }
-        .grad-text-red {
-            background: linear-gradient(90deg, #ff416c, #ff4b2b);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: 800;
-        }
-        .grad-text-gold {
-            background: linear-gradient(90deg, #F0B90B, #F8D800);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: 800;
-        }
+        /* Timeframe Switcher (New) */
+        .tf-switcher { display: flex; gap: 5px; background: #161a1e; padding: 5px; border-radius: 8px; border: 1px solid #2b3139; }
+        .tf-btn { background: transparent; border: 1px solid transparent; color: #848e9c; padding: 5px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: 0.3s; font-family: 'Roboto Mono', monospace; }
+        .tf-btn:hover { color: #fff; border-color: #444; }
+        .tf-btn.active { background: #2b3139; color: #F0B90B; border-color: #F0B90B; }
 
-        /* 背景徽章漸層 (Badges) */
-        .badge-bull {
-            background: linear-gradient(135deg, rgba(17, 153, 142, 0.9) 0%, rgba(56, 239, 125, 0.9) 100%);
-            color: #000; padding: 5px 12px; border-radius: 4px; font-weight: bold; box-shadow: 0 0 10px rgba(56, 239, 125, 0.3);
-        }
-        .badge-bear {
-            background: linear-gradient(135deg, rgba(255, 65, 108, 0.9) 0%, rgba(255, 75, 43, 0.9) 100%);
-            color: #fff; padding: 5px 12px; border-radius: 4px; font-weight: bold; box-shadow: 0 0 10px rgba(255, 65, 108, 0.3);
-        }
-        .badge-neutral {
-            background: linear-gradient(135deg, rgba(240, 185, 11, 0.9) 0%, rgba(248, 216, 0, 0.9) 100%);
-            color: #000; padding: 5px 12px; border-radius: 4px; font-weight: bold;
-        }
+        /* Gradients & Colors */
+        .grad-text-green { background: linear-gradient(90deg, #11998e, #38ef7d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+        .grad-text-red { background: linear-gradient(90deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+        .badge-bull { background: linear-gradient(135deg, rgba(17, 153, 142, 0.9) 0%, rgba(56, 239, 125, 0.9) 100%); color: #000; padding: 5px 12px; border-radius: 4px; font-weight: bold; box-shadow: 0 0 10px rgba(56, 239, 125, 0.3); }
+        .badge-bear { background: linear-gradient(135deg, rgba(255, 65, 108, 0.9) 0%, rgba(255, 75, 43, 0.9) 100%); color: #fff; padding: 5px 12px; border-radius: 4px; font-weight: bold; box-shadow: 0 0 10px rgba(255, 65, 108, 0.3); }
+        .badge-neutral { background: linear-gradient(135deg, rgba(240, 185, 11, 0.9) 0%, rgba(248, 216, 0, 0.9) 100%); color: #000; padding: 5px 12px; border-radius: 4px; font-weight: bold; }
 
         /* Layout */
         .grid-top { display: grid; grid-template-columns: 2.5fr 1fr; gap: 20px; margin-bottom: 20px; }
         .grid-core { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
-        
         .card { background: #1e2329; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #2b3139; position: relative; }
         .chart-box, .gauge-box { height: 600px; }
 
-        /* --- 🧠 AI 核心報告區 --- */
+        /* AI Report */
         .ai-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; padding-bottom: 15px; margin-bottom: 15px; }
         .ai-title { font-size: 1.3rem; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 10px; }
-        
         .ai-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         .ai-col { background: #161a1e; padding: 15px; border-radius: 8px; border: 1px solid #2b3139; }
-        
         .ai-label { font-size: 0.8rem; color: #848e9c; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
         .score-row { display: flex; justify-content: space-between; font-size: 0.9rem; border-bottom: 1px solid #2b3139; padding: 8px 0; align-items: center; }
         .score-row:last-child { border-bottom: none; }
-
         .action-text { font-size: 1.05rem; line-height: 1.6; color: #d1d4dc; white-space: pre-line; margin-bottom: 15px; }
-        
-        /* 詳細指標表 */
         .detail-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; margin-top: 10px; }
         .detail-table td { padding: 8px; border-bottom: 1px solid #2b3139; color: #ccc; }
         
         /* Fibonacci */
         .fib-table { width: 100%; border-collapse: collapse; text-align: left; font-family: 'Roboto Mono', monospace; }
         .fib-table td, .fib-table th { padding: 12px; border-bottom: 1px solid #2b3139; }
-        .fib-table th { color: #666; font-size: 0.8rem; }
-        
-        /* 特殊行背景 */
         .row-buy-zone { background: linear-gradient(90deg, rgba(14, 203, 129, 0.1) 0%, rgba(14, 203, 129, 0) 100%); border-left: 3px solid #0ECB81; }
         .row-sell-zone { background: linear-gradient(90deg, rgba(246, 70, 93, 0.1) 0%, rgba(246, 70, 93, 0) 100%); border-left: 3px solid #F6465D; }
 
@@ -103,33 +78,43 @@
 
 <div class="container">
     <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#555;">v5.0 Pro</span></h1>
-        <div class="coin-switcher">
-            <button class="coin-btn active" onclick="switchCoin('BTC')">BTC</button>
-            <button class="coin-btn" onclick="switchCoin('ETH')">ETH</button>
-            <button class="coin-btn" onclick="switchCoin('SOL')">SOL</button>
-            <button class="coin-btn" onclick="switchCoin('BNB')">BNB</button>
-            <button class="coin-btn" onclick="switchCoin('DOGE')">DOGE</button>
-            <span id="loading-indicator">⚡ AI 運算中...</span>
+        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#555;">v6.0 Sync</span></h1>
+        
+        <div class="controls-wrapper">
+            <div class="coin-switcher">
+                <button class="coin-btn active" onclick="switchCoin('BTC')">BTC</button>
+                <button class="coin-btn" onclick="switchCoin('ETH')">ETH</button>
+                <button class="coin-btn" onclick="switchCoin('SOL')">SOL</button>
+                <button class="coin-btn" onclick="switchCoin('BNB')">BNB</button>
+                <button class="coin-btn" onclick="switchCoin('DOGE')">DOGE</button>
+                <span id="loading-indicator">⚡ 數據運算中...</span>
+            </div>
+
+            <div class="tf-switcher">
+                <button class="tf-btn" onclick="switchTimeframe('15m')">15m (短線)</button>
+                <button class="tf-btn" onclick="switchTimeframe('1h')">1H (當沖)</button>
+                <button class="tf-btn" onclick="switchTimeframe('4h')">4H (波段)</button>
+                <button class="tf-btn active" onclick="switchTimeframe('1d')">1D (長線)</button>
+            </div>
         </div>
     </div>
 
     <div class="grid-top">
         <div class="card chart-box">
-            <h3 style="margin-top:0; color:#eee;">📈 <span class="coin-name">BTC</span>/USDT 實時走勢</h3>
+            <h3 style="margin-top:0; color:#eee;">📈 <span class="coin-name">BTC</span>/USDT 實時走勢 (<span class="tf-display">1D</span>)</h3>
             <div id="tv-chart-container" style="height:calc(100% - 30px);width:100%"></div>
         </div>
         
         <div class="card gauge-box" style="display:flex; flex-direction:column;">
-            <h3 style="margin-top:0; color:#eee;">⚡ 外部機構評級 (TradingView)</h3>
+            <h3 style="margin-top:0; color:#eee;">⚡ 外部評級 (TV Technicals)</h3>
             <div id="tv-gauge-container" style="height:300px; width:100%"></div>
             
             <div style="flex-grow:1; border-top:1px solid #2b3139; margin-top:10px; padding-top:10px; overflow-y:auto;">
-                <div style="font-size:0.9rem; color:#848e9c; margin-bottom:5px;">🔍 AI 內部指標審計 (Internal Audit):</div>
+                <div style="font-size:0.9rem; color:#848e9c; margin-bottom:5px;">🔍 AI 內部審計 (基於 <span class="tf-display" style="color:#F0B90B">1D</span> 數據):</div>
                 <table class="detail-table">
                     <tr><td>MA7 (短線趨勢)</td><td id="det-ma7">---</td></tr>
-                    <tr><td>MA25 (生命線)</td><td id="det-ma25">---</td></tr>
-                    <tr><td>MA99 (年線)</td><td id="det-ma99">---</td></tr>
+                    <tr><td>MA25 (中線趨勢)</td><td id="det-ma25">---</td></tr>
+                    <tr><td>MA99 (長線趨勢)</td><td id="det-ma99">---</td></tr>
                     <tr><td>RSI (14)</td><td id="det-rsi">---</td></tr>
                     <tr><td>KD (Stochastic)</td><td id="det-kd">---</td></tr>
                     <tr><td>成交量動能</td><td id="det-vol">---</td></tr>
@@ -142,8 +127,8 @@
     <div class="grid-core">
         <div class="card">
             <div class="ai-header">
-                <div class="ai-title">🧠 AI 核心邏輯決策報告</div>
-                <div style="font-size:0.85rem; color:#888;">Binance Data × ATR Risk Model</div>
+                <div class="ai-title">🧠 AI 核心邏輯決策報告 (<span class="tf-display">1D</span>)</div>
+                <div style="font-size:0.85rem; color:#888;">Binance API Real-time Data</div>
             </div>
 
             <div class="ai-grid">
@@ -153,22 +138,21 @@
                     
                     <div class="ai-label">積分詳情 (Scorecard)</div>
                     <div class="score-row">
-                        <span>站穩 MA99 年線 (+2)</span>
+                        <span>MA99 長線 (+2)</span>
                         <span id="score-ma99">⚪</span>
                     </div>
                     <div class="score-row">
-                        <span>站穩 MA25 中線 (+1)</span>
+                        <span>MA25 中線 (+1)</span>
                         <span id="score-ma25">⚪</span>
                     </div>
                     <div class="score-row">
-                        <span>MA7 黃金交叉 (+1)</span>
+                        <span>MA7 金叉 (+1)</span>
                         <span id="score-cross">⚪</span>
                     </div>
                 </div>
 
                 <div class="ai-col">
                     <div class="ai-label">2. 型態識別 & 智能風控</div>
-                    
                     <div class="score-row" style="margin-top:10px;">
                         <span>K線型態掃描:</span>
                         <span id="pattern-res" style="font-weight:bold; color:#fff;">掃描中...</span>
@@ -180,7 +164,7 @@
                             <span id="atr-sl-price">---</span>
                         </div>
                         <div style="font-size:0.8rem; color:#666;">
-                            *依據真實波幅 ATR 自動計算防守價位
+                            *依據目前 <span class="tf-display">1D</span> 波動自動計算
                         </div>
                     </div>
                 </div>
@@ -188,7 +172,7 @@
                 <div class="ai-col" style="border: 1px solid rgba(240, 185, 11, 0.3);">
                     <div class="ai-label" style="color:#F0B90B;">3. AI 實戰操作建議 (Action Logic)</div>
                     <div id="ai-action-text" class="action-text">
-                        正在綜合分析...
+                        正在分析當前時框數據...
                     </div>
                     <div style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
                         <div class="score-row">
@@ -209,9 +193,7 @@
         <h3 style="margin:0 0 15px 0; color:#eee;">📐 斐波那契回撤 (Fibonacci)</h3>
         <table class="fib-table">
             <thead>
-                <tr>
-                    <th>LEVEL</th><th>PRICE</th><th>DESC</th><th>DISTANCE</th>
-                </tr>
+                <tr><th>LEVEL</th><th>PRICE</th><th>DESC</th><th>DISTANCE</th></tr>
             </thead>
             <tbody id="fib-body"></tbody>
         </table>
@@ -222,6 +204,15 @@
 <script>
     let currentCoin = 'BTC';
     let currentSymbol = 'BTCUSDT';
+    let currentTimeframe = '1d'; // 預設日線
+    
+    // Binance API 與 TradingView 代碼對照表
+    const tfMap = {
+        '15m': { binance: '15m', tv: '15', label: '15m' },
+        '1h':  { binance: '1h',  tv: '60', label: '1H' },
+        '4h':  { binance: '4h',  tv: '240',label: '4H' },
+        '1d':  { binance: '1d',  tv: 'D',  label: '1D' }
+    };
 
     window.onload = function() {
         switchCoin('BTC');
@@ -233,18 +224,33 @@
         document.querySelectorAll('.coin-name').forEach(el => el.innerText = coin);
         document.querySelectorAll('.coin-btn').forEach(btn => btn.classList.toggle('active', btn.innerText === coin));
         
-        reloadWidgets(currentSymbol);
+        refreshAll();
+    }
+
+    function switchTimeframe(tf) {
+        currentTimeframe = tf;
+        
+        // 更新 UI
+        document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+        document.querySelectorAll('.tf-display').forEach(el => el.innerText = tfMap[tf].label);
+
+        refreshAll();
+    }
+
+    function refreshAll() {
+        reloadWidgets(currentSymbol, tfMap[currentTimeframe].tv);
         runQuantAnalysis(); 
     }
 
-    function reloadWidgets(symbol) {
+    function reloadWidgets(symbol, tvInterval) {
         // Chart
         document.getElementById('tv-chart-container').innerHTML = '';
         const scriptChart = document.createElement('script');
         scriptChart.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
         scriptChart.async = true;
         scriptChart.innerHTML = JSON.stringify({
-            "autosize": true, "symbol": "BINANCE:" + symbol, "interval": "D", "timezone": "Asia/Taipei", "theme": "dark", "style": "1", "locale": "zh_TW", "enable_publishing": false, "withdateranges": true, "hide_side_toolbar": false,
+            "autosize": true, "symbol": "BINANCE:" + symbol, "interval": tvInterval, "timezone": "Asia/Taipei", "theme": "dark", "style": "1", "locale": "zh_TW", "enable_publishing": false, "withdateranges": true, "hide_side_toolbar": false,
             "studies": ["MASimple@tv-basicstudies","MACD@tv-basicstudies","RSI@tv-basicstudies","StochasticRSI@tv-basicstudies"],
             "support_host": "https://www.tradingview.com"
         });
@@ -256,18 +262,20 @@
         scriptGauge.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
         scriptGauge.async = true;
         scriptGauge.innerHTML = JSON.stringify({
-            "interval": "1D", "width": "100%", "height": "100%", "isTransparent": true, "symbol": "BINANCE:" + symbol, "showIntervalTabs": true, "displayMode": "single", "locale": "zh_TW", "colorTheme": "dark"
+            "interval": tvInterval, "width": "100%", "height": "100%", "isTransparent": true, "symbol": "BINANCE:" + symbol, "showIntervalTabs": true, "displayMode": "single", "locale": "zh_TW", "colorTheme": "dark"
         });
         document.getElementById('tv-gauge-container').appendChild(scriptGauge);
     }
 
-    // --- 🧠 AI 量化運算核心 ---
+    // --- 🧠 AI 量化運算核心 (支援多時框) ---
     async function runQuantAnalysis() {
         const loader = document.getElementById('loading-indicator');
         loader.style.display = 'inline';
 
         try {
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=1d&limit=150`);
+            // 使用當前選定的時框 (interval)
+            const interval = tfMap[currentTimeframe].binance;
+            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${interval}&limit=150`);
             const data = await res.json();
             
             const closes = data.map(d => parseFloat(d[4]));
@@ -295,17 +303,17 @@
             let score = 0;
             const isBullMa99 = curClose > ma99;
             if(isBullMa99) score += 2;
-            updateScoreUI('score-ma99', isBullMa99, 'MA99 支撐有效 (+2)', 'MA99 跌破');
+            updateScoreUI('score-ma99', isBullMa99, 'MA99 長線多 (+2)', 'MA99 長線空');
 
             const isBullMa25 = curClose > ma25;
             if(isBullMa25) score += 1;
-            updateScoreUI('score-ma25', isBullMa25, 'MA25 趨勢向上 (+1)', 'MA25 承壓');
+            updateScoreUI('score-ma25', isBullMa25, 'MA25 中線多 (+1)', 'MA25 中線空');
 
             const isGoldenCross = ma7 > ma25; 
             if(isGoldenCross) score += 1;
             updateScoreUI('score-cross', isGoldenCross, 'MA7 金叉確立 (+1)', '死叉修正中');
 
-            // 顯示總分 (使用漸層 Badge)
+            // 顯示總分
             const trendEl = document.getElementById('trend-display');
             if (score >= 2) {
                 trendEl.innerHTML = `<span class="badge-bull">🚀 強力多頭 (Score: ${score})</span>`;
@@ -347,20 +355,20 @@
 
             if (score >= 2) { // 強多
                 if (rsi > 70) {
-                    action = `<span class="grad-text-red">⚠️ 過熱警示</span>\n趨勢雖然強勁，但 RSI(${rsi.toFixed(0)}) 進入超買區。\n建議<span class="grad-text-gold">分批獲利</span>，切勿追高，等待 MA7 回測。`;
+                    action = `<span class="grad-text-red">⚠️ 過熱警示</span>\n時框(${tfMap[currentTimeframe].label}) 趨勢強，但 RSI(${rsi.toFixed(0)}) 超買。\n建議<span class="grad-text-gold">分批獲利</span>，等待回調 MA7。`;
                     targetBuy = ma7;
                 } else {
-                    action = `<span class="grad-text-green">🚀 積極買進訊號</span>\n趨勢完美且指標健康。\n建議現價或拉回 MA25 <span class="grad-text-green">加倉買進</span>。`;
+                    action = `<span class="grad-text-green">🚀 積極買進</span>\n時框(${tfMap[currentTimeframe].label}) 趨勢完美。\n建議現價或拉回 MA25 <span class="grad-text-green">加倉</span>。`;
                     buyClass = "grad-text-green";
                 }
             } else if (score <= 0) { // 空頭
                  if (rsi < 30) {
-                    action = `<span class="grad-text-green">♻️ 超賣反彈機會</span>\nRSI 進入超賣區，短線有反彈需求。\n激進者可嘗試<span class="grad-text-green">搶反彈</span>，保守者觀望。`;
+                    action = `<span class="grad-text-green">♻️ 超賣反彈</span>\n時框(${tfMap[currentTimeframe].label}) RSI 超賣，短線有反彈需求。\n可嘗試<span class="grad-text-green">搶反彈</span>，但逆勢需快進快出。`;
                 } else {
-                    action = `<span class="grad-text-red">❄️ 空頭迴避</span>\n趨勢向下，上方均線蓋頭。\n建議<span class="grad-text-red">空手觀望</span>或逢高做空。`;
+                    action = `<span class="grad-text-red">❄️ 空頭迴避</span>\n時框(${tfMap[currentTimeframe].label}) 趨勢向下。\n建議<span class="grad-text-red">觀望</span>或逢高做空。`;
                 }
             } else {
-                action = `<span class="grad-text-gold">⚖️ 區間震盪</span>\n多空交戰，KD 指標${kd.k > kd.d ? '金叉向上' : '死叉向下'}。\n建議在區間下緣低吸高拋。`;
+                action = `<span class="grad-text-gold">⚖️ 區間震盪</span>\n時框(${tfMap[currentTimeframe].label}) 多空交戰。\nKD 指標${kd.k > kd.d ? '金叉向上' : '死叉向下'}，區間操作。`;
             }
 
             document.getElementById('ai-action-text').innerHTML = action;
@@ -373,7 +381,6 @@
             sellEl.innerText = `$${targetSell.toFixed(2)}`;
 
             // --- E. 更新詳細指標表 (Audit) ---
-            // 使用漸層文字
             updateDetailRow('det-ma7', curClose, ma7, '價格 > MA7', '價格 < MA7');
             updateDetailRow('det-ma25', curClose, ma25, '價格 > MA25', '價格 < MA25');
             updateDetailRow('det-ma99', curClose, ma99, '價格 > MA99', '價格 < MA99');
@@ -404,7 +411,6 @@
         }
     }
 
-    // --- 輔助函數 ---
     function calcMA(data, period) {
         if(data.length < period) return 0;
         return data.slice(-period).reduce((a,b)=>a+b,0) / period;
@@ -475,8 +481,7 @@
             const dist = ((current - l.p)/l.p*100).toFixed(2);
             let colorClass = "";
             if(dist > 0) colorClass = "grad-text-green";
-            if(dist < 0 && Math.abs(dist) < 2) colorClass = "grad-text-red"; // 接近壓力
-
+            if(dist < 0 && Math.abs(dist) < 2) colorClass = "grad-text-red"; 
             html += `<tr class="${l.class}">
                 <td>${l.r*100}%</td>
                 <td style="font-weight:bold; color:#fff;">$${l.p.toFixed(2)}</td>
