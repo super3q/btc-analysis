@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (Universal Search)</title>
+    <title>Crypto AI Quant Analyst (Auto-Complete)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; background-color: #0b0e11; color: #eaecef; margin: 0; padding: 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
@@ -17,22 +17,53 @@
         }
         
         /* Controls */
-        .controls-wrapper { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; }
+        .controls-wrapper { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; position: relative; z-index: 100; }
         
-        /* --- 🔍 搜尋列樣式 (新功能) --- */
+        /* --- 🔍 智能搜尋列樣式 (升級版) --- */
+        .search-container {
+            position: relative; width: 100%; max-width: 500px;
+        }
         .search-box {
             display: flex; gap: 10px; background: #1e2329; padding: 10px 20px; border-radius: 50px; 
             border: 1px solid #0575e6; box-shadow: 0 0 15px rgba(5, 117, 230, 0.3);
-            width: 100%; max-width: 500px;
+            align-items: center;
         }
         .search-input {
             background: transparent; border: none; color: #fff; font-size: 1.1rem; font-weight: bold; 
             flex-grow: 1; outline: none; text-transform: uppercase; letter-spacing: 1px;
         }
-        .search-input::placeholder { color: #555; }
+        .search-input::placeholder { color: #555; text-transform: none; }
+        
+        /* 下拉選單列表 */
+        .dropdown-list {
+            position: absolute; top: 110%; left: 0; right: 0;
+            background: #1e2329; border: 1px solid #2b3139; border-radius: 12px;
+            max-height: 300px; overflow-y: auto; display: none; /* 預設隱藏 */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000;
+        }
+        .dropdown-list.show { display: block; }
+        
+        /* 列表項目 */
+        .dropdown-item {
+            padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #2b3139;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.2s;
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background: #2a2e39; color: #0575e6; }
+        .item-symbol { font-weight: bold; font-size: 1rem; }
+        .item-name { font-size: 0.8rem; color: #888; }
+
+        /* 滾動條美化 */
+        .dropdown-list::-webkit-scrollbar { width: 8px; }
+        .dropdown-list::-webkit-scrollbar-track { background: #161a1e; }
+        .dropdown-list::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
+
+        /* Search Button */
         .search-btn {
             background: linear-gradient(135deg, #0575e6, #021b79); color: #fff; border: none; 
             padding: 8px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s;
+            white-space: nowrap;
         }
         .search-btn:hover { transform: scale(1.05); box-shadow: 0 0 10px #0575e6; }
 
@@ -74,7 +105,7 @@
         .pivot-table td { padding: 5px; border-bottom: 1px solid #2b3139; }
         .res-zone { color: #F6465D; } .sup-zone { color: #0ECB81; } .pivot-zone { color: #F0B90B; font-weight: bold; }
         .ob-bar-container { width: 100%; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin-top: 5px; display: flex; }
-        .ob-buy { height: 100%; background: #0ECB81; } .ob-sell { height: 100%; background: #F6465D; }
+        .ob-buy { height: 100%; background: #0ECB81; width: 50%; transition: width 0.5s;} .ob-sell { height: 100%; background: #F6465D; width: 50%; transition: width 0.5s; }
         .ob-text { display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; }
         .detail-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; margin-top: 10px; }
         .detail-table td { padding: 8px; border-bottom: 1px solid #2b3139; color: #ccc; }
@@ -102,12 +133,16 @@
 
 <div class="container">
     <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">Universal</span></h1>
+        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">Auto-Complete</span></h1>
         
         <div class="controls-wrapper">
-            <div class="search-box">
-                <input type="text" id="symbol-input" class="search-input" placeholder="輸入幣種 (例如: XRP, PEPE, WIF)..." onkeypress="handleEnter(event)">
-                <button class="search-btn" onclick="runSearch()">🔍 開始分析</button>
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="symbol-input" class="search-input" placeholder="輸入或選擇幣種 (例: BTC, PEPE)..." autocomplete="off">
+                    <button class="search-btn" onclick="triggerSearch()">🔍 分析</button>
+                </div>
+                <div id="dropdown-list" class="dropdown-list">
+                    </div>
             </div>
 
             <div class="coin-switcher">
@@ -246,8 +281,8 @@
     let currentCoin = 'BTC';
     let currentSymbol = 'BTCUSDT';
     let currentTimeframe = '4h'; // Default
-    
-    // Timeframe Mapping
+    let allSymbols = []; // 儲存所有幣種
+
     const tfMap = {
         '15m': { binance: '15m', tv: '15', label: '15m (短線)' },
         '1h':  { binance: '1h',  tv: '60', label: '1H (當沖)' },
@@ -260,18 +295,69 @@
         '2Y':  { binance: '1M',  tv: 'M',  label: '2Y (趨勢 - 月線)' }
     };
 
-    window.onload = function() { quickLoad('BTC'); };
+    // 初始化
+    window.onload = function() { 
+        quickLoad('BTC');
+        initSearch(); // 啟動搜尋引擎
+    };
 
-    // --- Search & Load Functions ---
-    function handleEnter(e) {
-        if(e.key === 'Enter') runSearch();
+    // --- 🚀 智能搜尋引擎核心 ---
+    async function initSearch() {
+        const input = document.getElementById('symbol-input');
+        const list = document.getElementById('dropdown-list');
+
+        // 1. 載入幣安所有交易對
+        try {
+            const res = await fetch('https://api.binance.com/api/v3/exchangeInfo');
+            const data = await res.json();
+            // 只過濾出 USDT 交易對，並移除 USDT 後綴以顯示純幣名
+            allSymbols = data.symbols
+                .filter(s => s.quoteAsset === 'USDT' && s.status === 'TRADING')
+                .map(s => s.baseAsset)
+                .sort();
+        } catch (e) { console.error("Symbol load failed", e); }
+
+        // 2. 輸入監聽
+        input.addEventListener('input', function() {
+            const val = this.value.toUpperCase();
+            if (!val) { list.style.display = 'none'; return; }
+
+            // 過濾符合的幣種 (前 50 個避免卡頓)
+            const matches = allSymbols.filter(s => s.startsWith(val)).slice(0, 50);
+            
+            if (matches.length > 0) {
+                list.innerHTML = matches.map(s => `
+                    <div class="dropdown-item" onclick="selectSymbol('${s}')">
+                        <span class="item-symbol">${s}</span>
+                        <span class="item-name">USDT</span>
+                    </div>
+                `).join('');
+                list.style.display = 'block';
+            } else {
+                list.style.display = 'none';
+            }
+        });
+
+        // 3. 點擊外部關閉選單
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !list.contains(e.target)) {
+                list.style.display = 'none';
+            }
+        });
     }
 
-    function runSearch() {
+    function selectSymbol(coin) {
+        document.getElementById('symbol-input').value = coin;
+        document.getElementById('dropdown-list').style.display = 'none';
+        quickLoad(coin);
+    }
+
+    function triggerSearch() {
         const input = document.getElementById('symbol-input').value.trim().toUpperCase();
         if(input) quickLoad(input);
     }
 
+    // --- 原有核心邏輯 ---
     function quickLoad(coin) {
         currentCoin = coin;
         currentSymbol = coin + 'USDT';
@@ -279,13 +365,7 @@
         // Update UI
         document.querySelectorAll('.coin-name').forEach(el => el.innerText = coin);
         
-        // Reset Search Input UI feedback
-        const btn = document.querySelector('.search-btn');
-        btn.innerHTML = `Analyzing ${coin}...`;
-        setTimeout(() => btn.innerHTML = "🔍 開始分析", 1000);
-
         refreshAll();
-        // Reset Fib to 30 days default when changing coin
         calculateFib(30, document.querySelectorAll('.fib-btn')[0]);
     }
 
@@ -313,31 +393,51 @@
     }
 
     function reloadWidgets(symbol, tvInterval) {
-        document.getElementById('tv-chart-container').innerHTML = '';
-        const scriptChart = document.createElement('script');
-        scriptChart.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-        scriptChart.async = true;
-        scriptChart.innerHTML = JSON.stringify({
+        // Chart
+        const chartContainer = document.getElementById('tv-chart-container');
+        chartContainer.innerHTML = ''; 
+        const chartDiv = document.createElement('div');
+        chartDiv.className = 'tradingview-widget-container';
+        chartDiv.style.height = '100%';
+        chartDiv.style.width = '100%';
+        chartDiv.innerHTML = '<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>';
+        const chartScript = document.createElement('script');
+        chartScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+        chartScript.async = true;
+        chartScript.innerHTML = JSON.stringify({
             "autosize": true, "symbol": "BINANCE:" + symbol, "interval": tvInterval, "timezone": "Asia/Taipei", "theme": "dark", "style": "1", "locale": "zh_TW", "enable_publishing": false, "withdateranges": true, "hide_side_toolbar": false,
             "studies": ["MASimple@tv-basicstudies","MACD@tv-basicstudies","RSI@tv-basicstudies","StochasticRSI@tv-basicstudies"],
             "support_host": "https://www.tradingview.com"
         });
-        document.getElementById('tv-chart-container').appendChild(scriptChart);
+        chartDiv.appendChild(chartScript);
+        chartContainer.appendChild(chartDiv);
 
-        document.getElementById('tv-gauge-container').innerHTML = '';
-        const scriptGauge = document.createElement('script');
-        scriptGauge.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
-        scriptGauge.async = true;
-        scriptGauge.innerHTML = JSON.stringify({
+        // Gauge
+        const gaugeContainer = document.getElementById('tv-gauge-container');
+        gaugeContainer.innerHTML = ''; 
+        const gaugeDiv = document.createElement('div');
+        gaugeDiv.className = 'tradingview-widget-container';
+        gaugeDiv.style.height = '100%';
+        gaugeDiv.style.width = '100%';
+        gaugeDiv.innerHTML = '<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';
+        const gaugeScript = document.createElement('script');
+        gaugeScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+        gaugeScript.async = true;
+        gaugeScript.innerHTML = JSON.stringify({
             "interval": tvInterval, "width": "100%", "height": "100%", "isTransparent": true, "symbol": "BINANCE:" + symbol, "showIntervalTabs": true, "displayMode": "single", "locale": "zh_TW", "colorTheme": "dark"
         });
-        document.getElementById('tv-gauge-container').appendChild(scriptGauge);
+        gaugeDiv.appendChild(gaugeScript);
+        gaugeContainer.appendChild(gaugeDiv);
     }
 
     async function fetchOrderBook() {
         try {
             const res = await fetch(`https://api.binance.com/api/v3/depth?symbol=${currentSymbol}&limit=20`);
-            if(!res.ok) throw new Error("Symbol not found");
+            if(!res.ok) {
+                document.getElementById('ob-buy-pct').innerText = "N/A";
+                document.getElementById('ob-sell-pct').innerText = "N/A";
+                return;
+            }
             const data = await res.json();
             let bidsTotal = data.bids.reduce((acc, val) => acc + parseFloat(val[1]), 0);
             let asksTotal = data.asks.reduce((acc, val) => acc + parseFloat(val[1]), 0);
@@ -359,7 +459,7 @@
         try {
             const interval = tfMap[currentTimeframe].binance;
             const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${interval}&limit=150`);
-            if(!res.ok) { alert("找不到該幣種，請確認輸入正確 (例: BTC, PEPE)"); loader.style.display = 'none'; return; }
+            if(!res.ok) { alert("找不到該幣種"); loader.style.display = 'none'; return; }
             const data = await res.json();
             
             const closes = data.map(d => parseFloat(d[4]));
@@ -462,7 +562,6 @@
             document.getElementById('det-vol').innerHTML = `${volRatio}x`;
             document.getElementById('det-vol').className = curVol>volMa20?'grad-text-green':'';
 
-            // Initial Fib
             calculateFib(30, document.querySelectorAll('.fib-btn')[0]);
 
         } catch (e) { console.error(e); } finally { loader.style.display = 'none'; }
