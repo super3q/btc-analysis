@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (No Gauge v2.5)</title>
+    <title>Crypto AI Quant Analyst (v2.6 Ultimate)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; background-color: #0b0e11; color: #eaecef; margin: 0; padding: 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
@@ -61,20 +61,13 @@
         .tf-btn { background: transparent; border: 1px solid transparent; color: #848e9c; padding: 5px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: 0.3s; font-family: 'Roboto Mono', monospace; }
         .tf-btn.active { background: #2b3139; color: #0575e6; border-color: #0575e6; }
 
-        /* Gradients */
-        .grad-text-green { background: linear-gradient(90deg, #11998e, #38ef7d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
-        .grad-text-red { background: linear-gradient(90deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
-        .badge-bull { background: linear-gradient(135deg, rgba(17, 153, 142, 0.9) 0%, rgba(56, 239, 125, 0.9) 100%); color: #000; padding: 5px 12px; border-radius: 4px; font-weight: bold; }
-        .badge-bear { background: linear-gradient(135deg, rgba(255, 65, 108, 0.9) 0%, rgba(255, 75, 43, 0.9) 100%); color: #fff; padding: 5px 12px; border-radius: 4px; font-weight: bold; }
-        .badge-neutral { background: linear-gradient(135deg, rgba(240, 185, 11, 0.9) 0%, rgba(248, 216, 0, 0.9) 100%); color: #000; padding: 5px 12px; border-radius: 4px; font-weight: bold; }
-
         /* Layout */
-        .grid-top { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-bottom: 20px; } /* 左寬右窄 */
+        .grid-top { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-bottom: 20px; }
         .grid-core { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
         .card { background: #1e2329; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #2b3139; position: relative; display: flex; flex-direction: column; }
         
         .chart-box { height: 750px; } 
-        .data-box { height: 750px; } /* 右側數據欄 */
+        .data-box { height: 750px; } 
 
         /* AI Report */
         .ai-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; padding-bottom: 15px; margin-bottom: 15px; }
@@ -89,15 +82,18 @@
         .pivot-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; text-align: center; }
         .pivot-table td { padding: 10px; border-bottom: 1px solid #2b3139; }
         .res-zone { color: #F6465D; } .sup-zone { color: #0ECB81; } .pivot-zone { color: #F0B90B; font-weight: bold; }
-        
         .ob-bar-container { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; margin-top: 10px; display: flex; }
         .ob-buy { height: 100%; background: #0ECB81; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-start; padding-left: 5px; font-size: 0.7rem; color: #000; font-weight: bold;}
         .ob-sell { height: 100%; background: #F6465D; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; font-size: 0.7rem; color: #fff; font-weight: bold;}
         .ob-text { display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
-
-        /* Detail Table */
         .detail-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; margin-top: 10px; }
         .detail-table td { padding: 8px; border-bottom: 1px solid #2b3139; color: #ccc; }
+
+        /* Bottom Gauge Section */
+        .gauge-controls { display: flex; gap: 5px; }
+        .gauge-btn { background: #2a2e39; color: #888; border: 1px solid #444; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .gauge-btn.active { background: #0575e6; color: #fff; border-color: #0575e6; }
+        .gauge-btn:hover { color: #fff; border-color: #fff; }
 
         /* Fibonacci */
         .fib-controls { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #2a2e39; padding-bottom: 15px; flex-wrap: wrap; }
@@ -108,6 +104,9 @@
         .row-buy-zone { background: linear-gradient(90deg, rgba(14, 203, 129, 0.1) 0%, rgba(14, 203, 129, 0) 100%); border-left: 3px solid #0ECB81; }
         .row-sell-zone { background: linear-gradient(90deg, rgba(246, 70, 93, 0.1) 0%, rgba(246, 70, 93, 0) 100%); border-left: 3px solid #F6465D; }
 
+        .grad-text-green { background: linear-gradient(90deg, #11998e, #38ef7d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+        .grad-text-red { background: linear-gradient(90deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+        
         #loading-indicator, #fib-loading { display: none; color: #0575e6; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
@@ -118,7 +117,7 @@
 
 <div class="container">
     <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">Universal v2.5</span></h1>
+        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">Universal v2.6</span></h1>
         
         <div class="controls-wrapper">
             <div class="search-container">
@@ -163,9 +162,7 @@
         
         <div class="card data-box">
             <h3 style="margin-top:0; color:#eee;">⚡ 籌碼與點位分析</h3>
-            
             <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-around;">
-                
                 <div>
                     <div style="font-size:0.9rem; color:#848e9c; margin-bottom:10px;">📊 買賣盤掛單壓力 (Order Book)</div>
                     <div class="ob-bar-container">
@@ -177,9 +174,8 @@
                         <span style="color:#F6465D">賣盤: <span id="ob-sell-pct">--%</span></span>
                     </div>
                 </div>
-
                 <div>
-                    <div style="font-size:0.9rem; color:#848e9c; margin-bottom:10px;">🎯 機構樞軸點 (Pivot Points Standard)</div>
+                    <div style="font-size:0.9rem; color:#848e9c; margin-bottom:10px;">🎯 機構樞軸點 (Pivot Points)</div>
                     <table class="pivot-table">
                         <tr><td class="res-zone">R2 (強壓力)</td><td id="pp-r2" style="font-weight:bold;">---</td></tr>
                         <tr><td class="res-zone">R1 (壓力)</td><td id="pp-r1" style="font-weight:bold;">---</td></tr>
@@ -187,11 +183,6 @@
                         <tr><td class="sup-zone">S1 (支撐)</td><td id="pp-s1" style="font-weight:bold;">---</td></tr>
                         <tr><td class="sup-zone">S2 (強支撐)</td><td id="pp-s2" style="font-weight:bold;">---</td></tr>
                     </table>
-                </div>
-
-                <div style="font-size:0.8rem; color:#666; text-align:center; border-top:1px solid #2b3139; padding-top:15px;">
-                    * 樞軸點為日內交易關鍵位<br>
-                    * 掛單壓力來自 Binance 前20檔深度
                 </div>
             </div>
         </div>
@@ -239,7 +230,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" style="margin-bottom:20px;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px;">
             <h3 style="margin:0; color:#eee;">📐 斐波那契回撤 (獨立時段)</h3>
             <span id="fib-loading">數據計算中...</span>
@@ -254,6 +245,20 @@
         <table class="fib-table">
             <tbody id="fib-body"></tbody>
         </table>
+    </div>
+
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+            <h3 style="margin:0; color:#eee;">⚡ 獨立技術指針 (Technical Analysis)</h3>
+            <div class="gauge-controls">
+                <button class="gauge-btn" onclick="updateBottomGauge('15m', this)">15m</button>
+                <button class="gauge-btn" onclick="updateBottomGauge('1h', this)">1H</button>
+                <button class="gauge-btn active" onclick="updateBottomGauge('4h', this)">4H</button>
+                <button class="gauge-btn" onclick="updateBottomGauge('1D', this)">1D</button>
+                <button class="gauge-btn" onclick="updateBottomGauge('1W', this)">1W</button>
+            </div>
+        </div>
+        <div id="tv-gauge-bottom" style="height:400px; width:100%;"></div>
     </div>
 
 </div>
@@ -318,7 +323,6 @@
         currentSymbol = coin + 'USDT';
         document.querySelectorAll('.coin-name').forEach(el => el.innerText = coin);
         
-        // Update TV Button Link
         const tvLink = document.getElementById('tv-link');
         tvLink.href = `https://tw.tradingview.com/symbols/${coin}USDT/?exchange=BINANCE`;
         
@@ -348,8 +352,9 @@
         return num.toFixed(6);
     }
 
-    // --- Chart Widget Only ---
+    // --- Reload Main Chart & Bottom Gauge ---
     function reloadWidgets(symbol, tvInterval) {
+        // 1. Chart (No Gauge in Top Right)
         const chartContainer = document.getElementById('tv-chart-container');
         chartContainer.innerHTML = '';
         const chartDiv = document.createElement('div');
@@ -367,16 +372,73 @@
         });
         chartDiv.appendChild(chartScript);
         chartContainer.appendChild(chartDiv);
+
+        // 2. Initial load of Bottom Gauge (Synced)
+        // Find which button matches tvInterval and set active
+        const gaugeBtns = document.querySelectorAll('.gauge-btn');
+        gaugeBtns.forEach(b => {
+            b.classList.remove('active');
+            // Simple logic: if text matches current interval label logic, set active
+            // Here we map global timeframe key to standard gauge interval
+            let target = '';
+            if(currentTimeframe === '15m') target = '15m';
+            if(currentTimeframe === '1h') target = '1H';
+            if(currentTimeframe === '4h') target = '4H';
+            if(currentTimeframe === '1d' || currentTimeframe === '3M') target = '1D';
+            if(currentTimeframe === '1Y') target = '1W';
+            
+            if(b.innerText === target) b.classList.add('active');
+        });
+        
+        // Force load bottom gauge with current global interval (or closest match)
+        let gInterval = tvInterval;
+        if(tvInterval === 'D') gInterval = '1D';
+        if(tvInterval === 'W') gInterval = '1W';
+        if(tvInterval === 'M') gInterval = '1M';
+        if(tvInterval === '60') gInterval = '1h';
+        if(tvInterval === '240') gInterval = '4h';
+        if(tvInterval === '15') gInterval = '15m';
+
+        updateBottomGauge(gInterval, null); // Load it
+    }
+
+    // --- New: Bottom Gauge Logic ---
+    function updateBottomGauge(interval, btn) {
+        if(btn) {
+            document.querySelectorAll('.gauge-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        const container = document.getElementById('tv-gauge-bottom');
+        container.innerHTML = '';
+        const div = document.createElement('div');
+        div.className = 'tradingview-widget-container';
+        div.style.height = '100%';
+        div.style.width = '100%';
+        div.innerHTML = '<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';
+        
+        const script = document.createElement('script');
+        script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+        script.async = true;
+        script.innerHTML = JSON.stringify({
+            "interval": interval,
+            "width": "100%",
+            "height": "100%",
+            "isTransparent": true,
+            "symbol": "BINANCE:" + currentSymbol,
+            "showIntervalTabs": false, // Hide built-in tabs, use ours
+            "displayMode": "single",
+            "locale": "zh_TW",
+            "colorTheme": "dark"
+        });
+        div.appendChild(script);
+        container.appendChild(div);
     }
 
     async function fetchOrderBook() {
         try {
             const res = await fetch(`https://api.binance.com/api/v3/depth?symbol=${currentSymbol}&limit=20`);
-            if(!res.ok) {
-                document.getElementById('ob-buy-pct').innerText = "--%";
-                document.getElementById('ob-sell-pct').innerText = "--%";
-                return;
-            }
+            if(!res.ok) { document.getElementById('ob-buy-pct').innerText = "--%"; return; }
             const data = await res.json();
             let bidsTotal = data.bids.reduce((acc, val) => acc + parseFloat(val[1]), 0);
             let asksTotal = data.asks.reduce((acc, val) => acc + parseFloat(val[1]), 0);
@@ -386,8 +448,6 @@
             
             document.getElementById('ob-buy-bar').style.width = buyPct + "%";
             document.getElementById('ob-sell-bar').style.width = sellPct + "%";
-            document.getElementById('ob-buy-bar').innerText = buyPct > 20 ? buyPct + "%" : "";
-            document.getElementById('ob-sell-bar').innerText = sellPct > 20 ? sellPct + "%" : "";
             document.getElementById('ob-buy-pct').innerText = buyPct + "%";
             document.getElementById('ob-sell-pct').innerText = sellPct + "%";
         } catch (e) { console.error(e); }
