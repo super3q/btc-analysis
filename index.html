@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (TV Link v2.4)</title>
+    <title>Crypto AI Quant Analyst (No Gauge v2.5)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; background-color: #0b0e11; color: #eaecef; margin: 0; padding: 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
@@ -35,7 +35,7 @@
         }
         .search-btn:hover { transform: scale(1.05); }
 
-        /* TV Link Button (New) */
+        /* TV Link Button */
         .tv-link-btn {
             display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
             background: #2a2e39; color: #fff; padding: 8px 20px; border-radius: 20px;
@@ -43,7 +43,6 @@
             margin-top: 5px;
         }
         .tv-link-btn:hover { background: #0575e6; border-color: #0575e6; }
-        .tv-icon { width: 16px; height: 16px; fill: currentColor; }
 
         /* Dropdown */
         .dropdown-list {
@@ -70,12 +69,12 @@
         .badge-neutral { background: linear-gradient(135deg, rgba(240, 185, 11, 0.9) 0%, rgba(248, 216, 0, 0.9) 100%); color: #000; padding: 5px 12px; border-radius: 4px; font-weight: bold; }
 
         /* Layout */
-        .grid-top { display: grid; grid-template-columns: 2.5fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .grid-top { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-bottom: 20px; } /* 左寬右窄 */
         .grid-core { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
         .card { background: #1e2329; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #2b3139; position: relative; display: flex; flex-direction: column; }
         
         .chart-box { height: 750px; } 
-        .gauge-box { height: 750px; } 
+        .data-box { height: 750px; } /* 右側數據欄 */
 
         /* AI Report */
         .ai-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; padding-bottom: 15px; margin-bottom: 15px; }
@@ -86,32 +85,40 @@
         .score-row { display: flex; justify-content: space-between; font-size: 0.9rem; border-bottom: 1px solid #2b3139; padding: 8px 0; align-items: center; }
         .action-text { font-size: 1.05rem; line-height: 1.6; color: #d1d4dc; white-space: pre-line; margin-bottom: 15px; flex-grow: 1; }
         
-        /* Tables */
-        .pivot-table, .detail-table, .fib-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; text-align: center; margin-top:10px; }
-        td { padding: 5px; border-bottom: 1px solid #2b3139; }
+        /* Pivot & OB */
+        .pivot-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; text-align: center; }
+        .pivot-table td { padding: 10px; border-bottom: 1px solid #2b3139; }
         .res-zone { color: #F6465D; } .sup-zone { color: #0ECB81; } .pivot-zone { color: #F0B90B; font-weight: bold; }
-        .ob-bar-container { width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin-top: 5px; display: flex; }
-        .ob-buy { height: 100%; background: #0ECB81; width: 50%; transition: width 0.5s;} .ob-sell { height: 100%; background: #F6465D; width: 50%; transition: width 0.5s; }
-        .ob-text { display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; font-weight: bold; }
+        
+        .ob-bar-container { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; margin-top: 10px; display: flex; }
+        .ob-buy { height: 100%; background: #0ECB81; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-start; padding-left: 5px; font-size: 0.7rem; color: #000; font-weight: bold;}
+        .ob-sell { height: 100%; background: #F6465D; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; font-size: 0.7rem; color: #fff; font-weight: bold;}
+        .ob-text { display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
+
+        /* Detail Table */
+        .detail-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; margin-top: 10px; }
+        .detail-table td { padding: 8px; border-bottom: 1px solid #2b3139; color: #ccc; }
 
         /* Fibonacci */
         .fib-controls { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #2a2e39; padding-bottom: 15px; flex-wrap: wrap; }
         .fib-btn { background: #2a2e39; color: #aaa; border: 1px solid #434651; padding: 6px 15px; border-radius: 4px; cursor: pointer; transition: 0.3s; font-size: 0.9rem; }
         .fib-btn.active { background: #0575e6; color: #fff; border-color: #0575e6; }
+        .fib-table { width: 100%; border-collapse: collapse; text-align: left; font-family: 'Roboto Mono', monospace; }
+        .fib-table td, .fib-table th { padding: 12px; border-bottom: 1px solid #2b3139; }
         .row-buy-zone { background: linear-gradient(90deg, rgba(14, 203, 129, 0.1) 0%, rgba(14, 203, 129, 0) 100%); border-left: 3px solid #0ECB81; }
         .row-sell-zone { background: linear-gradient(90deg, rgba(246, 70, 93, 0.1) 0%, rgba(246, 70, 93, 0) 100%); border-left: 3px solid #F6465D; }
 
         #loading-indicator, #fib-loading { display: none; color: #0575e6; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
-        @media (max-width: 1200px) { .grid-top, .ai-grid { grid-template-columns: 1fr; } .chart-box, .gauge-box { height: auto; min-height: 500px; } }
+        @media (max-width: 1200px) { .grid-top, .ai-grid { grid-template-columns: 1fr; } .chart-box, .data-box { height: auto; min-height: 500px; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">Universal v2.4</span></h1>
+        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">Universal v2.5</span></h1>
         
         <div class="controls-wrapper">
             <div class="search-container">
@@ -154,13 +161,13 @@
             <div id="tv-chart-container" style="height:100%;width:100%"></div>
         </div>
         
-        <div class="card gauge-box">
+        <div class="card data-box">
             <h3 style="margin-top:0; color:#eee;">⚡ 籌碼與點位分析</h3>
-            <div id="tv-gauge-wrapper" style="height:400px; min-height:400px; width:100%; position: relative;"></div>
             
-            <div style="flex-grow:1; border-top:1px solid #2b3139; margin-top:10px; padding-top:10px; overflow-y:auto;">
-                <div style="margin-bottom: 15px;">
-                    <div style="font-size:0.85rem; color:#848e9c; margin-bottom:5px;">📊 買賣盤掛單壓力 (Order Book)</div>
+            <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-around;">
+                
+                <div>
+                    <div style="font-size:0.9rem; color:#848e9c; margin-bottom:10px;">📊 買賣盤掛單壓力 (Order Book)</div>
                     <div class="ob-bar-container">
                         <div id="ob-buy-bar" class="ob-buy"></div>
                         <div id="ob-sell-bar" class="ob-sell"></div>
@@ -170,14 +177,22 @@
                         <span style="color:#F6465D">賣盤: <span id="ob-sell-pct">--%</span></span>
                     </div>
                 </div>
-                <div style="font-size:0.85rem; color:#848e9c; margin-bottom:5px;">🎯 機構樞軸點 (Pivot Points)</div>
-                <table class="pivot-table">
-                    <tr><td class="res-zone">R2</td><td id="pp-r2" style="font-weight:bold;">---</td><td>強壓力</td></tr>
-                    <tr><td class="res-zone">R1</td><td id="pp-r1" style="font-weight:bold;">---</td><td>壓力</td></tr>
-                    <tr><td class="pivot-zone">P</td><td id="pp-p" style="font-weight:bold;">---</td><td>中軸</td></tr>
-                    <tr><td class="sup-zone">S1</td><td id="pp-s1" style="font-weight:bold;">---</td><td>支撐</td></tr>
-                    <tr><td class="sup-zone">S2</td><td id="pp-s2" style="font-weight:bold;">---</td><td>強支撐</td></tr>
-                </table>
+
+                <div>
+                    <div style="font-size:0.9rem; color:#848e9c; margin-bottom:10px;">🎯 機構樞軸點 (Pivot Points Standard)</div>
+                    <table class="pivot-table">
+                        <tr><td class="res-zone">R2 (強壓力)</td><td id="pp-r2" style="font-weight:bold;">---</td></tr>
+                        <tr><td class="res-zone">R1 (壓力)</td><td id="pp-r1" style="font-weight:bold;">---</td></tr>
+                        <tr><td class="pivot-zone">P (中軸)</td><td id="pp-p" style="font-weight:bold;">---</td></tr>
+                        <tr><td class="sup-zone">S1 (支撐)</td><td id="pp-s1" style="font-weight:bold;">---</td></tr>
+                        <tr><td class="sup-zone">S2 (強支撐)</td><td id="pp-s2" style="font-weight:bold;">---</td></tr>
+                    </table>
+                </div>
+
+                <div style="font-size:0.8rem; color:#666; text-align:center; border-top:1px solid #2b3139; padding-top:15px;">
+                    * 樞軸點為日內交易關鍵位<br>
+                    * 掛單壓力來自 Binance 前20檔深度
+                </div>
             </div>
         </div>
     </div>
@@ -305,7 +320,6 @@
         
         // Update TV Button Link
         const tvLink = document.getElementById('tv-link');
-        // TradingView TW URL Structure for Binance
         tvLink.href = `https://tw.tradingview.com/symbols/${coin}USDT/?exchange=BINANCE`;
         
         refreshAll();
@@ -334,9 +348,8 @@
         return num.toFixed(6);
     }
 
-    // --- Widget Reload ---
+    // --- Chart Widget Only ---
     function reloadWidgets(symbol, tvInterval) {
-        // 1. Chart
         const chartContainer = document.getElementById('tv-chart-container');
         chartContainer.innerHTML = '';
         const chartDiv = document.createElement('div');
@@ -354,23 +367,6 @@
         });
         chartDiv.appendChild(chartScript);
         chartContainer.appendChild(chartDiv);
-
-        // 2. Gauge (Height Fixed)
-        const gaugeWrapper = document.getElementById('tv-gauge-wrapper');
-        gaugeWrapper.innerHTML = '';
-        const gaugeDiv = document.createElement('div');
-        gaugeDiv.className = 'tradingview-widget-container';
-        gaugeDiv.style.height = '100%'; 
-        gaugeDiv.style.width = '100%';
-        gaugeDiv.innerHTML = '<div class="tradingview-widget-container__widget" style="height:100%;width:100%"></div>';
-        const gaugeScript = document.createElement('script');
-        gaugeScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
-        gaugeScript.async = true;
-        gaugeScript.innerHTML = JSON.stringify({
-            "interval": tvInterval, "width": "100%", "height": "100%", "isTransparent": true, "symbol": "BINANCE:" + symbol, "showIntervalTabs": true, "displayMode": "single", "locale": "zh_TW", "colorTheme": "dark"
-        });
-        gaugeDiv.appendChild(gaugeScript);
-        gaugeWrapper.appendChild(gaugeDiv);
     }
 
     async function fetchOrderBook() {
@@ -390,6 +386,8 @@
             
             document.getElementById('ob-buy-bar').style.width = buyPct + "%";
             document.getElementById('ob-sell-bar').style.width = sellPct + "%";
+            document.getElementById('ob-buy-bar').innerText = buyPct > 20 ? buyPct + "%" : "";
+            document.getElementById('ob-sell-bar').innerText = sellPct > 20 ? sellPct + "%" : "";
             document.getElementById('ob-buy-pct').innerText = buyPct + "%";
             document.getElementById('ob-sell-pct').innerText = sellPct + "%";
         } catch (e) { console.error(e); }
