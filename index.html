@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (Institutional Ver.)</title>
+    <title>Crypto AI Quant Analyst (Full Cycle)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; background-color: #0b0e11; color: #eaecef; margin: 0; padding: 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
@@ -13,18 +13,32 @@
         h1 { 
             background: linear-gradient(to right, #F0B90B, #FFD700); 
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin: 0 0 15px 0; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; 
+            margin: 0 0 15px 0; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-align: center;
         }
         
-        /* Controls */
+        /* Controls Container */
         .controls-wrapper { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; }
+
+        /* Coin Switcher */
         .coin-switcher { display: flex; gap: 8px; background: #1e2329; padding: 8px; border-radius: 30px; flex-wrap: wrap; justify-content: center; border: 1px solid #2b3139; }
         .coin-btn { background: transparent; border: none; color: #848e9c; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-size: 1rem; font-weight: bold; transition: 0.3s; }
         .coin-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
-        .coin-btn.active { background: linear-gradient(135deg, #F0B90B 0%, #ff9800 100%); color: #000; box-shadow: 0 0 15px rgba(240, 185, 11, 0.4); }
+        .coin-btn.active { 
+            background: linear-gradient(135deg, #F0B90B 0%, #ff9800 100%); 
+            color: #000; box-shadow: 0 0 15px rgba(240, 185, 11, 0.4); 
+        }
 
-        .tf-switcher { display: flex; gap: 5px; background: #161a1e; padding: 5px; border-radius: 8px; border: 1px solid #2b3139; }
-        .tf-btn { background: transparent; border: 1px solid transparent; color: #848e9c; padding: 5px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: 0.3s; font-family: 'Roboto Mono', monospace; }
+        /* Timeframe Switcher (Updated for multi-row) */
+        .tf-switcher { 
+            display: flex; gap: 5px; background: #161a1e; padding: 8px; border-radius: 12px; border: 1px solid #2b3139; 
+            flex-wrap: wrap; justify-content: center; max-width: 900px;
+        }
+        .tf-btn { 
+            background: transparent; border: 1px solid transparent; color: #848e9c; 
+            padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: bold; 
+            transition: 0.3s; font-family: 'Roboto Mono', monospace; white-space: nowrap;
+        }
+        .tf-btn:hover { color: #fff; border-color: #444; }
         .tf-btn.active { background: #2b3139; color: #F0B90B; border-color: #F0B90B; }
 
         /* Gradients & Colors */
@@ -51,22 +65,13 @@
         .score-row:last-child { border-bottom: none; }
         .action-text { font-size: 1.05rem; line-height: 1.6; color: #d1d4dc; white-space: pre-line; margin-bottom: 15px; flex-grow: 1; }
         
-        /* Pivot Points Table */
+        /* Pivot & OB */
         .pivot-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; text-align: center; }
         .pivot-table td { padding: 5px; border-bottom: 1px solid #2b3139; }
-        .res-zone { color: #F6465D; }
-        .sup-zone { color: #0ECB81; }
-        .pivot-zone { color: #F0B90B; font-weight: bold; }
-
-        /* Order Book Bar */
+        .res-zone { color: #F6465D; } .sup-zone { color: #0ECB81; } .pivot-zone { color: #F0B90B; font-weight: bold; }
         .ob-bar-container { width: 100%; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin-top: 5px; display: flex; }
-        .ob-buy { height: 100%; background: #0ECB81; }
-        .ob-sell { height: 100%; background: #F6465D; }
+        .ob-buy { height: 100%; background: #0ECB81; } .ob-sell { height: 100%; background: #F6465D; }
         .ob-text { display: flex; justify-content: space-between; font-size: 0.8rem; margin-top: 5px; }
-
-        /* Detail Table */
-        .detail-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; margin-top: 10px; }
-        .detail-table td { padding: 8px; border-bottom: 1px solid #2b3139; color: #ccc; }
 
         /* Fibonacci */
         .fib-table { width: 100%; border-collapse: collapse; text-align: left; font-family: 'Roboto Mono', monospace; }
@@ -87,7 +92,7 @@
 
 <div class="container">
     <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#555;">Institutional</span></h1>
+        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#555;">Full Cycle</span></h1>
         
         <div class="controls-wrapper">
             <div class="coin-switcher">
@@ -96,21 +101,26 @@
                 <button class="coin-btn" onclick="switchCoin('SOL')">SOL</button>
                 <button class="coin-btn" onclick="switchCoin('BNB')">BNB</button>
                 <button class="coin-btn" onclick="switchCoin('DOGE')">DOGE</button>
-                <span id="loading-indicator">⚡ 數據運算中...</span>
+                <span id="loading-indicator">⚡ 智能運算中...</span>
             </div>
 
             <div class="tf-switcher">
                 <button class="tf-btn" onclick="switchTimeframe('15m')">15m (短線)</button>
                 <button class="tf-btn" onclick="switchTimeframe('1h')">1H (當沖)</button>
-                <button class="tf-btn" onclick="switchTimeframe('4h')">4H (波段)</button>
-                <button class="tf-btn active" onclick="switchTimeframe('1d')">1D (長線)</button>
+                <button class="tf-btn active" onclick="switchTimeframe('4h')">4H (波段)</button>
+                <button class="tf-btn" onclick="switchTimeframe('1d')">1D (日線)</button>
+                <button class="tf-btn" onclick="switchTimeframe('1M')">1M (月次)</button>
+                <button class="tf-btn" onclick="switchTimeframe('3M')">3M (一季)</button>
+                <button class="tf-btn" onclick="switchTimeframe('6M')">6M (半年)</button>
+                <button class="tf-btn" onclick="switchTimeframe('1Y')">1Y (年線)</button>
+                <button class="tf-btn" onclick="switchTimeframe('2Y')">2Y (大趨勢)</button>
             </div>
         </div>
     </div>
 
     <div class="grid-top">
         <div class="card chart-box">
-            <h3 style="margin-top:0; color:#eee;">📈 <span class="coin-name">BTC</span>/USDT 實時走勢 (<span class="tf-display">1D</span>)</h3>
+            <h3 style="margin-top:0; color:#eee;">📈 <span class="coin-name">BTC</span>/USDT 技術分析圖 (<span class="tf-display" style="color:#F0B90B">4H</span>)</h3>
             <div id="tv-chart-container" style="height:calc(100% - 30px);width:100%"></div>
         </div>
         
@@ -121,14 +131,14 @@
             <div style="flex-grow:1; border-top:1px solid #2b3139; margin-top:10px; padding-top:10px; overflow-y:auto;">
                 
                 <div style="margin-bottom: 15px;">
-                    <div style="font-size:0.85rem; color:#848e9c; margin-bottom:5px;">📊 買賣盤掛單壓力 (Order Book Imbalance)</div>
+                    <div style="font-size:0.85rem; color:#848e9c; margin-bottom:5px;">📊 買賣盤掛單壓力 (Order Book)</div>
                     <div class="ob-bar-container">
                         <div id="ob-buy-bar" class="ob-buy" style="width: 50%;"></div>
                         <div id="ob-sell-bar" class="ob-sell" style="width: 50%;"></div>
                     </div>
                     <div class="ob-text">
-                        <span style="color:#0ECB81">買盤: <span id="ob-buy-pct">50%</span></span>
-                        <span style="color:#F6465D">賣盤: <span id="ob-sell-pct">50%</span></span>
+                        <span style="color:#0ECB81">買盤: <span id="ob-buy-pct">--%</span></span>
+                        <span style="color:#F6465D">賣盤: <span id="ob-sell-pct">--%</span></span>
                     </div>
                 </div>
 
@@ -148,7 +158,7 @@
     <div class="grid-core">
         <div class="card">
             <div class="ai-header">
-                <div class="ai-title">🧠 AI 核心邏輯決策報告 (<span class="tf-display">1D</span>)</div>
+                <div class="ai-title">🧠 AI 核心邏輯決策報告 (<span class="tf-display" style="color:#F0B90B">4H</span>)</div>
                 <div style="font-size:0.85rem; color:#888;">Binance Data × ATR Risk Model</div>
             </div>
 
@@ -162,13 +172,8 @@
                     <div class="score-row"><span>MA25 中線 (+1)</span><span id="score-ma25">⚪</span></div>
                     <div class="score-row"><span>MA7 金叉 (+1)</span><span id="score-cross">⚪</span></div>
                     
-                    <div style="margin-top:10px;">
-                        <div class="ai-label">詳細審計</div>
-                        <table class="detail-table">
-                            <tr><td>RSI (14)</td><td id="det-rsi">---</td></tr>
-                            <tr><td>KD (9,3,3)</td><td id="det-kd">---</td></tr>
-                            <tr><td>Vol 動能</td><td id="det-vol">---</td></tr>
-                        </table>
+                    <div style="margin-top:10px; font-size:0.8rem; color:#666;">
+                        *分析週期: <span class="tf-display">4H</span> K線
                     </div>
                 </div>
 
@@ -184,7 +189,7 @@
                         <div style="font-size:2rem; font-weight:bold; font-family:'Roboto Mono'; margin:5px 0;" class="grad-text-red">
                             <span id="atr-sl-price">---</span>
                         </div>
-                        <div style="font-size:0.8rem; color:#666;">*ATR(14) Volatility Stop</div>
+                        <div style="font-size:0.8rem; color:#666;">*依據真實波幅自動計算</div>
                     </div>
                 </div>
 
@@ -215,13 +220,19 @@
 <script>
     let currentCoin = 'BTC';
     let currentSymbol = 'BTCUSDT';
-    let currentTimeframe = '1d';
+    let currentTimeframe = '4h'; // 預設 4H
     
+    // 時間級距對照表：將「時間長度」映射到最合適的「K線技術週期」
     const tfMap = {
-        '15m': { binance: '15m', tv: '15', label: '15m' },
-        '1h':  { binance: '1h',  tv: '60', label: '1H' },
-        '4h':  { binance: '4h',  tv: '240',label: '4H' },
-        '1d':  { binance: '1d',  tv: 'D',  label: '1D' }
+        '15m': { binance: '15m', tv: '15', label: '15m (短線)' },
+        '1h':  { binance: '1h',  tv: '60', label: '1H (當沖)' },
+        '4h':  { binance: '4h',  tv: '240',label: '4H (波段)' },
+        '1d':  { binance: '1d',  tv: 'D',  label: '1D (日線)' },
+        '1M':  { binance: '12h', tv: '240',label: '1M (月次分析 - 12H線)' },  // 1個月看12小時線
+        '3M':  { binance: '1d',  tv: 'D',  label: '3M (季趨勢 - 日線)' },    // 1季看日線
+        '6M':  { binance: '3d',  tv: 'W',  label: '6M (半年線 - 3日線)' },   // 半年看3日線
+        '1Y':  { binance: '1w',  tv: 'W',  label: '1Y (年線 - 週線)' },      // 1年看週線
+        '2Y':  { binance: '1M',  tv: 'M',  label: '2Y (大趨勢 - 月線)' }     // 2年看月線
     };
 
     window.onload = function() { switchCoin('BTC'); };
@@ -245,7 +256,7 @@
     function refreshAll() {
         reloadWidgets(currentSymbol, tfMap[currentTimeframe].tv);
         runQuantAnalysis(); 
-        fetchOrderBook(); // 新增：抓取掛單簿
+        fetchOrderBook(); 
     }
 
     function reloadWidgets(symbol, tvInterval) {
@@ -270,31 +281,23 @@
         document.getElementById('tv-gauge-container').appendChild(scriptGauge);
     }
 
-    // --- 新增：掛單簿壓力分析 ---
     async function fetchOrderBook() {
         try {
-            // 抓取最近 20 檔掛單
             const res = await fetch(`https://api.binance.com/api/v3/depth?symbol=${currentSymbol}&limit=20`);
             const data = await res.json();
-            
-            // 計算買賣總量
             let bidsTotal = data.bids.reduce((acc, val) => acc + parseFloat(val[1]), 0);
             let asksTotal = data.asks.reduce((acc, val) => acc + parseFloat(val[1]), 0);
             let total = bidsTotal + asksTotal;
-
             let buyPct = ((bidsTotal / total) * 100).toFixed(1);
             let sellPct = ((asksTotal / total) * 100).toFixed(1);
-
-            // 更新 UI 進度條
+            
             document.getElementById('ob-buy-bar').style.width = buyPct + "%";
             document.getElementById('ob-sell-bar').style.width = sellPct + "%";
             document.getElementById('ob-buy-pct').innerText = buyPct + "%";
             document.getElementById('ob-sell-pct').innerText = sellPct + "%";
-
         } catch (e) { console.error("Orderbook Error", e); }
     }
 
-    // --- AI 量化運算核心 ---
     async function runQuantAnalysis() {
         const loader = document.getElementById('loading-indicator');
         loader.style.display = 'inline';
@@ -307,6 +310,7 @@
             const closes = data.map(d => parseFloat(d[4]));
             const highs = data.map(d => parseFloat(d[2]));
             const lows = data.map(d => parseFloat(d[3]));
+            const opens = data.map(d => parseFloat(d[1]));
             const volumes = data.map(d => parseFloat(d[5]));
             
             const curClose = closes[closes.length - 1];
@@ -324,8 +328,7 @@
             const kd = calcKD(highs, lows, closes, 9, 3, 3); 
             const volMa20 = calcMA(volumes, 20);
 
-            // --- 新增：Pivot Points 計算 (Standard) ---
-            // 使用前一根K線的 HLC 來計算今天的 Pivot
+            // Pivot Points (Standard)
             const prevHigh = highs[highs.length - 2];
             const prevLow = lows[lows.length - 2];
             const prevClose = closes[closes.length - 2];
@@ -341,26 +344,21 @@
             document.getElementById('pp-r2').innerText = r2.toFixed(2);
             document.getElementById('pp-s2').innerText = s2.toFixed(2);
 
-            // --- A. 趨勢權重系統 ---
+            // 趨勢權重
             let score = 0;
-            const isBullMa99 = curClose > ma99;
-            if(isBullMa99) score += 2;
+            const isBullMa99 = curClose > ma99; if(isBullMa99) score += 2;
             updateScoreUI('score-ma99', isBullMa99, 'MA99 多', 'MA99 空');
-
-            const isBullMa25 = curClose > ma25;
-            if(isBullMa25) score += 1;
+            const isBullMa25 = curClose > ma25; if(isBullMa25) score += 1;
             updateScoreUI('score-ma25', isBullMa25, 'MA25 多', 'MA25 空');
-
-            const isGoldenCross = ma7 > ma25; 
-            if(isGoldenCross) score += 1;
-            updateScoreUI('score-cross', isGoldenCross, '金叉', '死叉');
+            const isGoldenCross = ma7 > ma25; if(isGoldenCross) score += 1;
+            updateScoreUI('score-cross', isGoldenCross, 'MA7 金叉', 'MA7 死叉');
 
             const trendEl = document.getElementById('trend-display');
             if (score >= 2) trendEl.innerHTML = `<span class="badge-bull">🚀 強多 (Score:${score})</span>`;
             else if (score > 0) trendEl.innerHTML = `<span class="badge-neutral">↗️ 震盪 (Score:${score})</span>`;
             else trendEl.innerHTML = `<span class="badge-bear">🐻 修正 (Score:${score})</span>`;
 
-            // --- B. 型態識別 ---
+            // 型態
             let patternText = "無";
             let patternClass = "";
             const bodySize = Math.abs(curClose - curOpen);
@@ -374,32 +372,32 @@
             patEl.innerText = patternText;
             patEl.className = patternClass;
 
-            // --- C. ATR 動態止損 ---
+            // ATR 止損
             const stopLossPrice = curClose - (atr * 2);
             document.getElementById('atr-sl-price').innerText = `$${stopLossPrice.toFixed(2)}`;
 
-            // --- D. 實戰建議 ---
+            // 實戰建議
             let action = "";
             let targetBuy = ma25; 
-            let targetSell = r1; // 改用 Pivot R1 作為止盈目標
+            let targetSell = r1; 
             let buyClass = "", sellClass = "";
 
             if (score >= 2) { 
                 if (rsi > 70) {
-                    action = `<span class="grad-text-red">⚠️ 過熱</span> 趨勢強但超買，分批獲利。`;
+                    action = `<span class="grad-text-red">⚠️ 過熱警示</span>\n週期(${tfMap[currentTimeframe].label}) RSI過熱。\n分批獲利，勿追高。`;
                     targetBuy = ma7;
                 } else {
-                    action = `<span class="grad-text-green">🚀 買進</span> 趨勢完美，拉回買進。`;
+                    action = `<span class="grad-text-green">🚀 積極買進</span>\n週期(${tfMap[currentTimeframe].label}) 趨勢完美。\n現價或回測 MA25 買進。`;
                     buyClass = "grad-text-green";
                 }
             } else if (score <= 0) { 
                  if (rsi < 30) {
-                    action = `<span class="grad-text-green">♻️ 反彈</span> 超賣區，激進者搶反彈。`;
+                    action = `<span class="grad-text-green">♻️ 反彈機會</span>\n週期(${tfMap[currentTimeframe].label}) 超賣。\n激進者可搶反彈。`;
                 } else {
-                    action = `<span class="grad-text-red">❄️ 觀望</span> 空頭排列，建議空手。`;
+                    action = `<span class="grad-text-red">❄️ 空手觀望</span>\n週期(${tfMap[currentTimeframe].label}) 趨勢向下。\n建議觀望。`;
                 }
             } else {
-                action = `<span class="grad-text-gold">⚖️ 震盪</span> 區間操作，低買高賣。`;
+                action = `<span class="grad-text-gold">⚖️ 區間震盪</span>\n週期(${tfMap[currentTimeframe].label}) 盤整中。\n低吸高拋。`;
             }
 
             document.getElementById('ai-action-text').innerHTML = action;
@@ -407,28 +405,16 @@
             document.getElementById('rec-buy').className = buyClass;
             document.getElementById('rec-sell').innerText = `$${targetSell.toFixed(2)}`;
 
-            // 更新詳細數據
-            updateDetailRow('det-rsi', rsi, 50, rsi.toFixed(1), rsi.toFixed(1));
-            document.getElementById('det-rsi').className = rsi>70?'grad-text-red':(rsi<30?'grad-text-green':'');
-            document.getElementById('det-kd').innerText = `K:${kd.k.toFixed(1)}`;
-            document.getElementById('det-kd').className = kd.k>kd.d?'grad-text-green':'grad-text-red';
-            const volRatio = (curVol / volMa20).toFixed(1);
-            document.getElementById('det-vol').innerHTML = `${volRatio}x`;
-            document.getElementById('det-vol').className = curVol>volMa20?'grad-text-green':'';
-
-            // --- F. 斐波那契 ---
             renderFib(highs, lows, curClose);
 
         } catch (e) { console.error(e); } finally { loader.style.display = 'none'; }
     }
 
-    // 輔助函數 (與之前相同)
     function calcMA(d, p) { if(d.length<p)return 0; return d.slice(-p).reduce((a,b)=>a+b,0)/p; }
     function calcRSI(c, p) { let g=0,l=0; for(let i=c.length-p-1; i<c.length-1; i++){ let d=c[i+1]-c[i]; if(d>0)g+=d; else l-=d; } let rs=(g/p)/(l/p); return 100-(100/(1+rs)); }
     function calcATR(h, l, c, p) { let s=0; for(let i=1; i<=p; i++) { let idx=h.length-i; s+=Math.max(h[idx]-l[idx], Math.abs(h[idx]-c[idx-1]), Math.abs(l[idx]-c[idx-1])); } return s/p; }
     function calcKD(h, l, c, p, k, d) { let low=Math.min(...l.slice(-p)), high=Math.max(...h.slice(-p)), cl=c[c.length-1]; let rsv=(cl-low)/(high-low)*100; return {k:rsv, d:rsv}; }
     function updateScoreUI(id, pass, txtP, txtF) { document.getElementById(id).innerHTML = pass ? `<span class="grad-text-green">✅ ${txtP}</span>` : `<span style="color:#555">⬜ ${txtF}</span>`; }
-    function updateDetailRow(id, v1, v2, tP, tF) { document.getElementById(id).innerText = tP; } // Simplified for this view
     
     function renderFib(highs, lows, current) {
         const max = Math.max(...highs.slice(-30));
