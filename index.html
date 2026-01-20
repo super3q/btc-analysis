@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (v5.1 PRO)</title>
+    <title>Crypto AI Quant Analyst (v5.2 Tactical)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chart.js/3.9.1/chart.min.js"></script>
     <style>
-        :root { --bg-dark: #0b0e11; --card-bg: #1e2329; --card-border: #2b3139; --primary: #0575e6; --accent: #00f260; --text-main: #eaecef; --text-dim: #848e9c; --green: #0ECB81; --red: #F6465D; }
+        :root { --bg-dark: #0b0e11; --card-bg: #1e2329; --card-border: #2b3139; --primary: #0575e6; --accent: #00f260; --text-main: #eaecef; --text-dim: #848e9c; --green: #0ECB81; --red: #F6465D; --gold: #F0B90B; }
         body { font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-dark); color: var(--text-main); margin: 0; padding: 20px; font-size: 14px; }
         .container { max-width: 1800px; margin: 0 auto; }
         
@@ -26,8 +26,9 @@
         /* Grid Layout */
         .grid-main { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-bottom: 20px; }
         .grid-dashboard { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        
-        @media (max-width: 1400px) { .grid-dashboard { grid-template-columns: 1fr; } }
+        .grid-fib { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
+
+        @media (max-width: 1400px) { .grid-dashboard, .grid-fib { grid-template-columns: 1fr; } }
         @media (max-width: 1000px) { .grid-main { grid-template-columns: 1fr; } }
 
         /* Cards */
@@ -42,22 +43,17 @@
         .stat-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 4px; }
         .stat-val { font-family: 'Roboto Mono', monospace; font-weight: bold; }
         
-        /* Multi-TF Matrix */
-        .matrix-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; text-align: center; }
-        .matrix-table th { color: var(--text-dim); padding: 8px; border-bottom: 1px solid var(--card-border); }
-        .matrix-table td { padding: 8px; border-bottom: 1px solid #2b3139; font-weight: bold; }
-        
-        /* Fib Table */
+        /* Fib Styles */
         .fib-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 15px; }
         .fib-table th { text-align: left; color: #888; padding: 8px; border-bottom: 1px solid #444; }
         .fib-table td { padding: 10px 8px; border-bottom: 1px solid #333; }
-        .fib-row-highlight { background: rgba(5, 117, 230, 0.1); }
-
-        /* Order Book Bar */
-        .ob-container { height: 24px; background: #333; border-radius: 4px; display: flex; overflow: hidden; margin-top: 5px; }
-        .ob-fill-buy { background: var(--green); height: 100%; display: flex; align-items: center; padding-left: 5px; color: #000; font-size: 11px; font-weight: bold; transition: width 0.5s; }
-        .ob-fill-sell { background: var(--red); height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; color: #fff; font-size: 11px; font-weight: bold; transition: width 0.5s; }
-
+        .fib-row-highlight { background: rgba(240, 185, 11, 0.1); border-left: 3px solid var(--gold); }
+        
+        /* Strategy Board */
+        .strategy-card { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .strategy-row { display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 6px; }
+        .price-tag { font-family: 'Roboto Mono', monospace; font-weight: bold; font-size: 1.1rem; }
+        
         /* Helpers */
         .text-green { color: var(--green); } .text-red { color: var(--red); } .text-gold { color: #F0B90B; }
         .tag { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
@@ -65,6 +61,11 @@
         .tag-red { background: rgba(246,70,93,0.2); color: var(--red); }
         
         #loading { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--primary)); z-index: 9999; display: none; }
+        
+        /* Order Book */
+        .ob-container { height: 24px; background: #333; border-radius: 4px; display: flex; overflow: hidden; margin-top: 5px; }
+        .ob-fill-buy { background: var(--green); height: 100%; display: flex; align-items: center; padding-left: 5px; color: #000; font-size: 11px; font-weight: bold; transition: width 0.5s; }
+        .ob-fill-sell { background: var(--red); height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; color: #fff; font-size: 11px; font-weight: bold; transition: width 0.5s; }
     </style>
 </head>
 <body>
@@ -73,7 +74,7 @@
 
 <div class="container">
     <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.4em; color:var(--text-dim); vertical-align: middle; border:1px solid #333; padding:2px 6px; border-radius:4px;">v5.1 PRO</span></h1>
+        <h1>Crypto AI Quant Analyst <span style="font-size:0.4em; color:var(--text-dim); vertical-align: middle; border:1px solid #333; padding:2px 6px; border-radius:4px;">v5.2 TACTICAL</span></h1>
         <div class="search-box">
             <span>🔍</span>
             <input type="text" id="symbolInput" class="search-input" value="BTC" onkeypress="if(event.key==='Enter') loadNewSymbol()">
@@ -120,12 +121,12 @@
 
                 <div>
                     <div class="card-title" style="font-size: 0.9rem; margin-bottom:10px;">🎯 機構樞軸點 (Pivot Points)</div>
-                    <table class="matrix-table">
-                        <tr><td class="text-red">R2</td><td id="p-r2">---</td></tr>
-                        <tr><td class="text-red">R1</td><td id="p-r1">---</td></tr>
-                        <tr><td class="text-gold">Pivot</td><td id="p-p">---</td></tr>
-                        <tr><td class="text-green">S1</td><td id="p-s1">---</td></tr>
-                        <tr><td class="text-green">S2</td><td id="p-s2">---</td></tr>
+                    <table class="fib-table" style="margin-top:0;">
+                        <tr><td class="text-red">R2 (壓力)</td><td id="p-r2">---</td></tr>
+                        <tr><td class="text-red">R1 (壓力)</td><td id="p-r1">---</td></tr>
+                        <tr><td class="text-gold">Pivot (中軸)</td><td id="p-p">---</td></tr>
+                        <tr><td class="text-green">S1 (支撐)</td><td id="p-s1">---</td></tr>
+                        <tr><td class="text-green">S2 (支撐)</td><td id="p-s2">---</td></tr>
                     </table>
                 </div>
 
@@ -144,7 +145,7 @@
     <div class="grid-dashboard">
         <div class="card">
             <div class="card-header">
-                <span class="card-title">🧠 AI 趨勢解碼 (Trend Engine)</span>
+                <span class="card-title">🧠 AI 趨勢解碼 (MACD/ADX)</span>
                 <span id="ai-score" class="tag" style="font-size:1rem;">N/A</span>
             </div>
             
@@ -173,14 +174,14 @@
 
         <div class="card">
             <div class="card-header">
-                <span class="card-title">🌐 多週期共振雷達 (Matrix)</span>
+                <span class="card-title">🌐 多週期共振雷達</span>
             </div>
-            <table class="matrix-table">
+            <table class="fib-table" style="margin-top:0;">
                 <thead>
                     <tr>
                         <th>週期</th>
                         <th>EMA (25)</th>
-                        <th>RSI 狀態</th>
+                        <th>RSI</th>
                         <th>信號</th>
                     </tr>
                 </thead>
@@ -189,26 +190,26 @@
                 </tbody>
             </table>
             <div style="margin-top:15px; font-size:0.8rem; color:var(--text-dim);">
-                * EMA 用於判斷趨勢方向<br>
-                * 共振：當所有週期顏色一致時，勝率最高。
+                * 全綠：強力買進 (Strong Buy)<br>
+                * 全紅：強力賣出 (Strong Sell)
             </div>
         </div>
 
         <div class="card">
             <div class="card-header">
-                <span class="card-title">🔬 K線型態與風險</span>
+                <span class="card-title">🔬 風控與形態</span>
             </div>
             <div class="stat-row">
-                <span>K線型態識別:</span>
+                <span>K線型態:</span>
                 <span id="pattern-res" class="text-gold" style="font-weight:bold;">無</span>
             </div>
             <div class="stat-row">
-                <span>建議止損位 (2x ATR):</span>
+                <span>建議動態止損:</span>
                 <span id="rec-sl" class="text-red stat-val">---</span>
             </div>
             
             <div style="margin-top:15px; padding-top:15px; border-top:1px solid #333;">
-                <div style="margin-bottom:10px; font-weight:bold; color:var(--primary);">市場熱力圖 (Money Flow)</div>
+                <div style="margin-bottom:10px; font-weight:bold; color:var(--primary);">資金流向 (Money Flow)</div>
                 <div class="tradingview-widget-container">
                     <div class="tradingview-widget-container__widget"></div>
                     <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
@@ -231,33 +232,62 @@
 
     <div class="card" style="margin-bottom: 30px;">
         <div class="card-header">
-            <span class="card-title">📐 斐波納契戰略回測 PRO (Fibonacci Retracement)</span>
+            <span class="card-title">📐 斐波納契戰術指揮板 (Tactical Fib)</span>
             <div class="control-bar" style="margin:0;">
-                <button class="btn-fib active" onclick="updateFib(30, this)">30天</button>
-                <button class="btn-fib" onclick="updateFib(90, this)">90天</button>
-                <button class="btn-fib" onclick="updateFib(180, this)">半年</button>
-                <button class="btn-fib" onclick="updateFib(365, this)">1年</button>
-                <button class="btn-fib" onclick="updateFib(730, this)">2年</button>
+                <button class="btn-fib" onclick="updateFib('1h', 24, this)">4H (當沖)</button>
+                <button class="btn-fib" onclick="updateFib('4h', 30, this)">1D (隔夜)</button>
+                <button class="btn-fib" onclick="updateFib('1d', 7, this)">1W (週線)</button>
+                <button class="btn-fib active" onclick="updateFib('1d', 30, this)">1M (月線)</button>
+                <button class="btn-fib" onclick="updateFib('1d', 180, this)">半年</button>
             </div>
         </div>
-        <div style="display:flex; justify-content: space-between; gap:20px; flex-wrap:wrap;">
-            <div style="flex: 2; min-width: 300px;">
+        <div class="grid-fib">
+            <div>
                 <table class="fib-table">
                     <thead>
                         <tr>
                             <th>Level</th>
                             <th>價格</th>
                             <th>說明</th>
-                            <th>距離現價</th>
+                            <th>差距</th>
                         </tr>
                     </thead>
                     <tbody id="fib-body"></tbody>
                 </table>
             </div>
-            <div style="flex: 1; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; min-width: 250px;">
-                <div style="font-size:0.9rem; color:#aaa; margin-bottom:10px;">斐波納契戰術板</div>
-                <div id="fib-strategy" style="font-size:1rem; line-height:1.6; color:#ddd;">
-                    選擇上方時間段以加載分析...
+            
+            <div class="strategy-card">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #444; padding-bottom:10px;">
+                    <span style="font-weight:bold; color:#fff;">🛡️ 智能交易決策 (AI Setup)</span>
+                    <span id="fib-trend-label" class="tag">計算中...</span>
+                </div>
+                
+                <div class="strategy-row" style="border-left: 3px solid var(--green);">
+                    <div>
+                        <div style="font-size:0.8rem; color:var(--text-dim);">🟢 建議多單進場 (Buy Zone)</div>
+                        <div style="font-size:0.75rem; color:#666;">回踩支撐確認後進場</div>
+                    </div>
+                    <div id="setup-buy" class="price-tag text-green">---</div>
+                </div>
+
+                <div class="strategy-row" style="border-left: 3px solid var(--red);">
+                    <div>
+                        <div style="font-size:0.8rem; color:var(--text-dim);">🔴 建議空單進場 (Sell Zone)</div>
+                        <div style="font-size:0.75rem; color:#666;">反彈壓力不過時進場</div>
+                    </div>
+                    <div id="setup-sell" class="price-tag text-red">---</div>
+                </div>
+
+                <div class="strategy-row" style="border-left: 3px solid var(--gold);">
+                    <div>
+                        <div style="font-size:0.8rem; color:var(--text-dim);">⚠️ 風控止損 (Stop Loss)</div>
+                        <div style="font-size:0.75rem; color:#666;">跌破/突破關鍵位出場</div>
+                    </div>
+                    <div id="setup-sl" class="price-tag text-gold">---</div>
+                </div>
+                
+                <div id="fib-comment" style="font-size:0.9rem; color:#ccc; line-height:1.5; margin-top:10px;">
+                    請選擇上方時間週期以載入數據...
                 </div>
             </div>
         </div>
@@ -270,9 +300,10 @@
     let state = {
         symbol: 'BTCUSDT',
         coin: 'BTC',
-        tf: '4h', // UI display logic
-        binanceInterval: '4h', // API param
-        currentPrice: 0
+        tf: '4h', 
+        binanceInterval: '4h',
+        currentPrice: 0,
+        trend: 'neutral'
     };
 
     const tfMap = {
@@ -286,8 +317,8 @@
     window.onload = function() {
         loadChart();
         refreshData();
-        // Initial Fib Load
-        setTimeout(() => updateFib(30, document.querySelector('.btn-fib')), 1000);
+        // Init Fib with Monthly view
+        setTimeout(() => updateFib('1d', 30, document.querySelectorAll('.btn-fib')[3]), 1000);
         setInterval(refreshData, 60000); 
     };
 
@@ -299,7 +330,7 @@
         document.getElementById('symbolInput').value = coin;
         loadChart();
         refreshData();
-        updateFib(30, document.querySelector('.btn-fib')); // Reset Fib to 30d
+        updateFib('1d', 30, document.querySelectorAll('.btn-fib')[3]);
     }
 
     function loadNewSymbol() {
@@ -309,7 +340,7 @@
         state.symbol = val.endsWith('USDT') ? val : val + 'USDT';
         loadChart();
         refreshData();
-        updateFib(30, document.querySelector('.btn-fib'));
+        updateFib('1d', 30, document.querySelectorAll('.btn-fib')[3]);
     }
 
     function changeTf(tf) {
@@ -347,7 +378,7 @@
             "allow_symbol_change": true,
             "studies": [
                 "MASimple@tv-basicstudies",
-                "MACD@tv-basicstudies", // MACD Back on Chart
+                "MACD@tv-basicstudies", 
                 "BB@tv-basicstudies", 
                 "AverageDirectionalIndex@tv-basicstudies"
             ],
@@ -359,13 +390,11 @@
     // --- Data Fetching & Quant Logic ---
     async function refreshData() {
         document.getElementById('loading').style.display = 'block';
-        
         try {
             fetchOrderBook();
             await runMainAnalysis();
             await runMatrixScan();
         } catch (e) { console.error(e); }
-        
         document.getElementById('loading').style.display = 'none';
     }
 
@@ -400,22 +429,23 @@
         let ma25 = calcSMA(closes, 25);
         let ma99 = calcSMA(closes, 99);
         let macd = calcMACD(closes, 12, 26, 9);
+        
+        state.trend = state.currentPrice > ma25 ? 'bull' : 'bear'; // Global trend state
 
-        // Update UI Stats
+        // UI Updates
         document.getElementById('val-rsi').innerHTML = formatRSI(rsi);
         document.getElementById('val-adx').innerHTML = formatADX(adx.adx);
         document.getElementById('val-atr').innerText = atr.toFixed(2);
         document.getElementById('val-macd').innerHTML = formatMACD(macd);
 
-        // 1. BBW
+        // BBW
         let bbw = (bb.upper - bb.lower) / bb.middle;
         document.getElementById('bbw-val').innerText = bbw.toFixed(4);
         let bbwMsg = document.getElementById('bbw-msg');
-        if (bbw < 0.05) bbwMsg.innerHTML = "<span class='text-gold'>⚠️ 波動率極度壓縮 (Squeeze)！</span><br>大行情即將爆發。";
-        else if (bbw > 0.3) bbwMsg.innerText = "波動率高，注意回調風險。";
-        else bbwMsg.innerText = "波動率正常，趨勢延續性尚可。";
+        if (bbw < 0.05) bbwMsg.innerHTML = "<span class='text-gold'>⚠️ Squeeze Alert!</span> 準備變盤";
+        else bbwMsg.innerText = "波動率正常";
 
-        // 2. Pivots
+        // Pivots
         let prevH = highs[highs.length-2], prevL = lows[lows.length-2], prevC = closes[closes.length-2];
         let pp = (prevH + prevL + prevC) / 3;
         document.getElementById('p-p').innerText = pp.toFixed(2);
@@ -424,43 +454,42 @@
         document.getElementById('p-s1').innerText = (2 * pp - prevH).toFixed(2);
         document.getElementById('p-s2').innerText = (pp - (prevH - prevL)).toFixed(2);
 
-        // 3. Strategy
+        // Main Strategy
         let strategyBox = document.getElementById('main-signal-box');
         let strategyText = document.getElementById('ai-strategy');
         let scoreTag = document.getElementById('ai-score');
         let patternText = document.getElementById('pattern-res');
-        document.getElementById('rec-sl').innerText = (state.currentPrice - (2 * atr)).toFixed(2) + " / " + (state.currentPrice + (2*atr)).toFixed(2);
+        document.getElementById('rec-sl').innerText = (state.currentPrice - (2 * atr)).toFixed(2);
 
         // Pattern
         let open = parseFloat(raw[raw.length-1][1]), close = state.currentPrice;
-        let high = highs[highs.length-1], low = lows[lows.length-1];
         let body = Math.abs(close - open);
-        if ((Math.min(close, open) - low) > body * 2) patternText.innerText = "🔨 錘頭 (潛在反轉)";
-        else if ((high - Math.max(close, open)) > body * 2) patternText.innerText = "☄️ 流星 (頂部壓力)";
-        else patternText.innerText = "無明顯K線型態";
+        if ((Math.min(close, open) - lows[lows.length-1]) > body * 2) patternText.innerText = "🔨 錘頭 (Hammer)";
+        else if ((highs[highs.length-1] - Math.max(close, open)) > body * 2) patternText.innerText = "☄️ 流星 (Shooting Star)";
+        else patternText.innerText = "---";
 
-        // Logic
+        // Trend Logic
         let trendScore = 0;
         if (state.currentPrice > ma25) trendScore++;
         if (state.currentPrice > ma99) trendScore++;
         if (adx.adx > 25 && adx.pdi > adx.mdi) trendScore++; 
-        if (macd.histogram > 0) trendScore++; // MACD logic added
+        if (macd.histogram > 0) trendScore++;
 
         strategyBox.className = 'signal-box'; 
         if (adx.adx < 20) {
-            strategyText.innerHTML = "💤 市場盤整中 (Low ADX)<br><span style='font-size:0.9rem; font-weight:normal'>建議：區間操作，RSI超買賣出。</span>";
+            strategyText.innerHTML = "💤 盤整震盪 (Range)<br><span style='font-size:0.9rem; font-weight:normal'>RSI 高拋低吸，勿追價。</span>";
             scoreTag.innerText = "中性"; scoreTag.className = "tag";
         } else {
             if (trendScore >= 3) {
                 strategyBox.classList.add('signal-bull');
-                strategyText.innerHTML = "🚀 多頭強勢趨勢<br><span style='font-size:0.9rem; font-weight:normal'>MACD與均線共振，回調做多。</span>";
+                strategyText.innerHTML = "🚀 強力多頭 (Strong Bull)<br><span style='font-size:0.9rem; font-weight:normal'>回調找買點，順勢操作。</span>";
                 scoreTag.innerText = "強多"; scoreTag.className = "tag tag-green";
             } else if (trendScore <= 1 && state.currentPrice < ma25) { 
                  strategyBox.classList.add('signal-bear');
-                 strategyText.innerHTML = "🐻 空頭掌控<br><span style='font-size:0.9rem; font-weight:normal'>MACD 柱狀圖翻負，反彈做空。</span>";
+                 strategyText.innerHTML = "🐻 空頭走勢 (Bearish)<br><span style='font-size:0.9rem; font-weight:normal'>反彈不過壓力做空。</span>";
                  scoreTag.innerText = "偏空"; scoreTag.className = "tag tag-red";
             } else {
-                 strategyText.innerHTML = "⚖️ 趨勢震盪不明<br><span style='font-size:0.9rem; font-weight:normal'>多空訊號衝突，建議觀望。</span>";
+                 strategyText.innerHTML = "⚖️ 方向不明 (Uncertain)<br><span style='font-size:0.9rem; font-weight:normal'>訊號衝突，建議觀望。</span>";
                  scoreTag.innerText = "觀察"; scoreTag.className = "tag";
             }
         }
@@ -478,22 +507,21 @@
             let rsi = calcRSI(c, 14);
             let trend = cur > ema25 ? 'bull' : 'bear';
             let trendColor = trend === 'bull' ? 'text-green' : 'text-red';
-            let trendIcon = trend === 'bull' ? '↗' : '↘';
             let rsiClass = rsi > 70 ? 'tag-red' : (rsi < 30 ? 'tag-green' : '');
-            let sig = (trend === 'bull' && rsi < 70) ? '看多' : ((trend === 'bear' && rsi > 30) ? '看空' : '中性');
-            let sigClass = sig==='看多'?'text-green':(sig==='看空'?'text-red':'');
+            let sig = (trend === 'bull' && rsi < 70) ? 'Buy' : ((trend === 'bear' && rsi > 30) ? 'Sell' : 'Wait');
             
-            html += `<tr><td style="color:#fff">${t.toUpperCase()}</td><td class="${trendColor}">${trendIcon} ${ema25.toFixed(2)}</td><td><span class="tag ${rsiClass}">${rsi.toFixed(0)}</span></td><td class="${sigClass}">${sig}</td></tr>`;
+            html += `<tr><td>${t.toUpperCase()}</td><td class="${trendColor}">${ema25.toFixed(2)}</td><td><span class="tag ${rsiClass}">${rsi.toFixed(0)}</span></td><td>${sig}</td></tr>`;
         }
         document.getElementById('matrix-body').innerHTML = html;
     }
 
-    // --- Fib PRO Logic ---
-    async function updateFib(days, btn) {
+    // --- Fib PRO Logic (Tactical Update) ---
+    async function updateFib(interval, limit, btn) {
         if(btn) { document.querySelectorAll('.btn-fib').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
         document.getElementById('fib-body').innerHTML = '<tr><td colspan="4">計算中...</td></tr>';
         
-        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${state.symbol}&interval=1d&limit=${days}`);
+        // Fetch specific range logic
+        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${state.symbol}&interval=${interval}&limit=${limit}`);
         const data = await res.json();
         let max = -Infinity, min = Infinity;
         data.forEach(d => { 
@@ -504,46 +532,64 @@
         const diff = max - min;
         const levels = [
             { lvl: 1.0, name: "高點 (High)", price: max },
-            { lvl: 0.786, name: "回撤 0.786", price: min + diff * 0.786 },
-            { lvl: 0.618, name: "黃金分割 (Golden)", price: min + diff * 0.618 },
+            { lvl: 0.786, name: "Fib 0.786", price: min + diff * 0.786 },
+            { lvl: 0.618, name: "黃金位 (Golden)", price: min + diff * 0.618 },
             { lvl: 0.5, name: "中軸 (0.5)", price: min + diff * 0.5 },
-            { lvl: 0.382, name: "回撤 0.382", price: min + diff * 0.382 },
-            { lvl: 0.236, name: "回撤 0.236", price: min + diff * 0.236 },
+            { lvl: 0.382, name: "Fib 0.382", price: min + diff * 0.382 },
+            { lvl: 0.236, name: "Fib 0.236", price: min + diff * 0.236 },
             { lvl: 0.0, name: "低點 (Low)", price: min }
         ];
 
+        // 1. Render Table
         let html = '';
         let closestDist = Infinity;
-        let closestName = '';
+        let nearestRes = max;
+        let nearestSup = min;
 
+        // Find nearest levels
         levels.forEach(l => {
             let distPct = ((state.currentPrice - l.price) / l.price) * 100;
             let absDist = Math.abs(distPct);
-            if(absDist < closestDist) { closestDist = absDist; closestName = l.name; }
+            if(absDist < closestDist) closestDist = absDist;
             
-            let colorClass = '';
-            if(absDist < 0.5) colorClass = 'fib-row-highlight text-gold'; // Near match
-            
+            // Logic for Sup/Res
+            if(l.price > state.currentPrice && l.price < nearestRes) nearestRes = l.price;
+            if(l.price < state.currentPrice && l.price > nearestSup) nearestSup = l.price;
+
+            let colorClass = absDist < 0.5 ? 'fib-row-highlight text-gold' : '';
             html += `<tr class="${colorClass}">
-                <td>${l.lvl}</td>
-                <td style="font-family:'Roboto Mono'">${l.price.toFixed(2)}</td>
-                <td>${l.name}</td>
-                <td>${distPct > 0 ? '+' : ''}${distPct.toFixed(2)}%</td>
+                <td>${l.lvl}</td><td style="font-family:'Roboto Mono'">${l.price.toFixed(2)}</td><td>${l.name}</td><td>${distPct > 0 ? '+' : ''}${distPct.toFixed(2)}%</td>
             </tr>`;
         });
-        
         document.getElementById('fib-body').innerHTML = html;
-        document.getElementById('fib-strategy').innerHTML = `
-            <strong>🎯 戰術分析 (${days}日):</strong><br>
-            目前價格位於 <strong>${min.toFixed(2)} - ${max.toFixed(2)}</strong> 區間。<br>
-            最關鍵的價位是 <strong>${closestName}</strong>，距離現價僅差 ${closestDist.toFixed(2)}%。<br>
-            <span style="color:${state.currentPrice > (min + diff * 0.5) ? '#0ECB81' : '#F6465D'}">
-                ${state.currentPrice > (min + diff * 0.5) ? "價格處於上半區 (強勢區)，0.618 為強支撐。" : "價格處於下半區 (弱勢區)，0.382 為強壓力。"}
-            </span>
-        `;
+
+        // 2. Tactical Board Logic
+        const cp = state.currentPrice;
+        const isBull = state.trend === 'bull';
+        
+        // Setup Logic
+        let buyPrice = nearestSup; 
+        let sellPrice = nearestRes;
+        let slPrice = isBull ? nearestSup * 0.99 : nearestRes * 1.01; // Dynamic SL
+
+        document.getElementById('setup-buy').innerText = buyPrice.toFixed(2);
+        document.getElementById('setup-sell').innerText = sellPrice.toFixed(2);
+        document.getElementById('setup-sl').innerText = slPrice.toFixed(2);
+
+        // Trend Label
+        let tLabel = document.getElementById('fib-trend-label');
+        if(isBull) { tLabel.innerText = "多頭架構 (Bull)"; tLabel.className="tag tag-green"; }
+        else { tLabel.innerText = "空頭架構 (Bear)"; tLabel.className="tag tag-red"; }
+
+        // AI Comment
+        let comment = `價格位於 <strong>${nearestSup.toFixed(2)}</strong> (支撐) 與 <strong>${nearestRes.toFixed(2)}</strong> (壓力) 之間。<br>`;
+        if(isBull) comment += `趨勢偏多，建議在回測支撐位 <strong>${buyPrice.toFixed(2)}</strong> 時分批佈局多單，跌破止損。`;
+        else comment += `趨勢偏空，建議在反彈壓力位 <strong>${sellPrice.toFixed(2)}</strong> 時佈局空單，突破止損。`;
+        
+        document.getElementById('fib-comment').innerHTML = comment;
     }
 
-    // --- Calculations ---
+    // --- Math Helpers ---
     function calcSMA(data, window) { if(data.length < window) return 0; return data.slice(-window).reduce((a,b)=>a+b,0)/window; }
     function calcEMA(data, window) {
         let k = 2 / (window + 1);
@@ -578,11 +624,8 @@
         return { adx: dx, pdi: diP, mdi: diM };
     }
     function calcMACD(c, fast, slow, sig) {
-        let emaFast = calcEMA(c, fast); // Note: Simple EMA calc for demo, real MACD needs full array EMA series
+        let emaFast = calcEMA(c, fast); 
         let emaSlow = calcEMA(c, slow);
-        // Better approximation for single point without full array history in this simplified script:
-        // We really need arrays to do Signal line properly. 
-        // Re-implementing simplified array-based MACD:
         let emaF = [], emaS = [];
         let kF = 2/(fast+1), kS = 2/(slow+1);
         emaF[0]=c[0]; emaS[0]=c[0];
@@ -592,12 +635,10 @@
         }
         let macdLine = [];
         for(let i=0; i<c.length; i++) macdLine.push(emaF[i]-emaS[i]);
-        
         let signalLine = [];
         let kSig = 2/(sig+1);
         signalLine[0] = macdLine[0];
         for(let i=1; i<macdLine.length; i++) signalLine[i] = macdLine[i]*kSig + signalLine[i-1]*(1-kSig);
-        
         let last = c.length-1;
         return { 
             macd: macdLine[last], 
@@ -610,8 +651,7 @@
     function formatADX(val) { return val>25 ? `<span class="text-gold">${val.toFixed(2)} (強)</span>` : `<span style="color:#666">${val.toFixed(2)} (弱)</span>`; }
     function formatMACD(m) {
         let color = m.histogram > 0 ? 'text-green' : 'text-red';
-        let state = m.histogram > 0 ? (m.histogram > m.signal ? "強勢擴大" : "多頭收斂") : (m.histogram < m.signal ? "空頭擴大" : "空頭收斂"); // Simplified logic
-        return `<span class="${color}">${m.histogram.toFixed(2)} (${m.histogram>0?'多':'空'})</span>`;
+        return `<span class="${color}">${m.histogram.toFixed(2)}</span>`;
     }
 </script>
 
