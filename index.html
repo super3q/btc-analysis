@@ -70,29 +70,41 @@
         .chart-box { height: 750px; } 
         .data-box { height: 750px; } 
 
-        /* AI Report Enhanced */
+        /* AI Report - Enhanced */
         .ai-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; padding-bottom: 15px; margin-bottom: 15px; }
         .ai-title { font-size: 1.3rem; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 10px; }
         .ai-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
         .ai-col { background: #161a1e; padding: 15px; border-radius: 8px; border: 1px solid #2b3139; display: flex; flex-direction: column; }
         .ai-label { font-size: 0.8rem; color: #848e9c; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #2b3139; padding-bottom: 5px; }
         .score-row { display: flex; justify-content: space-between; font-size: 0.9rem; border-bottom: 1px solid #2b3139; padding: 8px 0; align-items: center; }
-        .action-text { font-size: 1.05rem; line-height: 1.6; color: #d1d4dc; white-space: pre-line; margin-bottom: 15px; flex-grow: 1; }
         
-        /* Signal Strength Bar */
-        .signal-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; margin-top: 5px; overflow: hidden; }
-        .signal-bar-fill { height: 100%; width: 50%; background: #888; transition: width 0.5s ease-out; }
+        /* New: AI Confidence Meter */
+        .confidence-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; margin-top: 5px; overflow: hidden; }
+        .confidence-bar-fill { height: 100%; background: linear-gradient(90deg, #00f260, #0575e6); width: 0%; transition: width 1s; }
+        .confidence-text { font-size: 0.8rem; color: #aaa; margin-top: 5px; display: flex; justify-content: space-between; }
 
-        /* Tables */
-        .pivot-table, .detail-table, .fib-table, .scanner-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; text-align: center; margin-top:10px; }
+        /* Detailed Tables */
+        .pivot-table, .detail-table, .scanner-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; text-align: center; margin-top:10px; }
         td { padding: 5px; border-bottom: 1px solid #2b3139; }
         .res-zone { color: #F6465D; } .sup-zone { color: #0ECB81; } .pivot-zone { color: #F0B90B; font-weight: bold; }
         .ob-bar-container { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; margin-top: 10px; display: flex; }
         .ob-buy { height: 100%; background: #0ECB81; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-start; padding-left: 5px; font-size: 0.7rem; color: #000; font-weight: bold;}
         .ob-sell { height: 100%; background: #F6465D; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; font-size: 0.7rem; color: #fff; font-weight: bold;}
         .ob-text { display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
-        .detail-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; margin-top: 10px; }
-        .detail-table td { padding: 8px; border-bottom: 1px solid #2b3139; color: #ccc; }
+
+        /* Fibonacci - Enhanced Visuals */
+        .fib-controls { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #2a2e39; padding-bottom: 15px; flex-wrap: wrap; }
+        .fib-btn { background: #2a2e39; color: #aaa; border: 1px solid #434651; padding: 6px 15px; border-radius: 4px; cursor: pointer; transition: 0.3s; font-size: 0.9rem; }
+        .fib-btn.active { background: #0575e6; color: #fff; border-color: #0575e6; }
+        
+        .fib-table { width: 100%; border-collapse: collapse; text-align: left; font-family: 'Roboto Mono', monospace; font-size: 0.95rem; }
+        .fib-table td, .fib-table th { padding: 12px; border-bottom: 1px solid #2b3139; }
+        .fib-table th { color: #888; font-size: 0.8rem; }
+        
+        .fib-row-golden { border-left: 4px solid #F0B90B; background: rgba(240, 185, 11, 0.05); } /* 黃金分割 */
+        .fib-row-sup { color: #0ECB81; } /* 支撐 */
+        .fib-row-res { color: #F6465D; } /* 壓力 */
+        .fib-dist { font-weight: bold; }
 
         /* Gauge Controls */
         .gauge-controls { display: flex; gap: 5px; flex-wrap: wrap; }
@@ -100,16 +112,7 @@
         .gauge-btn.active { background: #0575e6; color: #fff; border-color: #0575e6; font-weight: bold; box-shadow: 0 0 10px rgba(5, 117, 230, 0.2); }
         .gauge-btn:hover { color: #fff; border-color: #fff; }
 
-        /* Fibonacci Enhanced */
-        .fib-controls { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #2a2e39; padding-bottom: 15px; flex-wrap: wrap; }
-        .fib-btn { background: #2a2e39; color: #aaa; border: 1px solid #434651; padding: 6px 15px; border-radius: 4px; cursor: pointer; transition: 0.3s; font-size: 0.9rem; }
-        .fib-btn.active { background: #0575e6; color: #fff; border-color: #0575e6; }
-        .fib-table td, .fib-table th { padding: 12px 8px; border-bottom: 1px solid #2b3139; font-family: 'Roboto Mono', monospace; }
-        .row-highlight { background: rgba(255, 255, 255, 0.05); }
-        .row-active { border: 1px solid #0575e6; background: rgba(5, 117, 230, 0.1); }
-        .dist-near { color: #F0B90B; font-weight: bold; } /* 接近中 */
-
-        /* Detailed Scanner Table */
+        /* Scanner Table */
         .scanner-container { background:#161a1e; border-radius:8px; padding:20px; border:1px solid #2b3139; margin-top:20px; }
         .scanner-table th { text-align:left; color:#888; font-size:0.9rem; padding:10px; border-bottom:1px solid #333; }
         .scanner-table td { padding: 12px 10px; font-weight: bold; font-size: 1rem; border-bottom:1px solid #2a2e39; }
@@ -208,28 +211,36 @@
         <div class="card">
             <div class="ai-header">
                 <div class="ai-title">🧠 AI 核心邏輯決策報告 (<span class="tf-display" style="color:#0575e6">4H</span>)</div>
-                <div style="font-size:0.85rem; color:#888;">Multi-Factor Model</div>
+                <div style="font-size:0.85rem; color:#888;">Binance Data × ATR Risk Model</div>
             </div>
             <div class="ai-grid">
                 <div class="ai-col">
-                    <div class="ai-label">1. 趨勢與信心指數</div>
+                    <div class="ai-label">1. 趨勢信心指數 (Strategy Confidence)</div>
                     <div id="trend-display" style="margin-bottom:10px; font-size:1.2rem;">---</div>
-                    <div style="margin-bottom:15px;">
-                        <span style="font-size:0.8rem; color:#aaa;">Signal Strength: <span id="signal-val">0%</span></span>
-                        <div class="signal-bar-bg"><div id="signal-bar" class="signal-bar-fill"></div></div>
+                    <div class="confidence-bar-bg">
+                        <div id="confidence-bar" class="confidence-bar-fill"></div>
                     </div>
-                    <div class="score-row"><span>MA99 長線</span><span id="score-ma99">⚪</span></div>
-                    <div class="score-row"><span>MA25 中線</span><span id="score-ma25">⚪</span></div>
-                    <div class="score-row"><span>MA7 金叉</span><span id="score-cross">⚪</span></div>
+                    <div class="confidence-text">
+                        <span>弱</span>
+                        <span><span id="confidence-val">0</span>% 信心</span>
+                        <span>強</span>
+                    </div>
+                    <div style="margin-top:15px; font-size:0.85rem; color:#888;">
+                        *基於MA排列與RSI動能共振分析
+                    </div>
                 </div>
+
                 <div class="ai-col">
-                    <div class="ai-label">2. 風險與型態</div>
-                    <div class="score-row" style="margin-top:10px;"><span>K線型態:</span><span id="pattern-res" style="font-weight:bold; color:#fff;">掃描中...</span></div>
-                    <div style="margin-top:20px; background:rgba(0,0,0,0.3); padding:10px; border-radius:6px;">
-                        <div class="ai-label">建議止損 (ATR)</div>
-                        <div style="font-size:2rem; font-weight:bold; font-family:'Roboto Mono'; margin:5px 0;" class="grad-text-red"><span id="atr-sl-price">---</span></div>
+                    <div class="ai-label">2. 訊號細節 (Signal Breakdown)</div>
+                    <div class="score-row"><span>MA 趨勢:</span><span id="ma-trend-text">---</span></div>
+                    <div class="score-row"><span>Osc 震盪:</span><span id="osc-trend-text">---</span></div>
+                    <div class="score-row"><span>ATR 波動:</span><span id="vol-text">---</span></div>
+                    <div style="margin-top:15px; background:rgba(0,0,0,0.3); padding:8px; border-radius:6px;">
+                        <div class="ai-label">動態止損</div>
+                        <div style="font-size:1.5rem; font-weight:bold; font-family:'Roboto Mono';" class="grad-text-red"><span id="atr-sl-price">---</span></div>
                     </div>
                 </div>
+
                 <div class="ai-col" style="border: 1px solid rgba(5, 117, 230, 0.3);">
                     <div class="ai-label" style="color:#0575e6;">3. AI 實戰操作建議</div>
                     <div id="ai-action-text" class="action-text">分析中...</div>
@@ -244,22 +255,24 @@
 
     <div class="card" style="margin-bottom:20px;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px;">
-            <h3 style="margin:0; color:#eee;">📐 斐波那契回測 (Pro) <span style="font-size:0.8rem; color:#888; font-weight:normal; margin-left:10px;">包含 0.236, 0.382, 0.618, 0.786</span></h3>
+            <h3 style="margin:0; color:#eee;">📐 斐波那契回撤 (Pro Detail)</h3>
             <span id="fib-loading">數據計算中...</span>
         </div>
         <div class="fib-controls">
-            <button class="fib-btn" onclick="calculateFib('1h', 200, this)">1H (短線)</button>
-            <button class="fib-btn active" onclick="calculateFib('4h', 200, this)">4H (波段)</button>
-            <button class="fib-btn" onclick="calculateFib('1d', 100, this)">1D (日線)</button>
-            <button class="fib-btn" onclick="calculateFib('1w', 100, this)">1W (週線)</button>
+            <button class="fib-btn active" onclick="calculateFib(30, this)">1個月</button>
+            <button class="fib-btn" onclick="calculateFib(90, this)">3個月</button>
+            <button class="fib-btn" onclick="calculateFib(180, this)">6個月</button>
+            <button class="fib-btn" onclick="calculateFib(365, this)">1年</button>
+            <button class="fib-btn" onclick="calculateFib(730, this)">2年</button>
         </div>
         <table class="fib-table">
             <thead>
                 <tr>
-                    <th style="width:15%">Level</th>
-                    <th style="width:25%">Price</th>
-                    <th style="width:30%">Description</th>
-                    <th style="width:30%">Distance</th>
+                    <th>LEVEL</th>
+                    <th>價格 (USDT)</th>
+                    <th>說明</th>
+                    <th>狀態</th>
+                    <th>距離</th>
                 </tr>
             </thead>
             <tbody id="fib-body"></tbody>
@@ -282,7 +295,7 @@
             </div>
         </div>
         
-        <div id="tv-gauge-bottom" style="height:450px; width:100% !important; display:block !important; overflow:hidden;"></div>
+        <div id="tv-gauge-bottom" style="height:400px; width:100% !important; display:block !important; overflow:hidden;"></div>
         
         <div class="scanner-container">
             <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:5px;">
@@ -361,9 +374,10 @@
         tvLink.href = `https://tw.tradingview.com/symbols/${coin}USDT/?exchange=BINANCE`;
         
         refreshAll();
-        calculateFib('4h', 200, document.querySelectorAll('.fib-btn')[1]); // Default 4H fib
+        calculateFib(30, document.querySelectorAll('.fib-btn')[0]);
     }
 
+    // --- GLOBAL ---
     function switchGlobalTimeframe(tf) {
         currentTimeframe = tf;
         document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.remove('active'));
@@ -372,6 +386,7 @@
         
         refreshAll();
 
+        // Sync Bottom
         let gaugeInterval = '1D'; 
         if(tf === '15m') gaugeInterval = '15m';
         if(tf === '1h') gaugeInterval = '1h';
@@ -385,9 +400,11 @@
             b.classList.remove('active');
             if(b.innerText === gaugeInterval) b.classList.add('active');
         });
+        
         updateBottomSection(gaugeInterval);
     }
 
+    // --- MANUAL BOTTOM ---
     function manualUpdateBottom(interval, btn) {
         document.querySelectorAll('.gauge-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
@@ -408,6 +425,7 @@
         return num.toFixed(6);
     }
 
+    // --- Chart ---
     function reloadMainChart(symbol, tvInterval) {
         const chartContainer = document.getElementById('tv-chart-container');
         chartContainer.innerHTML = '';
@@ -428,9 +446,10 @@
         chartContainer.appendChild(chartDiv);
     }
 
+    // --- BOTTOM SECTION MANAGER ---
     function updateBottomSection(intervalLabel) {
-        renderBottomGauge(intervalLabel);
-        fetchBottomTableData(intervalLabel);
+        renderBottomGauge(intervalLabel); // Update Gauge
+        fetchBottomTableData(intervalLabel); // Update Table
     }
 
     function renderBottomGauge(intervalLabel) {
@@ -444,11 +463,14 @@
 
         const container = document.getElementById('tv-gauge-bottom');
         container.innerHTML = '';
+        
         setTimeout(() => {
             const div = document.createElement('div');
             div.className = 'tradingview-widget-container';
-            div.style.height = '450px'; div.style.width = '100%';
+            div.style.height = '450px'; 
+            div.style.width = '100%';
             div.innerHTML = '<div class="tradingview-widget-container__widget" style="height:450px;width:100%"></div>';
+            
             const script = document.createElement('script');
             script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
             script.async = true;
@@ -460,6 +482,7 @@
         }, 50);
     }
 
+    // --- Detailed Table Logic ---
     async function fetchBottomTableData(intervalLabel) {
         const loader = document.getElementById('bottom-loading');
         loader.style.display = 'block';
@@ -478,6 +501,7 @@
             const data = await res.json();
             const closes = data.map(d => parseFloat(d[4]));
             const curr = closes[closes.length-1];
+
             const rsi = calcRSI(closes, 14);
             const sma20 = calcMA(closes, 20);
             const sma50 = calcMA(closes, 50);
@@ -503,6 +527,7 @@
             html += `<tr><td>Momentum (10)</td><td><span class="${mom>0?'sig-buy':'sig-sell'}">${mom>0?'多':'空'}</span></td></tr>`;
 
             document.getElementById('scanner-body').innerHTML = html;
+
         } catch(e) { console.error(e); }
         loader.style.display = 'none';
     }
@@ -521,6 +546,7 @@
     function updateScoreUI(id, pass, txtP, txtF) { document.getElementById(id).innerHTML = pass ? `<span class="grad-text-green">✅ ${txtP}</span>` : `<span style="color:#555">⬜ ${txtF}</span>`; }
     async function fetchOrderBook() { try { const res = await fetch(`https://api.binance.com/api/v3/depth?symbol=${currentSymbol}&limit=20`); if(!res.ok) return; const data = await res.json(); let b=data.bids.reduce((a,v)=>a+parseFloat(v[1]),0), s=data.asks.reduce((a,v)=>a+parseFloat(v[1]),0), t=b+s; document.getElementById('ob-buy-bar').style.width=(b/t*100)+'%'; document.getElementById('ob-sell-bar').style.width=(s/t*100)+'%'; document.getElementById('ob-buy-pct').innerText=(b/t*100).toFixed(1)+'%'; document.getElementById('ob-sell-pct').innerText=(s/t*100).toFixed(1)+'%'; } catch(e){} }
     
+    // --- Enhanced AI Logic with Confidence Meter ---
     async function runQuantAnalysis() {
         const interval = tfMap[currentTimeframe].binance;
         const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${interval}&limit=150`);
@@ -534,6 +560,7 @@
         const ma7 = calcMA(closes, 7); const ma25 = calcMA(closes, 25); const ma99 = calcMA(closes, 99);
         const rsi = calcRSI(closes, 14); const atr = calcATR(highs, lows, closes, 14);
         
+        // Pivot Calcs
         const ph = highs[highs.length-2], pl = lows[lows.length-2], pc = closes[closes.length-2];
         const pp = (ph+pl+pc)/3;
         document.getElementById('pp-p').innerText = fmt(pp);
@@ -542,104 +569,119 @@
         document.getElementById('pp-r2').innerText = fmt(pp+(ph-pl));
         document.getElementById('pp-s2').innerText = fmt(pp-(ph-pl));
 
+        // Enhanced Score & Confidence
         let score = 0;
-        if(curClose > ma99) { score+=2; updateScoreUI('score-ma99', true, 'MA99 多', 'MA99 空'); } else updateScoreUI('score-ma99', false, 'MA99 多', 'MA99 空');
-        if(curClose > ma25) { score+=1; updateScoreUI('score-ma25', true, 'MA25 多', 'MA25 空'); } else updateScoreUI('score-ma25', false, 'MA25 多', 'MA25 空');
-        if(ma7 > ma25) { score+=1; updateScoreUI('score-cross', true, '金叉', '死叉'); } else updateScoreUI('score-cross', false, '金叉', '死叉');
+        let trendConfidence = 0; // 0-100%
         
-        const tEl = document.getElementById('trend-display');
-        const sBar = document.getElementById('signal-bar');
-        const sVal = document.getElementById('signal-val');
+        // Trend Analysis
+        let trendState = "中性";
+        if(curClose > ma99 && ma25 > ma99) { score+=2; trendConfidence+=40; trendState="多頭排列"; }
+        else if(curClose < ma99 && ma25 < ma99) { score-=2; trendConfidence+=40; trendState="空頭排列"; }
+        else { trendConfidence+=10; trendState="震盪整理"; }
         
-        let confidence = 0;
-        if(score >= 2) confidence = 75;
-        if(score >= 3) confidence = 90;
-        if(score <= 0) confidence = 20;
+        if(curClose > ma25) { score+=1; trendConfidence+=20; }
+        if(ma7 > ma25) { score+=1; trendConfidence+=20; }
         
-        sBar.style.width = confidence + "%";
-        sVal.innerText = confidence + "%";
-        
-        if(score>=2) { tEl.innerHTML=`<span class="badge-bull">🚀 強多</span>`; sBar.style.background = "#0ECB81"; }
-        else if(score>0) { tEl.innerHTML=`<span class="badge-neutral">↗️ 震盪</span>`; sBar.style.background = "#F0B90B"; }
-        else { tEl.innerHTML=`<span class="badge-bear">🐻 修正</span>`; sBar.style.background = "#F6465D"; }
+        // Osc Analysis
+        let oscState = "中性";
+        if(rsi > 70) { score-=1; oscState="過熱(超買)"; }
+        else if(rsi < 30) { score+=1; oscState="過冷(超賣)"; }
+        else { trendConfidence+=20; oscState="健康"; } // RSI neutral is good for trend continuation
 
+        // UI Updates
+        updateScoreUI('score-ma99', curClose > ma99, 'MA99 看多', 'MA99 看空');
+        updateScoreUI('score-ma25', curClose > ma25, 'MA25 看多', 'MA25 看空');
+        updateScoreUI('score-cross', ma7 > ma25, '金叉', '死叉');
+        
+        document.getElementById('ma-trend-text').innerText = trendState;
+        document.getElementById('osc-trend-text').innerText = oscState;
+        document.getElementById('vol-text').innerText = atr > (curClose*0.02) ? "高波動" : "低波動";
+
+        // Confidence Bar
+        document.getElementById('confidence-bar').style.width = trendConfidence + "%";
+        document.getElementById('confidence-val').innerText = trendConfidence;
+
+        const tEl = document.getElementById('trend-display');
+        if(score>=3) tEl.innerHTML=`<span class="badge-bull">🚀 強力買進</span>`;
+        else if(score>=1) tEl.innerHTML=`<span class="badge-bull">📈 偏多操作</span>`;
+        else if(score<=-3) tEl.innerHTML=`<span class="badge-bear">📉 強力賣出</span>`;
+        else if(score<=-1) tEl.innerHTML=`<span class="badge-bear">🐻 偏空操作</span>`;
+        else tEl.innerHTML=`<span class="badge-neutral">⚖️ 區間震盪</span>`;
+
+        // Pattern
         const body = Math.abs(curClose - parseFloat(data[data.length-1][1]));
         const ls = Math.min(curClose, parseFloat(data[data.length-1][1])) - lows[lows.length-1];
         let pTxt = "無";
-        if(ls > body*2) pTxt = "🔨 錘頭";
+        if(ls > body*2) pTxt = "🔨 錘頭 (反轉疑慮)";
         document.getElementById('pattern-res').innerText = pTxt;
         document.getElementById('atr-sl-price').innerText = fmt(curClose - atr*2);
 
-        let act = "";
-        if(score>=2) act = rsi>70 ? "趨勢強但RSI過熱，分批止盈。" : "趨勢完美，拉回買進。";
-        else if(score<=0) act = rsi<30 ? "超賣反彈，激進者可試單。" : "空頭排列，建議觀望。";
-        else act = "區間震盪，低買高賣。";
+        // Action Text
+        let act = "市場方向不明，建議觀察關鍵支撐。";
+        if(score >= 3) act = "多頭趨勢強勁且指標共振，適合順勢做多。";
+        else if(score >= 1) act = "趨勢偏多但動能稍弱，回測 MA25 可嘗試接多。";
+        else if(score <= -3) act = "空頭趨勢成形，反彈至壓力位建議做空。";
+        else if(score <= -1) act = "趨勢偏空，跌破支撐後可追空。";
+        
         document.getElementById('ai-action-text').innerText = act;
         document.getElementById('rec-buy').innerText = fmt(ma25);
         document.getElementById('rec-sell').innerText = fmt(2*pp-pl); 
     }
 
-    // --- REWRITE FIB CALCULATION (DETAIL) ---
-    async function calculateFib(interval, limit, btnElement) {
-        if(btnElement) {
-            document.querySelectorAll('.fib-btn').forEach(b => b.classList.remove('active'));
-            btnElement.classList.add('active');
-        }
-        document.getElementById('fib-loading').style.display = 'inline';
+    // --- Enhanced Fibonacci ---
+    async function calculateFib(days, btnElement) {
+        if(btnElement) { document.querySelectorAll('.fib-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); }
+        
+        // Use 4h candles for better granularity than 1d, but ensure we fetch enough data
+        // 30 days * 6 (4h candles per day) = 180 candles. API limit is usually 500-1000.
+        // If user selects 1 year, we might need 1d candles.
+        let interval = '4h';
+        let limit = days * 6; 
+        if(days > 60) { interval = '1d'; limit = days; } 
 
-        try {
-            // Map our interval to Binance API
-            let binInterval = '1d'; // default
-            if(interval === '1h') binInterval = '1h';
-            if(interval === '4h') binInterval = '4h';
-            if(interval === '1w') binInterval = '1w';
+        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${interval}&limit=${limit}`);
+        const data = await res.json();
+        
+        let max = -Infinity, min = Infinity;
+        data.forEach(d => { if(parseFloat(d[2])>max) max=parseFloat(d[2]); if(parseFloat(d[3])<min) min=parseFloat(d[3]); });
+        
+        const cur = parseFloat(data[data.length-1][4]); 
+        const diff = max - min;
+        
+        // Full Fibonacci Sequence
+        const levels = [
+            { r: 1.0, label: "前高 (1.0)" },
+            { r: 0.786, label: "0.786" },
+            { r: 0.618, label: "黃金分割 (0.618)" },
+            { r: 0.5, label: "中軸 (0.5)" },
+            { r: 0.382, label: "支撐 (0.382)" },
+            { r: 0.236, label: "0.236" },
+            { r: 0.0, label: "前低 (0.0)" }
+        ];
 
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${binInterval}&limit=${limit}`);
-            const data = await res.json();
+        let html = "";
+        levels.forEach(lvl => {
+            const price = min + (diff * lvl.r);
+            const dist = ((cur - price) / price * 100).toFixed(2);
             
-            let max = -Infinity, min = Infinity;
-            data.forEach(d => {
-                let h = parseFloat(d[2]); let l = parseFloat(d[3]);
-                if(h > max) max = h;
-                if(l < min) min = l;
-            });
+            // Dynamic Status
+            let status = cur > price ? "支撐" : "壓力";
+            let rowClass = "";
             
-            const current = parseFloat(data[data.length-1][4]);
-            const diff = max - min;
-            
-            // Full Levels
-            const levels = [
-                { r: 1, p: max, t: "前高 (High)", c: "row-sell-zone" },
-                { r: 0.786, p: max - (diff * 0.214), t: "回撤 0.786", c: "" },
-                { r: 0.618, p: max - (diff * 0.382), t: "黃金口袋 (0.618)", c: "row-buy-zone" },
-                { r: 0.5, p: max - (diff * 0.5), t: "中軸 (0.5)", c: "" },
-                { r: 0.382, p: max - (diff * 0.618), t: "弱勢反彈 (0.382)", c: "" },
-                { r: 0.236, p: max - (diff * 0.764), t: "淺層支撐 (0.236)", c: "" },
-                { r: 0, p: min, t: "前低 (Low)", c: "row-sell-zone" }
-            ];
+            if(lvl.r === 0.618 || lvl.r === 0.382) rowClass = "fib-row-golden";
+            else if(Math.abs(cur - price) / price < 0.01) rowClass = "fib-row-res"; // Near level highlighting
 
-            let html = "";
-            levels.forEach(l => {
-                const distPct = ((current - l.p) / l.p * 100).toFixed(2);
-                const isNear = Math.abs(parseFloat(distPct)) < 0.5; // within 0.5%
-                
-                let distClass = "";
-                if(parseFloat(distPct) > 0) distClass = "grad-text-green";
-                else distClass = "grad-text-red";
-                
-                if(isNear) distClass += " dist-near";
+            let distClass = cur > price ? "grad-text-green" : "grad-text-red";
 
-                html += `<tr class="${l.c} ${isNear?'row-active':''}">
-                    <td>${(l.r * 100).toFixed(1)}%</td>
-                    <td style="font-weight:bold; color:#fff;">$${fmt(l.p)}</td>
-                    <td style="color:#aaa;">${l.t}</td>
-                    <td class="${distClass}">${distPct > 0 ? '+' : ''}${distPct}%</td>
-                </tr>`;
-            });
-            document.getElementById('fib-body').innerHTML = html;
-
-        } catch (e) { console.error(e); } 
-        finally { document.getElementById('fib-loading').style.display = 'none'; }
+            html += `<tr class="${rowClass}">
+                <td>${(lvl.r * 100).toFixed(1)}%</td>
+                <td style="font-weight:bold;">$${fmt(price)}</td>
+                <td style="color:#aaa;">${lvl.label}</td>
+                <td style="font-size:0.8rem;">${status}</td>
+                <td class="${distClass}">${dist > 0 ? '+' : ''}${dist}%</td>
+            </tr>`;
+        });
+        document.getElementById('fib-body').innerHTML = html;
     }
 </script>
 
