@@ -3,27 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (v5.0.1 Ultimate)</title>
+    <title>Crypto AI Quant Analyst (v5.0.2 Ultimate)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; background-color: #0b0e11; color: #eaecef; margin: 0; padding: 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
         
         /* Header */
         .header-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
-        h1 { 
-            background: linear-gradient(to right, #00f260, #0575e6); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin: 0 0 10px 0; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-align: center;
-        }
+        h1 { background: linear-gradient(to right, #00f260, #0575e6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 10px 0; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
         .subtitle { font-size: 0.9rem; color: #888; letter-spacing: 1px; margin-bottom: 15px; }
         
         /* Controls */
         .controls-wrapper { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; position: relative; z-index: 100; }
         .search-container { position: relative; width: 100%; max-width: 500px; }
-        .search-box {
-            display: flex; gap: 10px; background: #1e2329; padding: 10px 20px; border-radius: 50px; 
-            border: 1px solid #0575e6; box-shadow: 0 0 15px rgba(5, 117, 230, 0.3); align-items: center;
-        }
+        .search-box { display: flex; gap: 10px; background: #1e2329; padding: 10px 20px; border-radius: 50px; border: 1px solid #0575e6; box-shadow: 0 0 15px rgba(5, 117, 230, 0.3); align-items: center; }
         .search-input { background: transparent; border: none; color: #fff; font-size: 1.1rem; font-weight: bold; flex-grow: 1; outline: none; text-transform: uppercase; letter-spacing: 1px; }
         .search-btn { background: linear-gradient(135deg, #0575e6, #021b79); color: #fff; border: none; padding: 8px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; white-space: nowrap; }
         .search-btn:hover { transform: scale(1.05); }
@@ -75,8 +68,6 @@
         .ob-buy { height: 100%; background: #0ECB81; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-start; padding-left: 5px; font-size: 0.7rem; color: #000; font-weight: bold;}
         .ob-sell { height: 100%; background: #F6465D; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; font-size: 0.7rem; color: #fff; font-weight: bold;}
         .ob-text { display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
-        .detail-table { width: 100%; font-size: 0.9rem; border-collapse: collapse; margin-top: 10px; }
-        .detail-table td { padding: 8px; border-bottom: 1px solid #2b3139; color: #ccc; }
 
         /* Fib & Controls */
         .gauge-controls, .fib-controls { display: flex; gap: 5px; flex-wrap: wrap; }
@@ -126,13 +117,13 @@
 
 <div class="container">
     <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">v5.0.1 Ultimate</span></h1>
+        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">v5.0.2 Ultimate</span></h1>
         <div class="subtitle">Top-Down Macro Model • VIX/NQ/DXY Matrix • Auto Fibonacci</div>
         
         <div class="controls-wrapper">
             <div class="search-container">
                 <div class="search-box">
-                    <input type="text" id="symbol-input" class="search-input" placeholder="輸入或選擇幣種 (例: BTC, PEPE)..." autocomplete="off">
+                    <input type="text" id="symbol-input" class="search-input" placeholder="輸入加密貨幣 (例: BTC, SOL) *請勿輸入台股..." autocomplete="off">
                     <button class="search-btn" onclick="triggerSearch()">🔍 分析</button>
                 </div>
                 <div id="dropdown-list" class="dropdown-list"></div>
@@ -240,39 +231,39 @@
     <h2 style="color:#fff; margin:30px 0 20px 0; border-left:5px solid #0ECB81; padding-left:15px;">🏦 華爾街機構流動性矩陣 (Top-Down Macro Model)</h2>
     
     <div class="grid-matrix-charts">
-        <div class="card" style="height:250px; padding:10px;">
-            <div style="color:#fff; font-weight:bold; margin-bottom:5px; font-size:0.9rem;">📉 恐慌指數 (VIX)</div>
-            <div class="tradingview-widget-container" style="height:calc(100% - 25px); width:100%;">
+        <div class="card" style="height:280px; padding:15px;">
+            <div style="color:#fff; font-weight:bold; margin-bottom:10px; font-size:1rem;">📉 恐慌指數 (VIX)</div>
+            <div class="tradingview-widget-container" style="height:calc(100% - 30px); width:100%;">
                 <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-                { "symbol": "CBOE:VIX", "width": "100%", "height": "100%", "locale": "zh_TW", "dateRange": "1M", "colorTheme": "dark", "isTransparent": true, "autosize": true, "largeChartUrl": "" }
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+                { "symbols": [ ["VIX", "TVC:VIX|1M"] ], "chartOnly": true, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": true, "hideMarketStatus": true, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#ff5252", "bottomColor": "rgba(255, 82, 82, 0)", "topColor": "rgba(255, 82, 82, 0.3)", "lineWidth": 2 }
                 </script>
             </div>
         </div>
-        <div class="card" style="height:250px; padding:10px;">
-            <div style="color:#fff; font-weight:bold; margin-bottom:5px; font-size:0.9rem;">📈 那斯達克期貨 (NQ1!)</div>
-            <div class="tradingview-widget-container" style="height:calc(100% - 25px); width:100%;">
+        <div class="card" style="height:280px; padding:15px;">
+            <div style="color:#fff; font-weight:bold; margin-bottom:10px; font-size:1rem;">📈 那斯達克期貨 (US100)</div>
+            <div class="tradingview-widget-container" style="height:calc(100% - 30px); width:100%;">
                 <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-                { "symbol": "CME_MINI:NQ1!", "width": "100%", "height": "100%", "locale": "zh_TW", "dateRange": "1M", "colorTheme": "dark", "isTransparent": true, "autosize": true, "largeChartUrl": "" }
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+                { "symbols": [ ["NQ1!", "CAPITALCOM:US100|1M"] ], "chartOnly": true, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": true, "hideMarketStatus": true, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#2962FF", "bottomColor": "rgba(41, 98, 255, 0)", "topColor": "rgba(41, 98, 255, 0.3)", "lineWidth": 2 }
                 </script>
             </div>
         </div>
-        <div class="card" style="height:250px; padding:10px;">
-            <div style="color:#fff; font-weight:bold; margin-bottom:5px; font-size:0.9rem;">💵 美元指數 (DXY)</div>
-            <div class="tradingview-widget-container" style="height:calc(100% - 25px); width:100%;">
+        <div class="card" style="height:280px; padding:15px;">
+            <div style="color:#fff; font-weight:bold; margin-bottom:10px; font-size:1rem;">💵 美元指數 (DXY)</div>
+            <div class="tradingview-widget-container" style="height:calc(100% - 30px); width:100%;">
                 <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-                { "symbol": "TVC:DXY", "width": "100%", "height": "100%", "locale": "zh_TW", "dateRange": "1M", "colorTheme": "dark", "isTransparent": true, "autosize": true, "largeChartUrl": "" }
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+                { "symbols": [ ["DXY", "CAPITALCOM:DXY|1M"] ], "chartOnly": true, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": true, "hideMarketStatus": true, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#089981", "bottomColor": "rgba(8, 153, 129, 0)", "topColor": "rgba(8, 153, 129, 0.3)", "lineWidth": 2 }
                 </script>
             </div>
         </div>
-        <div class="card" style="height:250px; padding:10px;">
-            <div style="color:#fff; font-weight:bold; margin-bottom:5px; font-size:0.9rem;">🏛️ 10年公債殖利率 (US10Y)</div>
-            <div class="tradingview-widget-container" style="height:calc(100% - 25px); width:100%;">
+        <div class="card" style="height:280px; padding:15px;">
+            <div style="color:#fff; font-weight:bold; margin-bottom:10px; font-size:1rem;">🏛️ 10年公債殖利率 (US10Y)</div>
+            <div class="tradingview-widget-container" style="height:calc(100% - 30px); width:100%;">
                 <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js" async>
-                { "symbol": "TVC:US10Y", "width": "100%", "height": "100%", "locale": "zh_TW", "dateRange": "1M", "colorTheme": "dark", "isTransparent": true, "autosize": true, "largeChartUrl": "" }
+                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+                { "symbols": [ ["US10Y", "TVC:US10Y|1M"] ], "chartOnly": true, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": true, "hideMarketStatus": true, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#F0B90B", "bottomColor": "rgba(240, 185, 11, 0)", "topColor": "rgba(240, 185, 11, 0.3)", "lineWidth": 2 }
                 </script>
             </div>
         </div>
@@ -375,7 +366,7 @@
         </div>
     </div>
 
-    <h2 style="color:#fff; margin-bottom:20px; border-left:5px solid #F0B90B; padding-left:15px;">🌍 市場板塊與避險事件 (Market Breadth & Events)</h2>
+    <h2 style="color:#fff; margin-bottom:20px; border-left:5px solid #F0B90B; padding-left:15px;">🌍 市場板塊與避險事件 (Market Breadth)</h2>
     
     <div class="card" style="height:600px; margin-bottom:20px;">
         <h3 style="margin:0 0 10px 0; color:#eee;">🔥 全市場資金熱力圖 (Money Flow)</h3>
@@ -384,23 +375,6 @@
             <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
             { "dataSource": "Crypto", "blockSize": "market_cap_calc", "blockColor": "change", "locale": "zh_TW", "symbolUrl": "", "colorTheme": "dark", "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "width": "100%", "height": "100%" }
             </script>
-        </div>
-    </div>
-
-    <div class="grid-macro">
-        <div class="card" style="text-align:center; display:flex; align-items:center; justify-content:center; min-height:500px;">
-            <h3 style="margin:0 0 15px 0; color:#eee; align-self:flex-start; width:100%;">😨 恐懼與貪婪指數</h3>
-            <img src="https://alternative.me/crypto/fear-and-greed-index.png" alt="Latest Crypto Fear & Greed Index" style="width:90%; border-radius:8px;"/>
-        </div>
-
-        <div class="card" style="height:500px;">
-            <h3 style="margin:0 0 10px 0; color:#eee;">📅 全球財經日曆 (風險事件)</h3>
-            <div class="tradingview-widget-container" style="height:100%;width:100%">
-                <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-events.js" async>
-                { "colorTheme": "dark", "isTransparent": true, "width": "100%", "height": "100%", "locale": "zh_TW", "importanceFilter": "0,1", "currencyFilter": "USD" }
-                </script>
-            </div>
         </div>
     </div>
 
@@ -423,7 +397,6 @@
     window.onload = function() { 
         quickLoad('BTC');
         initSearch();
-        // initMacroMatrixCharts(); <--- 已經移除，改用靜態寫入
     };
 
     async function initSearch() {
@@ -448,7 +421,17 @@
     }
 
     function selectSymbol(coin) { document.getElementById('symbol-input').value = coin; document.getElementById('dropdown-list').style.display = 'none'; quickLoad(coin); }
-    function triggerSearch() { const input = document.getElementById('symbol-input').value.trim().toUpperCase(); if(input) quickLoad(input); }
+    function triggerSearch() { 
+        const input = document.getElementById('symbol-input').value.trim().toUpperCase(); 
+        if(!input) return;
+        
+        // 防呆機制：阻止用戶在 Crypto 版搜尋台股代碼
+        if (/^\d{4}$/.test(input) || input.startsWith('TWSE')) {
+            alert("⚠️ 請注意：這裡是「加密貨幣」分析模組，底層串接幣安 API。若要分析台股 (如: "+input+")，請開啟我們稍早製作的「v5.2 台股專用版」網頁，否則圖表會白屏報錯喔！");
+            return;
+        }
+        quickLoad(input); 
+    }
 
     function quickLoad(coin) {
         currentCoin = coin; currentSymbol = coin + 'USDT';
