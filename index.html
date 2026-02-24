@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (v5.0.5 Ultimate)</title>
+    <title>Crypto AI Quant Analyst (v5.0.6 Ultimate)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; background-color: #0b0e11; color: #eaecef; margin: 0; padding: 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
@@ -39,9 +39,10 @@
         /* Layout Grids */
         .grid-top { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-bottom: 20px; }
         .grid-core { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
-        .grid-macro { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-bottom: 20px; }
         
-        .grid-matrix-charts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        /* 變更為 5 宮格 */
+        .grid-matrix-charts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
+        
         .grid-matrix-rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
 
         .card { background: #1e2329; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #2b3139; position: relative; display: flex; flex-direction: column; overflow: hidden; }
@@ -105,11 +106,17 @@
         #loading-indicator, #fib-loading, #bottom-loading { display: none; color: #0575e6; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 
+        @media (max-width: 1400px) {
+            .grid-matrix-charts { grid-template-columns: repeat(3, 1fr); }
+        }
         @media (max-width: 1200px) { 
-            .grid-top, .ai-grid, .grid-macro, .grid-matrix-rules { grid-template-columns: 1fr; } 
-            .grid-matrix-charts { grid-template-columns: 1fr 1fr; }
+            .grid-top, .ai-grid, .grid-matrix-rules { grid-template-columns: 1fr; } 
+            .grid-matrix-charts { grid-template-columns: repeat(2, 1fr); }
             .chart-box, .data-box { height: auto; min-height: 500px; } 
             .sop-items { flex-direction: column; }
+        }
+        @media (max-width: 768px) {
+            .grid-matrix-charts { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -117,8 +124,8 @@
 
 <div class="container">
     <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">v5.0.5 Ultimate</span></h1>
-        <div class="subtitle">Top-Down Macro Model • VIX/NQ/DXY Matrix • Auto Fibonacci</div>
+        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">v5.0.6 Ultimate</span></h1>
+        <div class="subtitle">Top-Down Macro Model • VIX/NQ/DXY/Funding Matrix</div>
         
         <div class="controls-wrapper">
             <div class="search-container">
@@ -212,8 +219,9 @@
                     <div class="ai-label">2. 風險與型態</div>
                     <div class="score-row" style="margin-top:10px;"><span>K線型態:</span><span id="pattern-res" style="font-weight:bold; color:#fff;">掃描中...</span></div>
                     <div style="margin-top:20px; background:rgba(0,0,0,0.3); padding:10px; border-radius:6px;">
-                        <div class="ai-label">ATR 動態止損</div>
-                        <div style="font-size:2rem; font-weight:bold; font-family:'Roboto Mono'; margin:5px 0;" class="grad-text-red"><span id="atr-sl-price">---</span></div>
+                        <div class="ai-label">ATR 動態防禦止損線</div>
+                        <div style="font-size:1.6rem; font-weight:bold; font-family:'Roboto Mono'; margin:5px 0;" class="grad-text-red"><span id="atr-sl-price">---</span></div>
+                        <div style="font-size:0.75rem; color:#888;">*防止機構惡意刺穿掃損的寬幅設計</div>
                     </div>
                 </div>
                 <div class="ai-col" style="border: 1px solid rgba(5, 117, 230, 0.3);">
@@ -263,6 +271,29 @@
                 </script>
             </div>
         </div>
+        
+        <div class="card" style="height:360px; padding:15px; display:flex; flex-direction:column; background:linear-gradient(180deg, #1e2329 0%, #161a1e 100%);">
+            <div style="color:#fff; font-weight:bold; margin-bottom:15px; font-size:1rem; border-bottom:1px solid #2b3139; padding-bottom:10px; display:flex; justify-content:space-between;">
+                <span>💰 幣安資金費率</span>
+                <span style="font-size:0.8rem; color:#888; font-weight:normal;">API 直連</span>
+            </div>
+            
+            <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+                <div style="color:#848e9c; font-size:0.85rem; margin-bottom:5px;">當前合約費率 (<span class="coin-name">BTC</span>)</div>
+                <div id="live-funding-rate" style="font-size:2.8rem; font-weight:bold; font-family:'Roboto Mono'; margin-bottom:10px;">---</div>
+                <div id="funding-status" style="padding:6px 18px; border-radius:30px; font-size:0.9rem; font-weight:bold; margin-bottom:10px; border:1px solid transparent;">加載中...</div>
+                <div id="funding-countdown" style="color:#aaa; font-size:0.8rem; margin-bottom:20px; font-family:'Roboto Mono';">下次結算: --:--:--</div>
+            </div>
+
+            <table style="width:100%; font-size:0.85rem; text-align:center; color:#aaa; border-collapse:collapse; background:#1e2329; border-radius:8px; overflow:hidden;">
+                <thead>
+                    <tr><th colspan="2" style="background:#2b3139; padding:6px; color:#eee; font-weight:normal;">過去三次結算歷史</th></tr>
+                </thead>
+                <tbody id="funding-history">
+                    <tr><td colspan="2" style="padding:10px;">讀取中...</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="grid-matrix-rules">
@@ -271,7 +302,7 @@
             <ul>
                 <li><span class="grad-text-green">VIX < 15 (樂觀)</span>：無深度下殺，主力溫水煮青蛙誘多。</li>
                 <li><span style="color:#F0B90B;">VIX 15-20 (震盪)</span>：健康回調，插針極限約為美股跌幅 3 倍。</li>
-                <li><span class="grad-text-red">VIX 20-25 (警戒)</span>：美股避險爆發！重要接刀訊號，BTC 易單日大殺 10%，深水區網格進入射程。</li>
+                <li><span class="grad-text-red">VIX 20-25 (警戒)</span>：美股避險爆發！重要接刀訊號，容易單日大殺 10%，深水區網格進入射程。</li>
                 <li><span style="color:#FF1744; font-weight:bold;">VIX > 30 (黑天鵝)</span>：無差別拋售。確保保證金能扛住終極防線不被強平！</li>
             </ul>
         </div>
@@ -294,12 +325,16 @@
             </ul>
         </div>
 
-        <div class="rule-box">
-            <h4>第四步：對比內部數據找「燃料」</h4>
-            <ul>
-                <li><span class="grad-text-red">完美誘多局 (空單燃料)</span>：宏觀極差 (NQ 破位/DXY 強) + 幣安資金費率異常飆高。散戶逆勢做多，主力必殺之。</li>
-                <li><span class="grad-text-green">完美接刀局 (恐慌局)</span>：宏觀極差 (VIX>25) + 資金費率極度負值。散戶絕望停損，多頭槓桿清零，準備進場。</li>
-            </ul>
+        <div class="rule-box" style="grid-column: 1 / -1; background: linear-gradient(to right, #161a1e, #1e2329);">
+            <h4>第四步：對比內部數據找「燃料」 (資金費率)</h4>
+            <div style="display:flex; flex-wrap:wrap; gap:20px;">
+                <div style="flex:1; min-width:300px;">
+                    <ul style="margin-top:10px;">
+                        <li><span class="grad-text-red">完美誘多局 (空軍燃料)</span>：宏觀極差 (NQ 破位/DXY 強) + <span style="color:#F6465D; font-weight:bold;">資金費率異常飆高 (>0.015%)</span>。代表散戶還在無腦逆勢做多，主力必殺之，向下插針洗盤機率極高。</li>
+                        <li><span class="grad-text-green">完美接刀局 (軋空燃料)</span>：宏觀極差 (VIX>25) + <span style="color:#0ECB81; font-weight:bold;">資金費率極度負值 (<0%)</span>。散戶絕望停損，多頭槓桿清零，空軍大量聚集，這正是逢低接刀、準備向上軋空的黃金時刻。</li>
+                    </ul>
+                </div>
+            </div>
         </div>
 
         <div class="sop-checklist">
@@ -307,10 +342,8 @@
             <div class="sop-items">
                 <label class="sop-item"><input type="checkbox"> VIX 有沒有過 20？<br><span style="font-size:0.8rem; font-weight:normal; color:#aaa;">(決定有無深度插針)</span></label>
                 <label class="sop-item"><input type="checkbox"> NQ 關鍵支撐破了嗎？<br><span style="font-size:0.8rem; font-weight:normal; color:#aaa;">(決定逢高空或逢低買)</span></label>
-                <label class="sop-item"><input type="checkbox"> US10Y 在 4% 以上嗎？<br><span style="font-size:0.8rem; font-weight:normal; color:#aaa;">(確認假突破邏輯是否成立)</span></label>
-            </div>
-            <div style="text-align:center; margin-top:15px; font-size:0.85rem; color:#0ECB81;">
-                *這套框架屏除技術指標騙線，因為主力無法輕易操縱全球宏觀數據。
+                <label class="sop-item"><input type="checkbox"> US10Y 在 4% 以上嗎？<br><span style="font-size:0.8rem; font-weight:normal; color:#aaa;">(確認假突破邏輯)</span></label>
+                <label class="sop-item" style="border-color:#0575e6;"><input type="checkbox"> 資金費率是否過熱？<br><span style="font-size:0.8rem; font-weight:normal; color:#aaa;">(決定市場燃料方向)</span></label>
             </div>
         </div>
     </div>
@@ -362,18 +395,6 @@
         </div>
     </div>
 
-    <h2 style="color:#fff; margin-bottom:20px; border-left:5px solid #F0B90B; padding-left:15px;">🌍 市場板塊與避險事件 (Market Breadth)</h2>
-    
-    <div class="card" style="height:600px; margin-bottom:20px;">
-        <h3 style="margin:0 0 10px 0; color:#eee;">🔥 全市場資金熱力圖 (Money Flow)</h3>
-        <div class="tradingview-widget-container" style="height:100%;width:100%">
-            <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-crypto-coins-heatmap.js" async>
-            { "dataSource": "Crypto", "blockSize": "market_cap_calc", "blockColor": "change", "locale": "zh_TW", "symbolUrl": "", "colorTheme": "dark", "hasTopBar": false, "isDataSetEnabled": false, "isZoomEnabled": true, "hasSymbolTooltip": true, "width": "100%", "height": "100%" }
-            </script>
-        </div>
-    </div>
-
 </div>
 
 <script>
@@ -381,6 +402,7 @@
     let currentSymbol = 'BTCUSDT';
     let currentTimeframe = '4h'; 
     let allSymbols = [];
+    let fundingCountdownInterval = null;
 
     const tfMap = {
         '15m': { binance: '15m', tv: '15', label: '15m (短線)' }, '1h':  { binance: '1h',  tv: '60', label: '1H (當沖)' },
@@ -459,6 +481,7 @@
         reloadMainChart(currentSymbol, tfMap[currentTimeframe].tv);
         runQuantAnalysis(); 
         fetchOrderBook(); 
+        fetchFundingRate();
     }
 
     function fmt(num) {
@@ -466,6 +489,80 @@
         if(num > 1000) return num.toFixed(2); if(num > 1) return num.toFixed(4);
         if(num < 0.0001) return num.toFixed(8); return num.toFixed(6);
     }
+
+    /* === NEW: Binance Funding Rate Module === */
+    async function fetchFundingRate() {
+        try {
+            // 1. 抓取實時費率與下次結算時間
+            const res = await fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${currentSymbol}`);
+            if(!res.ok) throw new Error('API Error');
+            const data = await res.json();
+            const rate = parseFloat(data.lastFundingRate) * 100; // 轉為百分比
+            
+            const rateEl = document.getElementById('live-funding-rate');
+            const statusEl = document.getElementById('funding-status');
+            
+            rateEl.innerText = rate.toFixed(4) + '%';
+            
+            // 判定燃料屬性
+            if(rate > 0.015) {
+                rateEl.className = 'grad-text-red';
+                statusEl.innerText = '🔥 極度貪婪 (誘多燃料)';
+                statusEl.style.background = 'rgba(246, 70, 93, 0.15)';
+                statusEl.style.borderColor = 'rgba(246, 70, 93, 0.5)';
+                statusEl.style.color = '#F6465D';
+            } else if (rate < 0) {
+                rateEl.className = 'grad-text-green';
+                statusEl.innerText = '😨 恐慌負費率 (軋空燃料)';
+                statusEl.style.background = 'rgba(14, 203, 129, 0.15)';
+                statusEl.style.borderColor = 'rgba(14, 203, 129, 0.5)';
+                statusEl.style.color = '#0ECB81';
+            } else {
+                rateEl.className = '';
+                rateEl.style.color = '#F0B90B';
+                statusEl.innerText = '⚖️ 情緒中性 (無明顯傾斜)';
+                statusEl.style.background = 'rgba(240, 185, 11, 0.15)';
+                statusEl.style.borderColor = 'rgba(240, 185, 11, 0.5)';
+                statusEl.style.color = '#F0B90B';
+            }
+
+            // 處理倒數計時
+            if(fundingCountdownInterval) clearInterval(fundingCountdownInterval);
+            const nextTime = parseInt(data.nextFundingTime);
+            fundingCountdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const diff = nextTime - now;
+                if(diff > 0) {
+                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const s = Math.floor((diff % (1000 * 60)) / 1000);
+                    document.getElementById('funding-countdown').innerText = `下次結算: ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                } else {
+                    document.getElementById('funding-countdown').innerText = "結算中...";
+                }
+            }, 1000);
+
+            // 2. 抓取歷史三次費率
+            const histRes = await fetch(`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${currentSymbol}&limit=3`);
+            const histData = await histRes.json();
+            let html = "";
+            histData.reverse().forEach(d => {
+                const r = (parseFloat(d.fundingRate)*100).toFixed(4);
+                const t = new Date(d.fundingTime).toLocaleString('zh-TW', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+                let color = r > 0.015 ? '#F6465D' : (r < 0 ? '#0ECB81' : '#F0B90B');
+                html += `<tr><td style="padding:6px 10px; border-bottom:1px solid #2b3139;">${t}</td><td style="color:${color}; font-family:'Roboto Mono'; font-weight:bold; border-bottom:1px solid #2b3139;">${r}%</td></tr>`;
+            });
+            document.getElementById('funding-history').innerHTML = html;
+
+        } catch(e) { 
+            console.log("Funding API Error:", e);
+            document.getElementById('live-funding-rate').innerText = "N/A";
+            document.getElementById('funding-status').innerText = "無合約數據";
+            document.getElementById('funding-status').style.background = "#333";
+            document.getElementById('funding-history').innerHTML = "<tr><td colspan='2'>該幣種可能無 U本位合約</td></tr>";
+        }
+    }
+    /* ======================================= */
 
     function reloadMainChart(symbol, tvInterval) {
         const chartContainer = document.getElementById('tv-chart-container');
@@ -567,7 +664,10 @@
 
         const body = Math.abs(curClose - parseFloat(data[data.length-1][1])); const ls = Math.min(curClose, parseFloat(data[data.length-1][1])) - lows[lows.length-1];
         let pTxt = "無"; if(ls > body*2) pTxt = "🔨 錘頭";
-        document.getElementById('pattern-res').innerText = pTxt; document.getElementById('atr-sl-price').innerText = fmt(curClose - atr*2);
+        document.getElementById('pattern-res').innerText = pTxt; 
+        
+        // 更保守的動態防禦止損：ATR 乘數拉大至 2.5 倍，防止惡意刺穿
+        document.getElementById('atr-sl-price').innerText = fmt(curClose - atr*2.5);
 
         let act = "";
         if(score>=2) act = rsi>70 ? "趨勢強但RSI過熱，分批止盈。" : "趨勢完美，拉回買進。";
