@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (v5.0.2 Ultimate)</title>
+    <title>Crypto AI Quant Analyst (v5.0.3 Ultimate)</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; background-color: #0b0e11; color: #eaecef; margin: 0; padding: 20px; }
         .container { max-width: 1600px; margin: 0 auto; }
@@ -117,7 +117,7 @@
 
 <div class="container">
     <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">v5.0.2 Ultimate</span></h1>
+        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">v5.0.3 Ultimate</span></h1>
         <div class="subtitle">Top-Down Macro Model • VIX/NQ/DXY Matrix • Auto Fibonacci</div>
         
         <div class="controls-wrapper">
@@ -236,7 +236,7 @@
             <div class="tradingview-widget-container" style="height:calc(100% - 30px); width:100%;">
                 <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-                { "symbols": [ ["VIX", "TVC:VIX|1M"] ], "chartOnly": true, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": true, "hideMarketStatus": true, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#ff5252", "bottomColor": "rgba(255, 82, 82, 0)", "topColor": "rgba(255, 82, 82, 0.3)", "lineWidth": 2 }
+                { "symbols": [ ["VIX", "CAPITALCOM:VIX|1M"] ], "chartOnly": true, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": true, "hideMarketStatus": true, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#ff5252", "bottomColor": "rgba(255, 82, 82, 0)", "topColor": "rgba(255, 82, 82, 0.3)", "lineWidth": 2 }
                 </script>
             </div>
         </div>
@@ -263,7 +263,7 @@
             <div class="tradingview-widget-container" style="height:calc(100% - 30px); width:100%;">
                 <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
                 <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-                { "symbols": [ ["US10Y", "TVC:US10Y|1M"] ], "chartOnly": true, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": true, "hideMarketStatus": true, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#F0B90B", "bottomColor": "rgba(240, 185, 11, 0)", "topColor": "rgba(240, 185, 11, 0.3)", "lineWidth": 2 }
+                { "symbols": [ ["US10Y", "FRED:DGS10|1M"] ], "chartOnly": true, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": true, "hideMarketStatus": true, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#F0B90B", "bottomColor": "rgba(240, 185, 11, 0)", "topColor": "rgba(240, 185, 11, 0.3)", "lineWidth": 2 }
                 </script>
             </div>
         </div>
@@ -424,8 +424,6 @@
     function triggerSearch() { 
         const input = document.getElementById('symbol-input').value.trim().toUpperCase(); 
         if(!input) return;
-        
-        // 防呆機制：阻止用戶在 Crypto 版搜尋台股代碼
         if (/^\d{4}$/.test(input) || input.startsWith('TWSE')) {
             alert("⚠️ 請注意：這裡是「加密貨幣」分析模組，底層串接幣安 API。若要分析台股 (如: "+input+")，請開啟我們稍早製作的「v5.2 台股專用版」網頁，否則圖表會白屏報錯喔！");
             return;
@@ -473,7 +471,6 @@
         if(num < 0.0001) return num.toFixed(8); return num.toFixed(6);
     }
 
-    // --- Chart ---
     function reloadMainChart(symbol, tvInterval) {
         const chartContainer = document.getElementById('tv-chart-container');
         chartContainer.innerHTML = '';
@@ -492,7 +489,6 @@
         chartDiv.appendChild(chartScript); chartContainer.appendChild(chartDiv);
     }
 
-    // --- BOTTOM SECTION ---
     function updateBottomSection(intervalLabel) { renderBottomGauge(intervalLabel); fetchBottomTableData(intervalLabel); }
 
     function renderBottomGauge(intervalLabel) {
