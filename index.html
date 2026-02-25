@@ -1,705 +1,1286 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto AI Quant Analyst (v5.0.6 Ultimate)</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; background-color: #0b0e11; color: #eaecef; margin: 0; padding: 20px; }
-        .container { max-width: 1600px; margin: 0 auto; }
-        
-        /* Header */
-        .header-section { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
-        h1 { background: linear-gradient(to right, #00f260, #0575e6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 10px 0; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; text-align: center; }
-        .subtitle { font-size: 0.9rem; color: #888; letter-spacing: 1px; margin-bottom: 15px; }
-        
-        /* Controls */
-        .controls-wrapper { display: flex; flex-direction: column; gap: 15px; align-items: center; width: 100%; position: relative; z-index: 100; }
-        .search-container { position: relative; width: 100%; max-width: 500px; }
-        .search-box { display: flex; gap: 10px; background: #1e2329; padding: 10px 20px; border-radius: 50px; border: 1px solid #0575e6; box-shadow: 0 0 15px rgba(5, 117, 230, 0.3); align-items: center; }
-        .search-input { background: transparent; border: none; color: #fff; font-size: 1.1rem; font-weight: bold; flex-grow: 1; outline: none; text-transform: uppercase; letter-spacing: 1px; }
-        .search-btn { background: linear-gradient(135deg, #0575e6, #021b79); color: #fff; border: none; padding: 8px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; white-space: nowrap; }
-        .search-btn:hover { transform: scale(1.05); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crypto AI Quant Analyst v6.0 — Elite Terminal</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg0: #060910;
+    --bg1: #0c1017;
+    --bg2: #111720;
+    --bg3: #1a2232;
+    --border: rgba(255,255,255,0.07);
+    --border-bright: rgba(99,210,255,0.25);
+    --green: #00e5a0;
+    --green-dim: rgba(0,229,160,0.15);
+    --red: #ff4466;
+    --red-dim: rgba(255,68,102,0.15);
+    --gold: #f5c542;
+    --gold-dim: rgba(245,197,66,0.15);
+    --blue: #63d2ff;
+    --blue-dim: rgba(99,210,255,0.12);
+    --purple: #b57bff;
+    --text: #c8d8e8;
+    --text-dim: #556070;
+    --mono: 'Space Mono', monospace;
+    --display: 'Syne', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--mono);
+    background: var(--bg0);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* Scanline overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+    pointer-events: none;
+    z-index: 9999;
+  }
+  .container { max-width: 1800px; margin: 0 auto; padding: 24px; }
 
-        .dropdown-list { position: absolute; top: 110%; left: 0; right: 0; background: #1e2329; border: 1px solid #2b3139; border-radius: 12px; max-height: 300px; overflow-y: auto; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .dropdown-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid #2b3139; display: flex; justify-content: space-between; }
-        .dropdown-item:hover { background: #2a2e39; color: #0575e6; }
+  /* ── HEADER ── */
+  .header {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 0 30px;
+    position: relative;
+  }
+  .header::after {
+    content: '';
+    position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 60%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  }
+  .logo-row { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--blue), var(--purple));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 0 30px rgba(99,210,255,0.3);
+  }
+  h1 {
+    font-family: var(--display); font-weight: 800; font-size: 2rem;
+    background: linear-gradient(90deg, var(--blue) 0%, var(--purple) 50%, var(--green) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+  .version-badge {
+    font-size: 0.65rem; color: var(--text-dim); letter-spacing: 3px;
+    text-transform: uppercase; margin-bottom: 20px;
+    font-family: var(--mono);
+  }
 
-        .tv-link-btn { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; background: #2a2e39; color: #fff; padding: 8px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; border: 1px solid #434651; transition: 0.3s; margin-top: 5px; }
-        .tv-link-btn:hover { background: #0575e6; border-color: #0575e6; }
+  /* ── CONTROLS ── */
+  .controls-strip {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    gap: 12px; padding: 20px 0;
+  }
+  .search-wrap { position: relative; }
+  .search-box {
+    display: flex; align-items: center;
+    background: var(--bg2); border: 1px solid var(--border-bright);
+    border-radius: 8px; padding: 0 6px 0 16px;
+    width: 320px;
+    box-shadow: 0 0 20px rgba(99,210,255,0.08);
+    transition: box-shadow 0.3s;
+  }
+  .search-box:focus-within { box-shadow: 0 0 30px rgba(99,210,255,0.2); }
+  .search-input {
+    background: none; border: none; color: #fff;
+    font-family: var(--mono); font-size: 1rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 2px;
+    flex: 1; padding: 12px 8px 12px 0; outline: none;
+  }
+  .search-input::placeholder { color: var(--text-dim); font-weight: 400; letter-spacing: 1px; }
+  .search-btn {
+    background: linear-gradient(135deg, var(--blue), #3a8bff);
+    border: none; color: var(--bg0); font-family: var(--mono); font-weight: 700;
+    padding: 8px 18px; border-radius: 6px; cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    white-space: nowrap; font-size: 0.85rem;
+  }
+  .search-btn:hover { transform: scale(1.04); box-shadow: 0 4px 16px rgba(99,210,255,0.4); }
+  .dropdown-list {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: var(--bg2); border: 1px solid var(--border-bright);
+    border-radius: 8px; max-height: 240px; overflow-y: auto;
+    display: none; z-index: 200;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+  }
+  .dropdown-item {
+    padding: 10px 16px; cursor: pointer;
+    display: flex; justify-content: space-between;
+    font-size: 0.85rem; border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .dropdown-item:hover { background: var(--bg3); color: var(--blue); }
 
-        .coin-switcher { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 5px; }
-        .coin-btn { background: #1e2329; border: 1px solid #333; color: #848e9c; padding: 5px 15px; border-radius: 15px; cursor: pointer; font-size: 0.9rem; transition: 0.3s; }
-        .coin-btn:hover { border-color: #0575e6; color: #fff; }
+  .pill-group { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .coin-pill {
+    font-family: var(--mono); font-size: 0.8rem; font-weight: 700;
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text-dim); padding: 6px 16px; border-radius: 6px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .coin-pill:hover, .coin-pill.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
 
-        .tf-switcher { display: flex; gap: 5px; background: #161a1e; padding: 5px; border-radius: 8px; border: 1px solid #2b3139; flex-wrap: wrap; justify-content: center; margin-top: 10px; }
-        .tf-btn { background: transparent; border: 1px solid transparent; color: #848e9c; padding: 5px 15px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; font-weight: bold; transition: 0.3s; font-family: 'Roboto Mono', monospace; }
-        .tf-btn.active { background: #2b3139; color: #0575e6; border-color: #0575e6; }
+  .tf-strip {
+    display: flex; gap: 4px; background: var(--bg1);
+    border: 1px solid var(--border); padding: 4px; border-radius: 8px;
+  }
+  .tf-pill {
+    font-family: var(--mono); font-size: 0.78rem; font-weight: 700;
+    background: none; border: 1px solid transparent; color: var(--text-dim);
+    padding: 5px 14px; border-radius: 5px; cursor: pointer; transition: all 0.2s;
+  }
+  .tf-pill.active { background: var(--bg3); border-color: var(--border-bright); color: var(--blue); }
 
-        /* Layout Grids */
-        .grid-top { display: grid; grid-template-columns: 3fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .grid-core { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 20px; }
-        
-        /* 變更為 5 宮格 */
-        .grid-matrix-charts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; }
-        
-        .grid-matrix-rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 20px; }
+  .tv-link {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim);
+    background: var(--bg2); border: 1px solid var(--border);
+    padding: 6px 16px; border-radius: 6px; text-decoration: none;
+    transition: all 0.2s;
+  }
+  .tv-link:hover { border-color: var(--blue); color: var(--blue); }
 
-        .card { background: #1e2329; border-radius: 12px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #2b3139; position: relative; display: flex; flex-direction: column; overflow: hidden; }
-        
-        .chart-box { height: 750px; } 
-        .data-box { height: 750px; } 
+  /* ── LAYOUT ── */
+  .row { display: grid; gap: 16px; margin-bottom: 16px; }
+  .row-top { grid-template-columns: 3fr 1fr; }
+  .row-matrix { grid-template-columns: repeat(5, 1fr); }
+  .row-bottom-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .row-fib-scan { grid-template-columns: 1fr 1fr; }
 
-        /* AI Report */
-        .ai-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b3139; padding-bottom: 15px; margin-bottom: 15px; }
-        .ai-title { font-size: 1.3rem; font-weight: bold; color: #fff; display: flex; align-items: center; gap: 10px; }
-        .ai-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
-        .ai-col { background: #161a1e; padding: 15px; border-radius: 8px; border: 1px solid #2b3139; display: flex; flex-direction: column; }
-        .ai-label { font-size: 0.8rem; color: #848e9c; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #2b3139; padding-bottom: 5px; }
-        .score-row { display: flex; justify-content: space-between; font-size: 0.9rem; border-bottom: 1px solid #2b3139; padding: 8px 0; align-items: center; }
-        .action-text { font-size: 1.05rem; line-height: 1.6; color: #d1d4dc; white-space: pre-line; margin-bottom: 15px; flex-grow: 1; }
-        .signal-bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; margin-top: 5px; overflow: hidden; }
-        .signal-bar-fill { height: 100%; width: 0%; background: #888; transition: width 0.5s ease-out; }
+  .card {
+    background: var(--bg1); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(ellipse at 0% 0%, rgba(99,210,255,0.03) 0%, transparent 60%);
+  }
+  .card-title {
+    font-family: var(--display); font-size: 0.85rem; font-weight: 700;
+    color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+  }
+  .card-title .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); }
 
-        /* Tables */
-        .pivot-table, .detail-table, .fib-table, .scanner-table { width: 100%; font-size: 0.85rem; border-collapse: collapse; text-align: center; margin-top:10px; }
-        td { padding: 5px; border-bottom: 1px solid #2b3139; }
-        .res-zone { color: #F6465D; } .sup-zone { color: #0ECB81; } .pivot-zone { color: #F0B90B; font-weight: bold; }
-        .ob-bar-container { width: 100%; height: 20px; background: #333; border-radius: 10px; overflow: hidden; margin-top: 10px; display: flex; }
-        .ob-buy { height: 100%; background: #0ECB81; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-start; padding-left: 5px; font-size: 0.7rem; color: #000; font-weight: bold;}
-        .ob-sell { height: 100%; background: #F6465D; width: 50%; transition: width 0.5s; display: flex; align-items: center; justify-content: flex-end; padding-right: 5px; font-size: 0.7rem; color: #fff; font-weight: bold;}
-        .ob-text { display: flex; justify-content: space-between; font-size: 0.9rem; margin-top: 5px; font-weight: bold; }
+  /* ── MAIN CHART ── */
+  .chart-card { height: 720px; padding: 16px; }
+  .chart-card-inner { height: calc(100% - 40px); }
+  .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .symbol-badge {
+    font-family: var(--display); font-weight: 800; font-size: 1.5rem;
+    color: var(--blue);
+  }
+  .tf-badge { font-size: 0.75rem; color: var(--text-dim); background: var(--bg2); padding: 4px 10px; border-radius: 4px; }
 
-        /* Fib & Controls */
-        .gauge-controls, .fib-controls { display: flex; gap: 5px; flex-wrap: wrap; }
-        .gauge-btn, .fib-btn { background: #2a2e39; color: #888; border: 1px solid #444; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; transition: 0.3s; }
-        .gauge-btn.active, .fib-btn.active { background: #0575e6; color: #fff; border-color: #0575e6; font-weight: bold; box-shadow: 0 0 10px rgba(5, 117, 230, 0.2); }
-        .gauge-btn:hover, .fib-btn:hover { color: #fff; border-color: #fff; }
-        .fib-controls { margin-bottom: 15px; border-bottom: 1px solid #2a2e39; padding-bottom: 15px; }
-        .fib-table td, .fib-table th { padding: 12px; border-bottom: 1px solid #2b3139; font-family: 'Roboto Mono', monospace; }
-        .row-buy-zone { background: linear-gradient(90deg, rgba(14, 203, 129, 0.1) 0%, rgba(14, 203, 129, 0) 100%); border-left: 3px solid #0ECB81; }
-        .row-sell-zone { background: linear-gradient(90deg, rgba(246, 70, 93, 0.1) 0%, rgba(246, 70, 93, 0) 100%); border-left: 3px solid #F6465D; }
-        .dist-near { color: #F0B90B; font-weight: bold; border: 1px solid #F0B90B; }
+  /* ── MARKET PULSE CARD ── */
+  .pulse-card { height: 720px; display: flex; flex-direction: column; gap: 16px; }
 
-        /* Scanner */
-        .scanner-container { background:#161a1e; border-radius:8px; padding:20px; border:1px solid #2b3139; margin-top:20px; }
-        .scanner-table th { text-align:left; color:#888; font-size:0.9rem; padding:10px; border-bottom:1px solid #333; }
-        .scanner-table td { padding: 12px 10px; font-weight: bold; font-size: 1rem; border-bottom:1px solid #2a2e39; }
-        .sig-buy { color: #0ECB81; background: rgba(14, 203, 129, 0.1); border-radius: 4px; padding: 4px 8px; display:inline-block; }
-        .sig-sell { color: #F6465D; background: rgba(246, 70, 93, 0.1); border-radius: 4px; padding: 4px 8px; display:inline-block; }
-        .sig-neu { color: #888; background: rgba(255,255,255,0.05); border-radius: 4px; padding: 4px 8px; display:inline-block; }
+  .metric-block { background: var(--bg2); border-radius: 8px; padding: 14px; border: 1px solid var(--border); }
+  .metric-label { font-size: 0.7rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px; }
+  .metric-val { font-family: var(--mono); font-size: 1.5rem; font-weight: 700; }
+  .metric-val.green { color: var(--green); text-shadow: 0 0 20px rgba(0,229,160,0.4); }
+  .metric-val.red { color: var(--red); text-shadow: 0 0 20px rgba(255,68,102,0.4); }
+  .metric-val.gold { color: var(--gold); text-shadow: 0 0 20px rgba(245,197,66,0.3); }
+  .metric-val.blue { color: var(--blue); }
 
-        .grad-text-green { background: linear-gradient(90deg, #11998e, #38ef7d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
-        .grad-text-red { background: linear-gradient(90deg, #ff416c, #ff4b2b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 800; }
+  /* Pivot table */
+  .pivot-tbl { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+  .pivot-tbl td { padding: 7px 8px; border-bottom: 1px solid var(--border); }
+  .pivot-tbl td:last-child { font-family: var(--mono); font-weight: 700; text-align: right; }
+  .lbl-r2 { color: var(--red); } .lbl-r1 { color: #ff8899; }
+  .lbl-p { color: var(--gold); font-weight: 700; } .lbl-s1 { color: #88ffcc; } .lbl-s2 { color: var(--green); }
 
-        /* Macro Rule Cards */
-        .rule-box { background: #161a1e; border: 1px solid #2b3139; border-radius: 8px; padding: 15px; }
-        .rule-box h4 { margin: 0 0 10px 0; color: #0575e6; font-size: 1.1rem; border-bottom: 1px solid #2b3139; padding-bottom: 8px; }
-        .rule-box ul { padding-left: 20px; margin: 0; color: #d1d4dc; font-size: 0.9rem; line-height: 1.6; }
-        .rule-box li { margin-bottom: 8px; }
-        .sop-checklist { background: linear-gradient(135deg, #1e2329, #13171e); border: 1px solid #F0B90B; border-radius: 8px; padding: 15px; grid-column: 1 / -1; }
-        .sop-checklist h4 { margin: 0 0 10px 0; color: #F0B90B; display: flex; align-items: center; gap: 8px; }
-        .sop-items { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
-        .sop-item { background: rgba(240, 185, 11, 0.1); padding: 10px 20px; border-radius: 50px; font-weight: bold; border: 1px solid rgba(240, 185, 11, 0.3); display: flex; align-items: center; gap: 10px; }
-        .sop-item input[type="checkbox"] { transform: scale(1.3); cursor: pointer; }
+  /* OB bar */
+  .ob-track { height: 10px; background: var(--bg0); border-radius: 5px; overflow: hidden; display: flex; margin: 8px 0 4px; }
+  .ob-buy-seg { background: linear-gradient(90deg, var(--green), #00b575); height: 100%; transition: width 0.5s; }
+  .ob-sell-seg { background: linear-gradient(90deg, #cc2244, var(--red)); height: 100%; transition: width 0.5s; }
+  .ob-labels { display: flex; justify-content: space-between; font-size: 0.75rem; }
 
-        #loading-indicator, #fib-loading, #bottom-loading { display: none; color: #0575e6; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+  /* ── AI DECISION ENGINE ── */
+  .ai-card { }
+  .ai-header-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-bottom: 16px; margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ai-title { font-family: var(--display); font-size: 1.2rem; font-weight: 800; color: #fff; }
+  .ai-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .ai-col { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; }
+  .ai-col-title { font-size: 0.7rem; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .ai-score-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.83rem; padding: 7px 0; border-bottom: 1px solid var(--border); }
+  .ai-score-row:last-child { border-bottom: none; }
+  .badge { padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+  .badge-bull { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
+  .badge-bear { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+  .badge-neu { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold); }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue); }
 
-        @media (max-width: 1400px) {
-            .grid-matrix-charts { grid-template-columns: repeat(3, 1fr); }
-        }
-        @media (max-width: 1200px) { 
-            .grid-top, .ai-grid, .grid-matrix-rules { grid-template-columns: 1fr; } 
-            .grid-matrix-charts { grid-template-columns: repeat(2, 1fr); }
-            .chart-box, .data-box { height: auto; min-height: 500px; } 
-            .sop-items { flex-direction: column; }
-        }
-        @media (max-width: 768px) {
-            .grid-matrix-charts { grid-template-columns: 1fr; }
-        }
-    </style>
+  /* Signal bar */
+  .sig-track { height: 6px; background: var(--bg0); border-radius: 3px; margin: 8px 0 4px; overflow: hidden; }
+  .sig-fill { height: 100%; border-radius: 3px; transition: width 0.7s ease-out, background 0.5s; }
+
+  /* ATR box */
+  .atr-box {
+    margin-top: 12px; padding: 12px; border-radius: 8px;
+    background: var(--red-dim); border: 1px solid rgba(255,68,102,0.3);
+  }
+  .atr-price { font-family: var(--mono); font-size: 1.6rem; font-weight: 700; color: var(--red); }
+
+  /* Action text */
+  .action-text { font-size: 0.88rem; line-height: 1.7; color: var(--text); flex-grow: 1; white-space: pre-line; }
+  .rec-row { display: flex; justify-content: space-between; font-size: 0.82rem; padding: 6px 0; border-top: 1px solid var(--border); margin-top: 6px; }
+  .rec-val { font-family: var(--mono); font-weight: 700; color: var(--blue); }
+
+  /* ── COMPOSITE SCORE PANEL ── */
+  .composite-bar-wrap {
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px; margin-bottom: 16px;
+  }
+  .composite-title { font-size: 0.7rem; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 12px; }
+  .indicators-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .ind-cell {
+    background: var(--bg1); border: 1px solid var(--border);
+    border-radius: 7px; padding: 10px 8px; text-align: center;
+    transition: border-color 0.3s;
+  }
+  .ind-cell.bull { border-color: rgba(0,229,160,0.4); }
+  .ind-cell.bear { border-color: rgba(255,68,102,0.3); }
+  .ind-name { font-size: 0.68rem; color: var(--text-dim); margin-bottom: 4px; }
+  .ind-val { font-family: var(--mono); font-size: 0.85rem; font-weight: 700; }
+  .ind-val.green { color: var(--green); } .ind-val.red { color: var(--red); } .ind-val.gold { color: var(--gold); }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    display: flex; align-items: center; gap: 16px;
+    margin: 32px 0 16px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-header h2 {
+    font-family: var(--display); font-weight: 800; font-size: 1rem;
+    color: #fff; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .section-header .line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border-bright), transparent);
+  }
+  .section-header .tag {
+    font-size: 0.65rem; color: var(--blue); letter-spacing: 2px;
+    border: 1px solid var(--blue-dim); padding: 3px 10px; border-radius: 4px;
+  }
+
+  /* ── MACRO MINI CHART CARDS ── */
+  .macro-card { height: 340px; padding: 10px; }
+
+  /* ── FUNDING RATE ── */
+  .funding-card {
+    height: 340px; display: flex; flex-direction: column;
+    background: linear-gradient(160deg, var(--bg1) 0%, var(--bg0) 100%);
+    padding: 16px;
+  }
+  .funding-rate-big {
+    font-family: var(--mono); font-size: 3rem; font-weight: 700;
+    text-align: center; margin: auto 0;
+  }
+  .funding-badge {
+    text-align: center; margin: 8px 0;
+    font-size: 0.82rem; font-weight: 700; padding: 6px 14px;
+    border-radius: 30px; border: 1px solid transparent;
+  }
+  .funding-countdown { text-align: center; font-size: 0.75rem; color: var(--text-dim); font-family: var(--mono); }
+  .funding-hist td { padding: 5px 8px; font-size: 0.78rem; border-bottom: 1px solid var(--border); }
+
+  /* ── MACRO RULES ── */
+  .rule-card { padding: 18px; }
+  .rule-card h4 { font-family: var(--display); font-size: 0.9rem; font-weight: 700; color: var(--blue); margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+  .rule-card ul { padding-left: 16px; }
+  .rule-card li { font-size: 0.82rem; color: var(--text); line-height: 1.65; margin-bottom: 7px; }
+  .rule-card li::marker { color: var(--border-bright); }
+  .txt-green { color: var(--green); font-weight: 700; }
+  .txt-red { color: var(--red); font-weight: 700; }
+  .txt-gold { color: var(--gold); font-weight: 700; }
+
+  /* SOP */
+  .sop-card {
+    border: 1px solid rgba(245,197,66,0.25) !important;
+    background: linear-gradient(135deg, var(--bg1), var(--bg0)) !important;
+    padding: 20px;
+  }
+  .sop-card h4 { font-family: var(--display); font-weight: 700; color: var(--gold); margin-bottom: 16px; }
+  .sop-items { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; }
+  .sop-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--gold-dim); border: 1px solid rgba(245,197,66,0.2);
+    padding: 10px 20px; border-radius: 8px; font-size: 0.82rem;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .sop-item:hover { background: rgba(245,197,66,0.2); }
+  .sop-item input[type="checkbox"] { transform: scale(1.3); cursor: pointer; accent-color: var(--gold); }
+
+  /* ── FIB TABLE ── */
+  .fib-card { }
+  .fib-controls { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+  .fib-btn {
+    font-family: var(--mono); font-size: 0.78rem;
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text-dim); padding: 5px 14px; border-radius: 5px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .fib-btn.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+  .fib-tbl { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .fib-tbl th { font-size: 0.7rem; color: var(--text-dim); padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; letter-spacing: 1px; }
+  .fib-tbl td { padding: 10px; border-bottom: 1px solid var(--border); font-family: var(--mono); }
+  .fib-buy { border-left: 3px solid var(--green); background: linear-gradient(90deg, rgba(0,229,160,0.06), transparent); }
+  .fib-sell { border-left: 3px solid var(--red); background: linear-gradient(90deg, rgba(255,68,102,0.06), transparent); }
+  .fib-near { color: var(--gold); font-weight: 700; }
+  .dist-pos { color: var(--green); } .dist-neg { color: var(--red); }
+
+  /* ── BOTTOM SCANNER ── */
+  .scanner-card { }
+  .gauge-strip { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 12px; }
+  .gauge-pill {
+    font-family: var(--mono); font-size: 0.75rem;
+    background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text-dim); padding: 4px 12px; border-radius: 4px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .gauge-pill.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+  .scanner-tbl { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  .scanner-tbl th { font-size: 0.7rem; color: var(--text-dim); padding: 8px 12px; border-bottom: 1px solid var(--border); letter-spacing: 1px; font-weight: 400; }
+  .scanner-tbl td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+  .scanner-tbl td:last-child { font-family: var(--mono); font-weight: 700; text-align: right; }
+  .sig-b { color: var(--green); background: var(--green-dim); padding: 3px 10px; border-radius: 4px; }
+  .sig-s { color: var(--red); background: var(--red-dim); padding: 3px 10px; border-radius: 4px; }
+  .sig-n { color: var(--text-dim); background: var(--bg2); padding: 3px 10px; border-radius: 4px; }
+
+  /* ── VOLATILITY & PATTERN BOX ── */
+  .extra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .mini-stat { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+  .mini-stat-label { font-size: 0.68rem; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .mini-stat-val { font-family: var(--mono); font-size: 1.1rem; font-weight: 700; color: #fff; }
+
+  /* ── MULTI-TF TREND MATRIX ── */
+  .matrix-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 12px; }
+  .mtf-cell {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 7px; padding: 10px; text-align: center;
+  }
+  .mtf-tf { font-size: 0.68rem; color: var(--text-dim); margin-bottom: 4px; letter-spacing: 1px; }
+  .mtf-val { font-family: var(--mono); font-size: 0.8rem; font-weight: 700; }
+
+  /* ── LOADING ── */
+  @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+  .loading { color: var(--blue); animation: pulse 1.2s infinite; font-size: 0.8rem; }
+
+  /* ── GLOW EFFECTS ── */
+  @keyframes glow { 0%,100% { box-shadow: 0 0 10px rgba(99,210,255,0.1); } 50% { box-shadow: 0 0 25px rgba(99,210,255,0.25); } }
+  .glow-card { animation: glow 4s ease-in-out infinite; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg0); }
+  ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 2px; }
+
+  @media (max-width: 1400px) {
+    .row-top { grid-template-columns: 1fr; }
+    .row-matrix { grid-template-columns: repeat(3, 1fr); }
+    .ai-cols { grid-template-columns: 1fr; }
+    .chart-card { height: 500px; }
+    .pulse-card { height: auto; }
+  }
+  @media (max-width: 900px) {
+    .row-matrix { grid-template-columns: 1fr 1fr; }
+    .row-bottom-grid { grid-template-columns: 1fr; }
+    .row-fib-scan { grid-template-columns: 1fr; }
+    .indicators-grid { grid-template-columns: repeat(2, 1fr); }
+    .matrix-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .row-matrix { grid-template-columns: 1fr; }
+    h1 { font-size: 1.4rem; }
+  }
+</style>
 </head>
 <body>
-
 <div class="container">
-    <div class="header-section">
-        <h1>Crypto AI Quant Analyst <span style="font-size:0.5em; color:#888;">v5.0.6 Ultimate</span></h1>
-        <div class="subtitle">Top-Down Macro Model • VIX/NQ/DXY/Funding Matrix</div>
-        
-        <div class="controls-wrapper">
-            <div class="search-container">
-                <div class="search-box">
-                    <input type="text" id="symbol-input" class="search-input" placeholder="輸入加密貨幣 (例: BTC, SOL) *請勿輸入台股..." autocomplete="off">
-                    <button class="search-btn" onclick="triggerSearch()">🔍 分析</button>
-                </div>
-                <div id="dropdown-list" class="dropdown-list"></div>
-            </div>
 
-            <a id="tv-link" href="#" target="_blank" class="tv-link-btn">🔗 前往 TradingView 詳細分析頁面</a>
-
-            <div class="coin-switcher">
-                <button class="coin-btn" onclick="quickLoad('BTC')">BTC</button>
-                <button class="coin-btn" onclick="quickLoad('ETH')">ETH</button>
-                <button class="coin-btn" onclick="quickLoad('SOL')">SOL</button>
-                <button class="coin-btn" onclick="quickLoad('BNB')">BNB</button>
-                <button class="coin-btn" onclick="quickLoad('DOGE')">DOGE</button>
-                <button class="coin-btn" onclick="quickLoad('XRP')">XRP</button>
-                <button class="coin-btn" onclick="quickLoad('ADA')">ADA</button>
-                <span id="loading-indicator">⚡ 數據運算中...</span>
-            </div>
-
-            <div class="tf-switcher">
-                <button class="tf-btn" onclick="switchGlobalTimeframe('15m')">15m</button>
-                <button class="tf-btn" onclick="switchGlobalTimeframe('1h')">1H</button>
-                <button class="tf-btn active" onclick="switchGlobalTimeframe('4h')">4H</button>
-                <button class="tf-btn" onclick="switchGlobalTimeframe('1d')">1D</button>
-                <button class="tf-btn" onclick="switchGlobalTimeframe('1M')">1M</button>
-                <button class="tf-btn" onclick="switchGlobalTimeframe('1Y')">1Y</button>
-            </div>
-        </div>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-row">
+      <div class="logo-icon">⚡</div>
+      <h1>CRYPTO AI QUANT</h1>
     </div>
-
-    <div class="grid-top">
-        <div class="card chart-box">
-            <div style="padding-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <h3 style="margin:0; color:#eee;">📈 <span class="coin-name" style="color:#0575e6">BTC</span>/USDT 技術分析 (<span class="tf-display">4H</span>)</h3>
-                <span style="font-size:0.8rem; color:#888;">*Auto Fib 啟用</span>
-            </div>
-            <div id="tv-chart-container" style="height:100%;width:100%"></div>
-        </div>
-        
-        <div class="card data-box">
-            <h3 style="margin-top:0; color:#eee;">⚡ 籌碼與點位分析</h3>
-            <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-around;">
-                <div>
-                    <div style="font-size:0.9rem; color:#848e9c; margin-bottom:10px;">📊 買賣盤掛單壓力 (Order Book)</div>
-                    <div class="ob-bar-container">
-                        <div id="ob-buy-bar" class="ob-buy"></div>
-                        <div id="ob-sell-bar" class="ob-sell"></div>
-                    </div>
-                    <div class="ob-text">
-                        <span style="color:#0ECB81">買盤: <span id="ob-buy-pct">--%</span></span>
-                        <span style="color:#F6465D">賣盤: <span id="ob-sell-pct">--%</span></span>
-                    </div>
-                </div>
-                <div>
-                    <div style="font-size:0.9rem; color:#848e9c; margin-bottom:10px;">🎯 機構樞軸點 (Pivot Points)</div>
-                    <table class="pivot-table">
-                        <tr><td class="res-zone">R2 (強壓力)</td><td id="pp-r2" style="font-weight:bold;">---</td></tr>
-                        <tr><td class="res-zone">R1 (壓力)</td><td id="pp-r1" style="font-weight:bold;">---</td></tr>
-                        <tr><td class="pivot-zone">P (中軸)</td><td id="pp-p" style="font-weight:bold;">---</td></tr>
-                        <tr><td class="sup-zone">S1 (支撐)</td><td id="pp-s1" style="font-weight:bold;">---</td></tr>
-                        <tr><td class="sup-zone">S2 (強支撐)</td><td id="pp-s2" style="font-weight:bold;">---</td></tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="grid-core">
-        <div class="card">
-            <div class="ai-header">
-                <div class="ai-title">🧠 AI 核心邏輯決策報告 (<span class="tf-display" style="color:#0575e6">4H</span>)</div>
-                <div style="font-size:0.85rem; color:#888;">Binance Data × ATR Risk Model</div>
-            </div>
-            <div class="ai-grid">
-                <div class="ai-col">
-                    <div class="ai-label">1. 趨勢與信心指數</div>
-                    <div id="trend-display" style="margin-bottom:10px; font-size:1.2rem;">---</div>
-                    <div style="margin-bottom:15px;">
-                        <span style="font-size:0.8rem; color:#aaa;">訊號強度 (Signal Strength): <span id="signal-val">0%</span></span>
-                        <div class="signal-bar-bg"><div id="signal-bar" class="signal-bar-fill"></div></div>
-                    </div>
-                    <div class="score-row"><span>MA99 長線</span><span id="score-ma99">⚪</span></div>
-                    <div class="score-row"><span>MA25 中線</span><span id="score-ma25">⚪</span></div>
-                    <div class="score-row"><span>MA7 金叉</span><span id="score-cross">⚪</span></div>
-                </div>
-                <div class="ai-col">
-                    <div class="ai-label">2. 風險與型態</div>
-                    <div class="score-row" style="margin-top:10px;"><span>K線型態:</span><span id="pattern-res" style="font-weight:bold; color:#fff;">掃描中...</span></div>
-                    <div style="margin-top:20px; background:rgba(0,0,0,0.3); padding:10px; border-radius:6px;">
-                        <div class="ai-label">ATR 動態防禦止損線</div>
-                        <div style="font-size:1.6rem; font-weight:bold; font-family:'Roboto Mono'; margin:5px 0;" class="grad-text-red"><span id="atr-sl-price">---</span></div>
-                        <div style="font-size:0.75rem; color:#888;">*防止機構惡意刺穿掃損的寬幅設計</div>
-                    </div>
-                </div>
-                <div class="ai-col" style="border: 1px solid rgba(5, 117, 230, 0.3);">
-                    <div class="ai-label" style="color:#0575e6;">3. AI 實戰操作建議</div>
-                    <div id="ai-action-text" class="action-text">分析中...</div>
-                    <div style="margin-top:auto; border-top:1px solid rgba(255,255,255,0.1); padding-top:10px;">
-                        <div class="score-row"><span>建議進場:</span><span id="rec-buy" style="font-family:'Roboto Mono'">---</span></div>
-                        <div class="score-row"><span>建議止盈:</span><span id="rec-sell" style="font-family:'Roboto Mono'">---</span></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <h2 style="color:#fff; margin:30px 0 20px 0; border-left:5px solid #0ECB81; padding-left:15px;">🏦 華爾街機構流動性矩陣 (Top-Down Macro Model)</h2>
+    <div class="version-badge">v6.0 ELITE TERMINAL &nbsp;•&nbsp; BINANCE API &nbsp;•&nbsp; REAL-TIME</div>
     
-    <div class="grid-matrix-charts">
-        <div class="card" style="height:360px; padding:10px;">
-            <div class="tradingview-widget-container" style="height:100%; width:100%;">
-                <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-                { "symbols": [ ["📉 恐慌指數 (VIX)", "CAPITALCOM:VIX|3M"] ], "chartOnly": false, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": false, "hideMarketStatus": false, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#ff5252", "bottomColor": "rgba(255, 82, 82, 0)", "topColor": "rgba(255, 82, 82, 0.3)", "lineWidth": 2 }
-                </script>
-            </div>
+    <div class="controls-strip">
+      <div class="search-wrap">
+        <div class="search-box">
+          <input type="text" id="symbol-input" class="search-input" placeholder="搜尋幣種..." autocomplete="off">
+          <button class="search-btn" onclick="triggerSearch()">SCAN</button>
         </div>
-        <div class="card" style="height:360px; padding:10px;">
-            <div class="tradingview-widget-container" style="height:100%; width:100%;">
-                <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-                { "symbols": [ ["📈 那斯達克 (US100)", "CAPITALCOM:US100|3M"] ], "chartOnly": false, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": false, "hideMarketStatus": false, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "candlesticks", "upColor": "#089981", "downColor": "#f23645", "borderUpColor": "#089981", "borderDownColor": "#f23645", "wickUpColor": "#089981", "wickDownColor": "#f23645" }
-                </script>
-            </div>
-        </div>
-        <div class="card" style="height:360px; padding:10px;">
-            <div class="tradingview-widget-container" style="height:100%; width:100%;">
-                <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-                { "symbols": [ ["💵 美元指數 (DXY)", "CAPITALCOM:DXY|3M"] ], "chartOnly": false, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": false, "hideMarketStatus": false, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#089981", "bottomColor": "rgba(8, 153, 129, 0)", "topColor": "rgba(8, 153, 129, 0.3)", "lineWidth": 2 }
-                </script>
-            </div>
-        </div>
-        <div class="card" style="height:360px; padding:10px;">
-            <div class="tradingview-widget-container" style="height:100%; width:100%;">
-                <div class="tradingview-widget-container__widget" style="height:100%; width:100%;"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-                { "symbols": [ ["🏛️ 10年公債殖利率", "FRED:DGS10|3M"] ], "chartOnly": false, "width": "100%", "height": "100%", "locale": "zh_TW", "colorTheme": "dark", "autosize": true, "showVolume": false, "showMA": false, "hideDateRanges": false, "hideMarketStatus": false, "hideSymbolLogo": true, "scalePosition": "right", "scaleMode": "Normal", "fontFamily": "sans-serif", "fontSize": "10", "noTimeScale": false, "valuesTracking": "1", "changeMode": "price-and-percent", "chartType": "area", "lineColor": "#F0B90B", "bottomColor": "rgba(240, 185, 11, 0)", "topColor": "rgba(240, 185, 11, 0.3)", "lineWidth": 2 }
-                </script>
-            </div>
-        </div>
-        
-        <div class="card" style="height:360px; padding:15px; display:flex; flex-direction:column; background:linear-gradient(180deg, #1e2329 0%, #161a1e 100%);">
-            <div style="color:#fff; font-weight:bold; margin-bottom:15px; font-size:1rem; border-bottom:1px solid #2b3139; padding-bottom:10px; display:flex; justify-content:space-between;">
-                <span>💰 幣安資金費率</span>
-                <span style="font-size:0.8rem; color:#888; font-weight:normal;">API 直連</span>
-            </div>
-            
-            <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                <div style="color:#848e9c; font-size:0.85rem; margin-bottom:5px;">當前合約費率 (<span class="coin-name">BTC</span>)</div>
-                <div id="live-funding-rate" style="font-size:2.8rem; font-weight:bold; font-family:'Roboto Mono'; margin-bottom:10px;">---</div>
-                <div id="funding-status" style="padding:6px 18px; border-radius:30px; font-size:0.9rem; font-weight:bold; margin-bottom:10px; border:1px solid transparent;">加載中...</div>
-                <div id="funding-countdown" style="color:#aaa; font-size:0.8rem; margin-bottom:20px; font-family:'Roboto Mono';">下次結算: --:--:--</div>
-            </div>
+        <div id="dropdown-list" class="dropdown-list"></div>
+      </div>
 
-            <table style="width:100%; font-size:0.85rem; text-align:center; color:#aaa; border-collapse:collapse; background:#1e2329; border-radius:8px; overflow:hidden;">
-                <thead>
-                    <tr><th colspan="2" style="background:#2b3139; padding:6px; color:#eee; font-weight:normal;">過去三次結算歷史</th></tr>
-                </thead>
-                <tbody id="funding-history">
-                    <tr><td colspan="2" style="padding:10px;">讀取中...</td></tr>
-                </tbody>
-            </table>
+      <a id="tv-link" href="#" target="_blank" class="tv-link">🔗 TradingView</a>
+
+      <div class="pill-group" id="quick-coins">
+        <button class="coin-pill active" onclick="quickLoad('BTC',this)">BTC</button>
+        <button class="coin-pill" onclick="quickLoad('ETH',this)">ETH</button>
+        <button class="coin-pill" onclick="quickLoad('SOL',this)">SOL</button>
+        <button class="coin-pill" onclick="quickLoad('BNB',this)">BNB</button>
+        <button class="coin-pill" onclick="quickLoad('DOGE',this)">DOGE</button>
+        <button class="coin-pill" onclick="quickLoad('XRP',this)">XRP</button>
+        <button class="coin-pill" onclick="quickLoad('ADA',this)">ADA</button>
+        <span id="load-ind" class="loading" style="display:none;">⚡ 計算中...</span>
+      </div>
+
+      <div class="tf-strip">
+        <button class="tf-pill" onclick="switchTF('15m',this)">15m</button>
+        <button class="tf-pill" onclick="switchTF('1h',this)">1H</button>
+        <button class="tf-pill active" onclick="switchTF('4h',this)">4H</button>
+        <button class="tf-pill" onclick="switchTF('1d',this)">1D</button>
+        <button class="tf-pill" onclick="switchTF('1M',this)">1M</button>
+        <button class="tf-pill" onclick="switchTF('1Y',this)">1Y</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP ROW: Chart + Market Pulse -->
+  <div class="row row-top">
+    <div class="card chart-card">
+      <div class="chart-header">
+        <div>
+          <span class="symbol-badge" id="main-symbol-lbl">BTC</span>
+          <span style="color:var(--text-dim); font-size:0.85rem;">/USDT</span>
         </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span class="tf-badge tf-display">4H (波段)</span>
+          <span style="font-size:0.7rem;color:var(--text-dim);">Auto Fib ✓ MACD ✓ RSI ✓</span>
+        </div>
+      </div>
+      <div class="chart-card-inner" id="tv-chart-container"></div>
     </div>
 
-    <div class="grid-matrix-rules">
-        <div class="rule-box">
-            <h4>第一步：VIX 決定「插針深度」</h4>
-            <ul>
-                <li><span class="grad-text-green">VIX < 15 (樂觀)</span>：無深度下殺，主力溫水煮青蛙誘多。</li>
-                <li><span style="color:#F0B90B;">VIX 15-20 (震盪)</span>：健康回調，插針極限約為美股跌幅 3 倍。</li>
-                <li><span class="grad-text-red">VIX 20-25 (警戒)</span>：美股避險爆發！重要接刀訊號，容易單日大殺 10%，深水區網格進入射程。</li>
-                <li><span style="color:#FF1744; font-weight:bold;">VIX > 30 (黑天鵝)</span>：無差別拋售。確保保證金能扛住終極防線不被強平！</li>
-            </ul>
-        </div>
-        
-        <div class="rule-box">
-            <h4>第二步：NQ 決定「真實動向」</h4>
-            <p style="font-size:0.85rem; color:#888; margin-top:0;">BTC 屬性為高 Beta 科技股，看關鍵結構是否破壞。</p>
-            <ul>
-                <li><span class="grad-text-green">收長下影線守支撐</span>：代表美股有買盤承接。BTC 下殺通常是假跌破，即將反彈。</li>
-                <li><span class="grad-text-red">實體大黑 K 灌破支撐</span>：華爾街實質撤資！BTC 任何拉抬皆為「逃命波與誘多」，耐心等下方網格成交，嚴禁做多。</li>
-            </ul>
-        </div>
+    <div class="card pulse-card">
+      <div class="card-title"><span class="dot"></span>市場脈衝板</div>
 
-        <div class="rule-box">
-            <h4>第三步：US10Y & DXY 決定「拉盤底氣」</h4>
-            <p style="font-size:0.85rem; color:#888; margin-top:0;">這兩個指標是市場的「資金水龍頭」。它們決定了主力有沒有真金白銀去把 BTC 推上歷史新高。</p>
-            <ul>
-                <li><span class="grad-text-red">US10Y > 4.0% 且 DXY 強勢站穩 97</span>：<br>資金水龍頭是關緊的。市場上的錢很貴，主力絕對不會在這種時候花大錢去拉抬 BTC。</li>
-                <li><span class="grad-text-green">US10Y < 3.8% 且 DXY 狂跌</span>：<br>資金水龍頭大開 (例如聯準會突然宣布大降息)。這時你的思維要反轉，這可能是真實的牛市啟動。</li>
-            </ul>
-        </div>
+      <!-- Current Price + Change -->
+      <div class="metric-block">
+        <div class="metric-label">即時價格</div>
+        <div class="metric-val blue" id="live-price">---</div>
+        <div style="font-size:0.8rem;margin-top:4px;" id="price-change">---</div>
+      </div>
 
-        <div class="rule-box" style="grid-column: 1 / -1; background: linear-gradient(to right, #161a1e, #1e2329);">
-            <h4>第四步：對比內部數據找「燃料」 (資金費率)</h4>
-            <div style="display:flex; flex-wrap:wrap; gap:20px;">
-                <div style="flex:1; min-width:300px;">
-                    <ul style="margin-top:10px;">
-                        <li><span class="grad-text-red">完美誘多局 (空軍燃料)</span>：宏觀極差 (NQ 破位/DXY 強) + <span style="color:#F6465D; font-weight:bold;">資金費率異常飆高 (>0.015%)</span>。代表散戶還在無腦逆勢做多，主力必殺之，向下插針洗盤機率極高。</li>
-                        <li><span class="grad-text-green">完美接刀局 (軋空燃料)</span>：宏觀極差 (VIX>25) + <span style="color:#0ECB81; font-weight:bold;">資金費率極度負值 (<0%)</span>。散戶絕望停損，多頭槓桿清零，空軍大量聚集，這正是逢低接刀、準備向上軋空的黃金時刻。</li>
-                    </ul>
-                </div>
-            </div>
+      <!-- Order Book -->
+      <div class="metric-block">
+        <div class="metric-label">買賣掛單壓力 (Order Book)</div>
+        <div class="ob-track">
+          <div id="ob-buy-bar" class="ob-buy-seg" style="width:50%"></div>
+          <div id="ob-sell-bar" class="ob-sell-seg" style="width:50%"></div>
         </div>
+        <div class="ob-labels">
+          <span style="color:var(--green);">買 <span id="ob-buy-pct" style="font-family:var(--mono);font-weight:700;">--%</span></span>
+          <span style="color:var(--red);">賣 <span id="ob-sell-pct" style="font-family:var(--mono);font-weight:700;">--%</span></span>
+        </div>
+      </div>
 
-        <div class="sop-checklist">
-            <h4>✅ 每日三分鐘 SOP 檢核表 (SOP Checklist)</h4>
-            <div class="sop-items">
-                <label class="sop-item"><input type="checkbox"> VIX 有沒有過 20？<br><span style="font-size:0.8rem; font-weight:normal; color:#aaa;">(決定有無深度插針)</span></label>
-                <label class="sop-item"><input type="checkbox"> NQ 關鍵支撐破了嗎？<br><span style="font-size:0.8rem; font-weight:normal; color:#aaa;">(決定逢高空或逢低買)</span></label>
-                <label class="sop-item"><input type="checkbox"> US10Y 在 4% 以上嗎？<br><span style="font-size:0.8rem; font-weight:normal; color:#aaa;">(確認假突破邏輯)</span></label>
-                <label class="sop-item" style="border-color:#0575e6;"><input type="checkbox"> 資金費率是否過熱？<br><span style="font-size:0.8rem; font-weight:normal; color:#aaa;">(決定市場燃料方向)</span></label>
-            </div>
-        </div>
-    </div>
-
-    <div class="card" style="margin-bottom:20px;">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px;">
-            <h3 style="margin:0; color:#eee;">📐 斐波那契回撤 (Pro) <span style="font-size:0.8rem; color:#888; font-weight:normal; margin-left:10px;">包含 0.236, 0.382, 0.5, 0.618, 0.786</span></h3>
-            <span id="fib-loading">數據計算中...</span>
-        </div>
-        <div class="fib-controls">
-            <button class="fib-btn" onclick="calculateFib('1h', 200, this)">1H (短線)</button>
-            <button class="fib-btn active" onclick="calculateFib('4h', 200, this)">4H (波段)</button>
-            <button class="fib-btn" onclick="calculateFib('1d', 100, this)">1D (日線)</button>
-            <button class="fib-btn" onclick="calculateFib('1w', 100, this)">1W (週線)</button>
-        </div>
-        <table class="fib-table">
-            <thead>
-                <tr><th style="width:15%">Level</th><th style="width:25%">Price</th><th style="width:30%">Description</th><th style="width:30%">Distance</th></tr>
-            </thead>
-            <tbody id="fib-body"></tbody>
+      <!-- Pivot Points -->
+      <div class="metric-block" style="flex-grow:1;">
+        <div class="metric-label">機構樞軸點 (Pivot)</div>
+        <table class="pivot-tbl" style="margin-top:6px;">
+          <tr><td class="lbl-r2">R2 強壓力</td><td id="pp-r2">---</td></tr>
+          <tr><td class="lbl-r1">R1 壓力</td><td id="pp-r1">---</td></tr>
+          <tr><td class="lbl-p">P  中軸</td><td id="pp-p">---</td></tr>
+          <tr><td class="lbl-s1">S1 支撐</td><td id="pp-s1">---</td></tr>
+          <tr><td class="lbl-s2">S2 強支撐</td><td id="pp-s2">---</td></tr>
+          <tr><td style="color:var(--purple);">R3 極壓力</td><td id="pp-r3">---</td></tr>
+          <tr><td style="color:#77ff99;">S3 極支撐</td><td id="pp-s3">---</td></tr>
         </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPOSITE INDICATOR GRID -->
+  <div class="composite-bar-wrap">
+    <div class="composite-title">綜合技術指標快速掃描 — <span class="tf-display" style="color:var(--blue);">4H</span></div>
+    <div class="indicators-grid" id="indicators-grid">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- AI DECISION ENGINE -->
+  <div class="card ai-card" style="margin-bottom:16px;">
+    <div class="ai-header-row">
+      <div>
+        <div class="ai-title">🧠 AI 核心邏輯決策引擎</div>
+        <div style="font-size:0.75rem;color:var(--text-dim);margin-top:4px;">Binance Klines × ATR Risk Model × Multi-Indicator Fusion</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <span class="tf-badge tf-display">4H (波段)</span>
+        <span id="overall-badge" class="badge badge-neu">掃描中</span>
+      </div>
+    </div>
+    <div class="ai-cols">
+      <!-- Col 1: Trend -->
+      <div class="ai-col">
+        <div class="ai-col-title">1. 趨勢矩陣 & 信心指數</div>
+        <div id="trend-display" style="font-size:1.1rem;margin-bottom:12px;">---</div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:4px;">
+            <span>訊號強度</span><span id="signal-val" style="color:var(--blue);">0%</span>
+          </div>
+          <div class="sig-track"><div id="signal-bar" class="sig-fill" style="width:0%"></div></div>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="ai-score-row"><span>MA99 長線</span><span id="score-ma99">⬜</span></div>
+          <div class="ai-score-row"><span>MA25 中線</span><span id="score-ma25">⬜</span></div>
+          <div class="ai-score-row"><span>MA7 短線</span><span id="score-ma7">⬜</span></div>
+          <div class="ai-score-row"><span>RSI 狀態</span><span id="score-rsi">---</span></div>
+          <div class="ai-score-row"><span>MACD 方向</span><span id="score-macd">---</span></div>
+          <div class="ai-score-row"><span>布林通道</span><span id="score-bb">---</span></div>
+        </div>
+      </div>
+
+      <!-- Col 2: Risk -->
+      <div class="ai-col">
+        <div class="ai-col-title">2. 風險評估 & 關鍵指標</div>
+        <div class="ai-score-row"><span>K線型態</span><span id="pattern-res" style="color:#fff;">掃描中...</span></div>
+        <div class="ai-score-row"><span>成交量</span><span id="vol-status">---</span></div>
+        <div class="ai-score-row"><span>波動率(ATR%)</span><span id="atr-pct">---</span></div>
+        <div class="ai-score-row"><span>趨勢強度(ADX)</span><span id="adx-val">---</span></div>
+        <div class="ai-score-row"><span>Stoch RSI</span><span id="stochrsi-val">---</span></div>
+        <div class="atr-box" style="margin-top:12px;">
+          <div class="metric-label">ATR 動態防禦止損 (2.5×)</div>
+          <div class="atr-price" id="atr-sl-price">---</div>
+          <div style="font-size:0.7rem;color:var(--text-dim);margin-top:4px;">*防機構惡意刺穿掃損</div>
+        </div>
+        <div class="extra-grid">
+          <div class="mini-stat">
+            <div class="mini-stat-label">ATR 值</div>
+            <div class="mini-stat-val" id="atr-raw">---</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-label">波動幅度</div>
+            <div class="mini-stat-val" id="range-24h">---</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Col 3: Action -->
+      <div class="ai-col" style="border-color:rgba(99,210,255,0.3);">
+        <div class="ai-col-title" style="color:var(--blue);">3. AI 實戰操作建議</div>
+        <div id="ai-action-text" class="action-text">分析中...</div>
+        <div style="margin-top:auto;">
+          <div class="rec-row"><span>進場區間</span><span class="rec-val" id="rec-buy">---</span></div>
+          <div class="rec-row"><span>止盈目標</span><span class="rec-val" id="rec-sell">---</span></div>
+          <div class="rec-row"><span>風報比</span><span class="rec-val" id="risk-reward">---</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MULTI-TF TREND MATRIX -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-title"><span class="dot"></span>多週期趨勢矩陣 (Multi-Timeframe Matrix)</div>
+    <div class="matrix-grid" id="mtf-grid">
+      <!-- filled by JS -->
+    </div>
+  </div>
+
+  <!-- MACRO MATRIX HEADER -->
+  <div class="section-header">
+    <h2>🏦 華爾街機構流動性矩陣</h2>
+    <div class="line"></div>
+    <span class="tag">TOP-DOWN MACRO</span>
+  </div>
+
+  <div class="row row-matrix">
+    <!-- VIX -->
+    <div class="card macro-card">
+      <div class="tradingview-widget-container" style="height:100%;width:100%;">
+        <div class="tradingview-widget-container__widget" style="height:100%;width:100%;"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+        {"symbols":[["📉 VIX 恐慌","CAPITALCOM:VIX|3M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"zh_TW","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontFamily":"monospace","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineColor":"#ff4466","bottomColor":"rgba(255,68,102,0)","topColor":"rgba(255,68,102,0.25)","lineWidth":2}
+        </script>
+      </div>
+    </div>
+    <!-- NQ -->
+    <div class="card macro-card">
+      <div class="tradingview-widget-container" style="height:100%;width:100%;">
+        <div class="tradingview-widget-container__widget" style="height:100%;width:100%;"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+        {"symbols":[["📈 NQ100","CAPITALCOM:US100|3M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"zh_TW","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontFamily":"monospace","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"candlesticks","upColor":"#00e5a0","downColor":"#ff4466","borderUpColor":"#00e5a0","borderDownColor":"#ff4466","wickUpColor":"#00e5a0","wickDownColor":"#ff4466"}
+        </script>
+      </div>
+    </div>
+    <!-- DXY -->
+    <div class="card macro-card">
+      <div class="tradingview-widget-container" style="height:100%;width:100%;">
+        <div class="tradingview-widget-container__widget" style="height:100%;width:100%;"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+        {"symbols":[["💵 DXY","CAPITALCOM:DXY|3M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"zh_TW","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontFamily":"monospace","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineColor":"#00e5a0","bottomColor":"rgba(0,229,160,0)","topColor":"rgba(0,229,160,0.2)","lineWidth":2}
+        </script>
+      </div>
+    </div>
+    <!-- US10Y -->
+    <div class="card macro-card">
+      <div class="tradingview-widget-container" style="height:100%;width:100%;">
+        <div class="tradingview-widget-container__widget" style="height:100%;width:100%;"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
+        {"symbols":[["🏛️ US10Y","FRED:DGS10|3M"]],"chartOnly":false,"width":"100%","height":"100%","locale":"zh_TW","colorTheme":"dark","autosize":true,"showVolume":false,"hideDateRanges":false,"hideSymbolLogo":true,"scalePosition":"right","scaleMode":"Normal","fontFamily":"monospace","fontSize":"10","valuesTracking":"1","changeMode":"price-and-percent","chartType":"area","lineColor":"#f5c542","bottomColor":"rgba(245,197,66,0)","topColor":"rgba(245,197,66,0.2)","lineWidth":2}
+        </script>
+      </div>
+    </div>
+    <!-- Funding Rate -->
+    <div class="card funding-card">
+      <div class="card-title"><span class="dot"></span>資金費率 <span class="coin-name" style="color:var(--blue);">BTC</span></div>
+      <div class="funding-rate-big" id="live-funding-rate">---</div>
+      <div class="funding-badge" id="funding-status">加載中...</div>
+      <div class="funding-countdown" id="funding-countdown">下次結算: --:--:--</div>
+      <table class="funding-hist" style="width:100%;border-collapse:collapse;margin-top:10px;">
+        <thead><tr><td colspan="2" style="font-size:0.7rem;color:var(--text-dim);padding:4px 8px;border-bottom:1px solid var(--border);">歷史費率</td></tr></thead>
+        <tbody id="funding-history"><tr><td colspan="2" style="padding:8px;font-size:0.78rem;color:var(--text-dim);">讀取中...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MACRO RULES -->
+  <div class="row row-bottom-grid" style="margin-bottom:16px;">
+    <div class="card rule-card">
+      <h4>第一步：VIX 決定插針深度</h4>
+      <ul>
+        <li><span class="txt-green">VIX &lt; 15</span>：樂觀，無深度下殺，主力溫水煮青蛙誘多。</li>
+        <li><span class="txt-gold">VIX 15–20</span>：健康震盪，插針深度約美股跌幅3倍。</li>
+        <li><span class="txt-red">VIX 20–25</span>：警戒！單日易殺10%，深水區網格進入射程。</li>
+        <li><span style="color:#ff1144;font-weight:700;">VIX &gt; 30</span>：黑天鵝！無差別拋售，確保保證金能扛住終極防線。</li>
+      </ul>
+    </div>
+    <div class="card rule-card">
+      <h4>第二步：NQ 決定真實動向</h4>
+      <ul>
+        <li><span class="txt-green">長下影線守支撐</span>：美股有買盤承接，BTC下殺通常是假跌破，即將反彈。</li>
+        <li><span class="txt-red">實體大黑K灌破支撐</span>：華爾街實質撤資！任何拉抬皆為逃命波，嚴禁做多。</li>
+        <li><span class="txt-gold">高點持續降低</span>：下降趨勢確認，等待結構轉換再進場。</li>
+      </ul>
+    </div>
+    <div class="card rule-card">
+      <h4>第三步：US10Y & DXY 資金水龍頭</h4>
+      <ul>
+        <li><span class="txt-red">US10Y &gt; 4.0% 且 DXY 強勢站穩 97</span>：資金成本高，主力不會花大錢拉抬BTC，假突破機率極高。</li>
+        <li><span class="txt-green">US10Y &lt; 3.8% 且 DXY 狂跌</span>：資金水龍頭大開，牛市啟動燃料充足，可大膽追多。</li>
+      </ul>
+    </div>
+    <div class="card rule-card">
+      <h4>第四步：資金費率定燃料方向</h4>
+      <ul>
+        <li><span class="txt-red">費率 &gt; 0.015%</span>：誘多燃料過熱，散戶無腦逆勢多，主力必殺之。</li>
+        <li><span class="txt-green">費率 &lt; 0%</span>：絕望負費率，空軍聚集，即將向上軋空的黃金時刻。</li>
+        <li><span class="txt-gold">費率 0–0.01%</span>：情緒中性，根據技術面為主要參考依據。</li>
+      </ul>
+    </div>
+    <div class="card rule-card">
+      <h4>第五步：量價關係判讀</h4>
+      <ul>
+        <li><span class="txt-green">放量突破</span>：主力推動，方向可信，順勢追單。</li>
+        <li><span class="txt-red">縮量突破</span>：假突破警告！惜售或無人接手，回調機率高達70%+。</li>
+        <li><span class="txt-gold">底部放量長下影線</span>：主力吸籌信號，可分批布局多單。</li>
+        <li><span style="color:var(--text-dim);">高位放量長上影線</span>：主力出貨，減倉信號明確。</li>
+      </ul>
+    </div>
+    <div class="card sop-card" style="grid-column:1/-1;">
+      <h4>✅ 每日三分鐘 SOP 檢核表</h4>
+      <div class="sop-items">
+        <label class="sop-item"><input type="checkbox"> VIX 有沒有過 20？<br><span style="font-size:0.75rem;color:var(--text-dim);">決定有無深度插針</span></label>
+        <label class="sop-item"><input type="checkbox"> NQ 關鍵支撐破了嗎？<br><span style="font-size:0.75rem;color:var(--text-dim);">決定逢高空或逢低買</span></label>
+        <label class="sop-item"><input type="checkbox"> US10Y 在 4% 以上嗎？<br><span style="font-size:0.75rem;color:var(--text-dim);">確認假突破邏輯</span></label>
+        <label class="sop-item"><input type="checkbox"> 資金費率是否過熱？<br><span style="font-size:0.75rem;color:var(--text-dim);">決定市場燃料方向</span></label>
+        <label class="sop-item"><input type="checkbox"> 成交量是否放大？<br><span style="font-size:0.75rem;color:var(--text-dim);">確認突破真實性</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIB + SCANNER -->
+  <div class="row row-fib-scan">
+    <!-- FIB -->
+    <div class="card fib-card">
+      <div class="card-title"><span class="dot"></span>斐波那契回撤 Pro</div>
+      <div class="fib-controls">
+        <button class="fib-btn" onclick="calcFib('1h',200,this)">1H 短線</button>
+        <button class="fib-btn active" onclick="calcFib('4h',200,this)">4H 波段</button>
+        <button class="fib-btn" onclick="calcFib('1d',100,this)">1D 日線</button>
+        <button class="fib-btn" onclick="calcFib('1w',100,this)">1W 週線</button>
+        <span id="fib-loading" class="loading" style="display:none;">計算中...</span>
+      </div>
+      <table class="fib-tbl">
+        <thead><tr><th>Level</th><th>Price</th><th>描述</th><th>距離</th><th>強弱</th></tr></thead>
+        <tbody id="fib-body"></tbody>
+      </table>
     </div>
 
-    <div class="card" style="margin-bottom:20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:15px; border-bottom:1px solid #2a2e39; padding-bottom:15px;">
-            <h3 style="margin:0; color:#eee; display:flex; align-items:center; gap:10px;">
-                ⚡ 獨立技術指針 & 詳細掃描
-                <span style="font-size:0.8rem; background:#0575e6; color:#fff; padding:2px 8px; border-radius:4px; font-weight:normal;">Dual Control</span>
-            </h3>
-            <div class="gauge-controls">
-                <button class="gauge-btn" onclick="manualUpdateBottom('15m', this)">15m</button>
-                <button class="gauge-btn" onclick="manualUpdateBottom('1h', this)">1H</button>
-                <button class="gauge-btn active" onclick="manualUpdateBottom('4h', this)">4H</button>
-                <button class="gauge-btn" onclick="manualUpdateBottom('1D', this)">1D</button>
-                <button class="gauge-btn" onclick="manualUpdateBottom('1W', this)">1W</button>
-                <button class="gauge-btn" onclick="manualUpdateBottom('1M', this)">1M</button>
-            </div>
+    <!-- SCANNER -->
+    <div class="card scanner-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div class="card-title" style="margin-bottom:0;"><span class="dot"></span>獨立指標詳細掃描</div>
+        <div class="gauge-strip">
+          <button class="gauge-pill" onclick="updateBottom('15m',this)">15m</button>
+          <button class="gauge-pill" onclick="updateBottom('1h',this)">1H</button>
+          <button class="gauge-pill active" onclick="updateBottom('4h',this)">4H</button>
+          <button class="gauge-pill" onclick="updateBottom('1D',this)">1D</button>
+          <button class="gauge-pill" onclick="updateBottom('1W',this)">1W</button>
+          <button class="gauge-pill" onclick="updateBottom('1M',this)">1M</button>
         </div>
-        
-        <div id="tv-gauge-bottom" style="height:450px; width:100% !important; display:block !important; overflow:hidden;"></div>
-        
-        <div class="scanner-container">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px; border-bottom:1px solid #333; padding-bottom:5px;">
-                <span style="color:#aaa; font-weight:bold;">指標名稱</span>
-                <span style="color:#aaa; font-weight:bold;">數值 / 訊號</span>
-            </div>
-            <div id="bottom-loading" style="text-align:center; padding:20px;">數據計算中...</div>
-            <table class="scanner-table" id="scanner-body"></table>
-        </div>
+      </div>
+      <div id="tv-gauge-bottom" style="height:380px;width:100%;"></div>
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px;">
+        <span id="bottom-loading" class="loading" style="display:none;">計算中...</span>
+        <table class="scanner-tbl" id="scanner-body">
+          <thead><tr><th>指標</th><th>數值</th><th>訊號</th></tr></thead>
+          <tbody id="scanner-rows"></tbody>
+        </table>
+      </div>
     </div>
+  </div>
 
-</div>
+</div><!-- /container -->
 
 <script>
-    let currentCoin = 'BTC';
-    let currentSymbol = 'BTCUSDT';
-    let currentTimeframe = '4h'; 
-    let allSymbols = [];
-    let fundingCountdownInterval = null;
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let currentCoin = 'BTC';
+let currentSymbol = 'BTCUSDT';
+let currentTF = '4h';
+let allSymbols = [];
+let fundingTimer = null;
 
-    const tfMap = {
-        '15m': { binance: '15m', tv: '15', label: '15m (短線)' }, '1h':  { binance: '1h',  tv: '60', label: '1H (當沖)' },
-        '4h':  { binance: '4h',  tv: '240',label: '4H (波段)' }, '1d':  { binance: '1d',  tv: 'D',  label: '1D (日線)' },
-        '1M':  { binance: '12h', tv: '240',label: '1M (月次)' }, '3M':  { binance: '1d',  tv: 'D',  label: '3M (季線)' },
-        '6M':  { binance: '3d',  tv: 'W',  label: '6M (半年)' }, '1Y':  { binance: '1w',  tv: 'W',  label: '1Y (年線)' },
-        '2Y':  { binance: '1M',  tv: 'M',  label: '2Y (趨勢)' }
-    };
+const TF = {
+  '15m':{ bin:'15m', tv:'15',  lbl:'15m (短線)' },
+  '1h': { bin:'1h',  tv:'60',  lbl:'1H (當沖)'  },
+  '4h': { bin:'4h',  tv:'240', lbl:'4H (波段)'  },
+  '1d': { bin:'1d',  tv:'D',   lbl:'1D (日線)'  },
+  '1M': { bin:'12h', tv:'240', lbl:'1M (月次)'  },
+  '1Y': { bin:'1w',  tv:'W',   lbl:'1Y (年線)'  },
+};
 
-    window.onload = function() { 
-        quickLoad('BTC');
-        initSearch();
-    };
+window.onload = () => { quickLoad('BTC', document.querySelector('.coin-pill')); initSearch(); };
 
-    async function initSearch() {
-        const input = document.getElementById('symbol-input');
-        const list = document.getElementById('dropdown-list');
-        try {
-            const res = await fetch('https://api.binance.com/api/v3/exchangeInfo');
-            const data = await res.json();
-            allSymbols = data.symbols.filter(s => s.quoteAsset === 'USDT' && s.status === 'TRADING').map(s => s.baseAsset).sort();
-        } catch (e) {}
+// ══════════════════════════════════════════
+//  SEARCH
+// ══════════════════════════════════════════
+async function initSearch() {
+  const input = document.getElementById('symbol-input');
+  const list  = document.getElementById('dropdown-list');
+  try {
+    const data = await (await fetch('https://api.binance.com/api/v3/exchangeInfo')).json();
+    allSymbols = data.symbols.filter(s=>s.quoteAsset==='USDT'&&s.status==='TRADING').map(s=>s.baseAsset).sort();
+  } catch(e){}
+  input.addEventListener('input', function(){
+    const v = this.value.toUpperCase();
+    if(!v){ list.style.display='none'; return; }
+    const m = allSymbols.filter(s=>s.startsWith(v)).slice(0,50);
+    list.innerHTML = m.map(s=>`<div class="dropdown-item" onclick="selectSym('${s}')">${s}<span style="color:var(--text-dim);font-size:0.75rem;">USDT</span></div>`).join('');
+    list.style.display = m.length ? 'block' : 'none';
+  });
+  document.addEventListener('click', e=>{ if(!input.contains(e.target)&&!list.contains(e.target)) list.style.display='none'; });
+}
+function selectSym(c){ document.getElementById('symbol-input').value=c; document.getElementById('dropdown-list').style.display='none'; quickLoad(c); }
+function triggerSearch(){ const v=document.getElementById('symbol-input').value.trim().toUpperCase(); if(v) quickLoad(v); }
 
-        input.addEventListener('input', function() {
-            const val = this.value.toUpperCase();
-            if (!val) { list.style.display = 'none'; return; }
-            const matches = allSymbols.filter(s => s.startsWith(val)).slice(0, 50);
-            if (matches.length > 0) {
-                list.innerHTML = matches.map(s => `<div class="dropdown-item" onclick="selectSymbol('${s}')"><span class="item-symbol">${s}</span><span class="item-name">USDT</span></div>`).join('');
-                list.style.display = 'block';
-            } else { list.style.display = 'none'; }
-        });
-        document.addEventListener('click', function(e) { if (!input.contains(e.target) && !list.contains(e.target)) list.style.display = 'none'; });
-    }
+// ══════════════════════════════════════════
+//  LOAD & REFRESH
+// ══════════════════════════════════════════
+function quickLoad(coin, btn) {
+  currentCoin = coin; currentSymbol = coin+'USDT';
+  document.querySelectorAll('.coin-name').forEach(el=>el.innerText=coin);
+  document.getElementById('main-symbol-lbl').innerText = coin;
+  document.getElementById('tv-link').href = `https://tw.tradingview.com/symbols/${coin}USDT/?exchange=BINANCE`;
+  if(btn){ document.querySelectorAll('.coin-pill').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  refreshAll();
+  calcFib('4h',200, document.querySelectorAll('.fib-btn')[1]);
+  fetchMTFMatrix();
+}
 
-    function selectSymbol(coin) { document.getElementById('symbol-input').value = coin; document.getElementById('dropdown-list').style.display = 'none'; quickLoad(coin); }
-    function triggerSearch() { 
-        const input = document.getElementById('symbol-input').value.trim().toUpperCase(); 
-        if(!input) return;
-        if (/^\d{4}$/.test(input) || input.startsWith('TWSE')) {
-            alert("⚠️ 請注意：這裡是「加密貨幣」分析模組，底層串接幣安 API。若要分析台股 (如: "+input+")，請開啟我們稍早製作的「v5.2 台股專用版」網頁，否則圖表會白屏報錯喔！");
-            return;
-        }
-        quickLoad(input); 
-    }
+function switchTF(tf, el) {
+  currentTF = tf;
+  document.querySelectorAll('.tf-pill').forEach(b=>b.classList.remove('active')); el.classList.add('active');
+  document.querySelectorAll('.tf-display').forEach(e=>e.innerText=TF[tf]?TF[tf].lbl:tf);
+  refreshAll();
+}
 
-    function quickLoad(coin) {
-        currentCoin = coin; currentSymbol = coin + 'USDT';
-        document.querySelectorAll('.coin-name').forEach(el => el.innerText = coin);
-        document.getElementById('tv-link').href = `https://tw.tradingview.com/symbols/${coin}USDT/?exchange=BINANCE`;
-        refreshAll();
-        calculateFib('4h', 200, document.querySelectorAll('.fib-btn')[1]);
-    }
+function refreshAll() {
+  showLoad(true);
+  reloadMainChart();
+  runQuant().then(()=>showLoad(false));
+  fetchOB();
+  fetchFunding();
+  fetchLivePrice();
+}
+function showLoad(on){ document.getElementById('load-ind').style.display = on?'inline':'none'; }
 
-    function switchGlobalTimeframe(tf) {
-        currentTimeframe = tf;
-        document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.remove('active')); event.target.classList.add('active');
-        document.querySelectorAll('.tf-display').forEach(el => el.innerText = tfMap[tf].label);
-        refreshAll();
+// ══════════════════════════════════════════
+//  MAIN CHART
+// ══════════════════════════════════════════
+function reloadMainChart() {
+  const c = document.getElementById('tv-chart-container');
+  c.innerHTML='';
+  const d = document.createElement('div');
+  d.className='tradingview-widget-container';
+  d.style.cssText='height:100%;width:100%;';
+  d.innerHTML='<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%;"></div>';
+  const s = document.createElement('script');
+  s.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+  s.async=true;
+  s.innerHTML=JSON.stringify({
+    autosize:true, symbol:'BINANCE:'+currentSymbol,
+    interval: TF[currentTF]?TF[currentTF].tv:'240',
+    timezone:'Asia/Taipei', theme:'dark', style:'1', locale:'zh_TW',
+    enable_publishing:false, withdateranges:true, hide_side_toolbar:false,
+    studies:[
+      'MASimple@tv-basicstudies','MASimple@tv-basicstudies','MASimple@tv-basicstudies',
+      'MACD@tv-basicstudies','RSI@tv-basicstudies','BB@tv-basicstudies',
+      'AutoFibRetracement@tv-basicstudies','Volume@tv-basicstudies'
+    ],
+    support_host:'https://www.tradingview.com'
+  });
+  d.appendChild(s); c.appendChild(d);
+}
 
-        let gaugeInterval = '1D'; 
-        if(tf === '15m') gaugeInterval = '15m'; if(tf === '1h') gaugeInterval = '1h'; if(tf === '4h') gaugeInterval = '4h';
-        if(tf === '1d') gaugeInterval = '1D'; if(tf === '1M') gaugeInterval = '1M'; if(tf === '1Y') gaugeInterval = '1W';
+// ══════════════════════════════════════════
+//  QUANT ANALYSIS
+// ══════════════════════════════════════════
+async function runQuant() {
+  try {
+    const interval = TF[currentTF]?TF[currentTF].bin:'4h';
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${interval}&limit=200`);
+    if(!r.ok) return;
+    const data = await r.json();
 
-        const gaugeBtns = document.querySelectorAll('.gauge-btn');
-        gaugeBtns.forEach(b => { b.classList.remove('active'); if(b.innerText === gaugeInterval) b.classList.add('active'); });
-        updateBottomSection(gaugeInterval);
-    }
+    const C = data.map(d=>parseFloat(d[4]));
+    const H = data.map(d=>parseFloat(d[2]));
+    const L = data.map(d=>parseFloat(d[3]));
+    const V = data.map(d=>parseFloat(d[5]));
+    const O = data.map(d=>parseFloat(d[1]));
 
-    function manualUpdateBottom(interval, btn) {
-        document.querySelectorAll('.gauge-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-        updateBottomSection(interval);
-    }
+    const cur = C[C.length-1];
+    const ma7  = calcMA(C,7), ma25=calcMA(C,25), ma99=calcMA(C,99);
+    const ema12=calcEMA(C,12), ema26=calcEMA(C,26);
+    const macd = ema12 - ema26;
+    const macdSignal = calcEMA(
+      C.slice(-50).map((_,i,a)=>i>=11 ? calcEMA(a.slice(0,i+1),12)-calcEMA(a.slice(0,i+1),26) : null).filter(v=>v!==null),
+      9
+    );
+    const rsi14 = calcRSI(C,14);
+    const atr14 = calcATR(H,L,C,14);
+    const atrPct= (atr14/cur*100).toFixed(2);
+    const bb    = calcBB(C,20,2);
+    const stochK= calcStochRSI(C,14,3);
 
-    function refreshAll() {
-        reloadMainChart(currentSymbol, tfMap[currentTimeframe].tv);
-        runQuantAnalysis(); 
-        fetchOrderBook(); 
-        fetchFundingRate();
-    }
+    // ADX approximation
+    const adx = calcADX(H,L,C,14);
 
-    function fmt(num) {
-        if(!num && num!==0) return "---";
-        if(num > 1000) return num.toFixed(2); if(num > 1) return num.toFixed(4);
-        if(num < 0.0001) return num.toFixed(8); return num.toFixed(6);
-    }
+    // Volume analysis
+    const avgVol = V.slice(-20).reduce((a,b)=>a+b,0)/20;
+    const curVol = V[V.length-1];
+    const volRatio = (curVol/avgVol).toFixed(2);
 
-    /* === NEW: Binance Funding Rate Module === */
-    async function fetchFundingRate() {
-        try {
-            // 1. 抓取實時費率與下次結算時間
-            const res = await fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${currentSymbol}`);
-            if(!res.ok) throw new Error('API Error');
-            const data = await res.json();
-            const rate = parseFloat(data.lastFundingRate) * 100; // 轉為百分比
-            
-            const rateEl = document.getElementById('live-funding-rate');
-            const statusEl = document.getElementById('funding-status');
-            
-            rateEl.innerText = rate.toFixed(4) + '%';
-            
-            // 判定燃料屬性
-            if(rate > 0.015) {
-                rateEl.className = 'grad-text-red';
-                statusEl.innerText = '🔥 極度貪婪 (誘多燃料)';
-                statusEl.style.background = 'rgba(246, 70, 93, 0.15)';
-                statusEl.style.borderColor = 'rgba(246, 70, 93, 0.5)';
-                statusEl.style.color = '#F6465D';
-            } else if (rate < 0) {
-                rateEl.className = 'grad-text-green';
-                statusEl.innerText = '😨 恐慌負費率 (軋空燃料)';
-                statusEl.style.background = 'rgba(14, 203, 129, 0.15)';
-                statusEl.style.borderColor = 'rgba(14, 203, 129, 0.5)';
-                statusEl.style.color = '#0ECB81';
-            } else {
-                rateEl.className = '';
-                rateEl.style.color = '#F0B90B';
-                statusEl.innerText = '⚖️ 情緒中性 (無明顯傾斜)';
-                statusEl.style.background = 'rgba(240, 185, 11, 0.15)';
-                statusEl.style.borderColor = 'rgba(240, 185, 11, 0.5)';
-                statusEl.style.color = '#F0B90B';
-            }
+    // Pivot
+    const ph=H[H.length-2], pl=L[L.length-2], pc=C[C.length-2];
+    const pp=(ph+pl+pc)/3;
+    const r1=2*pp-pl, r2=pp+(ph-pl), r3=ph+2*(pp-pl);
+    const s1=2*pp-ph, s2=pp-(ph-pl), s3=pl-2*(ph-pp);
+    document.getElementById('pp-p').innerText=fmt(pp);
+    document.getElementById('pp-r1').innerText=fmt(r1);
+    document.getElementById('pp-r2').innerText=fmt(r2);
+    document.getElementById('pp-r3').innerText=fmt(r3);
+    document.getElementById('pp-s1').innerText=fmt(s1);
+    document.getElementById('pp-s2').innerText=fmt(s2);
+    document.getElementById('pp-s3').innerText=fmt(s3);
 
-            // 處理倒數計時
-            if(fundingCountdownInterval) clearInterval(fundingCountdownInterval);
-            const nextTime = parseInt(data.nextFundingTime);
-            fundingCountdownInterval = setInterval(() => {
-                const now = new Date().getTime();
-                const diff = nextTime - now;
-                if(diff > 0) {
-                    const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const s = Math.floor((diff % (1000 * 60)) / 1000);
-                    document.getElementById('funding-countdown').innerText = `下次結算: ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-                } else {
-                    document.getElementById('funding-countdown').innerText = "結算中...";
-                }
-            }, 1000);
+    // ── Scoring System (0-10)
+    let score=0, maxScore=10;
+    const isAboveMA99= cur>ma99;  if(isAboveMA99) score+=2;
+    const isAboveMA25= cur>ma25;  if(isAboveMA25) score+=1.5;
+    const isAboveMA7 = cur>ma7;   if(isAboveMA7)  score+=1;
+    const macdBull   = macd>0;    if(macdBull)    score+=1.5;
+    const rsiBull    = rsi14>50 && rsi14<75; if(rsiBull) score+=1;
+    const bbBull     = cur > bb.mid; if(bbBull)   score+=1;
+    const volBull    = curVol > avgVol*1.2; if(volBull&&macdBull) score+=1;
+    const adxStrong  = adx > 25; if(adxStrong) score+=1;
 
-            // 2. 抓取歷史三次費率
-            const histRes = await fetch(`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${currentSymbol}&limit=3`);
-            const histData = await histRes.json();
-            let html = "";
-            histData.reverse().forEach(d => {
-                const r = (parseFloat(d.fundingRate)*100).toFixed(4);
-                const t = new Date(d.fundingTime).toLocaleString('zh-TW', {month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
-                let color = r > 0.015 ? '#F6465D' : (r < 0 ? '#0ECB81' : '#F0B90B');
-                html += `<tr><td style="padding:6px 10px; border-bottom:1px solid #2b3139;">${t}</td><td style="color:${color}; font-family:'Roboto Mono'; font-weight:bold; border-bottom:1px solid #2b3139;">${r}%</td></tr>`;
-            });
-            document.getElementById('funding-history').innerHTML = html;
+    const scorePct = Math.round((score/maxScore)*100);
 
-        } catch(e) { 
-            console.log("Funding API Error:", e);
-            document.getElementById('live-funding-rate').innerText = "N/A";
-            document.getElementById('funding-status').innerText = "無合約數據";
-            document.getElementById('funding-status').style.background = "#333";
-            document.getElementById('funding-history').innerHTML = "<tr><td colspan='2'>該幣種可能無 U本位合約</td></tr>";
-        }
-    }
-    /* ======================================= */
+    // UI updates
+    setScore('score-ma99', isAboveMA99, 'MA99 多', 'MA99 空');
+    setScore('score-ma25', isAboveMA25, 'MA25 多', 'MA25 空');
+    setScore('score-ma7',  isAboveMA7,  'MA7 多',  'MA7 空');
 
-    function reloadMainChart(symbol, tvInterval) {
-        const chartContainer = document.getElementById('tv-chart-container');
-        chartContainer.innerHTML = '';
-        const chartDiv = document.createElement('div');
-        chartDiv.className = 'tradingview-widget-container';
-        chartDiv.style.height = '100%'; chartDiv.style.width = '100%';
-        chartDiv.innerHTML = '<div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>';
-        const chartScript = document.createElement('script');
-        chartScript.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
-        chartScript.async = true;
-        chartScript.innerHTML = JSON.stringify({
-            "autosize": true, "symbol": "BINANCE:" + symbol, "interval": tvInterval, "timezone": "Asia/Taipei", "theme": "dark", "style": "1", "locale": "zh_TW", "enable_publishing": false, "withdateranges": true, "hide_side_toolbar": false,
-            "studies": ["MASimple@tv-basicstudies","MACD@tv-basicstudies","RSI@tv-basicstudies","Stochastic@tv-basicstudies","AutoFibRetracement@tv-basicstudies"],
-            "support_host": "https://www.tradingview.com"
-        });
-        chartDiv.appendChild(chartScript); chartContainer.appendChild(chartDiv);
-    }
+    const rsiLabel = rsi14>75?'超買⚠️':rsi14<30?'超賣🔥':(rsi14>55?'偏多':'偏空');
+    const rsiColor = rsi14>75?'red':rsi14<30?'green':rsi14>50?'green':'red';
+    document.getElementById('score-rsi').innerHTML=`<span class="badge badge-${rsiColor=='green'?'bull':'bear'}">${rsi14.toFixed(1)} ${rsiLabel}</span>`;
 
-    function updateBottomSection(intervalLabel) { renderBottomGauge(intervalLabel); fetchBottomTableData(intervalLabel); }
-
-    function renderBottomGauge(intervalLabel) {
-        let tvCode = '1D';
-        if(intervalLabel === '15m') tvCode = '15'; if(intervalLabel === '1h') tvCode = '60'; if(intervalLabel === '4h') tvCode = '240';
-        if(intervalLabel === '1D') tvCode = '1D'; if(intervalLabel === '1W') tvCode = '1W'; if(intervalLabel === '1M') tvCode = '1M';
-        const container = document.getElementById('tv-gauge-bottom');
-        container.innerHTML = '';
-        setTimeout(() => {
-            const div = document.createElement('div'); div.className = 'tradingview-widget-container';
-            div.style.height = '450px'; div.style.width = '100%';
-            div.innerHTML = '<div class="tradingview-widget-container__widget" style="height:450px;width:100%"></div>';
-            const script = document.createElement('script'); script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js'; script.async = true;
-            script.innerHTML = JSON.stringify({ "interval": tvCode, "width": "100%", "height": "450", "isTransparent": true, "symbol": "BINANCE:" + currentSymbol, "showIntervalTabs": false, "displayMode": "single", "locale": "zh_TW", "colorTheme": "dark" });
-            div.appendChild(script); container.appendChild(div);
-        }, 50);
-    }
-
-    async function fetchBottomTableData(intervalLabel) {
-        const loader = document.getElementById('bottom-loading'); loader.style.display = 'block'; document.getElementById('scanner-body').innerHTML = '';
-        let binanceInterval = '1d';
-        if(intervalLabel === '15m') binanceInterval = '15m'; if(intervalLabel === '1h') binanceInterval = '1h'; if(intervalLabel === '4h') binanceInterval = '4h';
-        if(intervalLabel === '1D') binanceInterval = '1d'; if(intervalLabel === '1W') binanceInterval = '1w'; if(intervalLabel === '1M') binanceInterval = '1M';
-        try {
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${binanceInterval}&limit=100`);
-            const data = await res.json();
-            const closes = data.map(d => parseFloat(d[4])); const curr = closes[closes.length-1];
-            const rsi = calcRSI(closes, 14); const sma20 = calcMA(closes, 20); const sma50 = calcMA(closes, 50); const sma200 = calcMA(closes, 200); const ema20 = calcEMA(closes, 20);
-            
-            let html = "";
-            let rsiSig = rsi > 70 ? 'sig-sell' : (rsi < 30 ? 'sig-buy' : 'sig-neu');
-            html += `<tr><td>RSI (14)</td><td><span class="${rsiSig}">${rsi.toFixed(2)}</span></td></tr>`;
-
-            const highs = data.map(d => parseFloat(d[2])); const lows = data.map(d => parseFloat(d[3]));
-            const kd = calcKD(highs, lows, closes, 9, 3, 3);
-            let kdSig = kd.k > 80 ? 'sig-sell' : (kd.k < 20 ? 'sig-buy' : 'sig-neu');
-            html += `<tr><td>Stoch (9,3,3)</td><td><span class="${kdSig}">${kd.k.toFixed(2)}</span></td></tr>`;
-            html += `<tr><td>SMA 20</td><td><span class="${curr>sma20?'sig-buy':'sig-sell'}">${fmt(sma20)}</span></td></tr>`;
-            html += `<tr><td>SMA 50</td><td><span class="${curr>sma50?'sig-buy':'sig-sell'}">${fmt(sma50)}</span></td></tr>`;
-            html += `<tr><td>SMA 200</td><td><span class="${curr>sma200?'sig-buy':'sig-sell'}">${fmt(sma200)}</span></td></tr>`;
-            html += `<tr><td>EMA 20</td><td><span class="${curr>ema20?'sig-buy':'sig-sell'}">${fmt(ema20)}</span></td></tr>`;
-
-            const mom = curr - closes[closes.length - 11];
-            html += `<tr><td>Momentum (10)</td><td><span class="${mom>0?'sig-buy':'sig-sell'}">${mom>0?'多':'空'}</span></td></tr>`;
-            document.getElementById('scanner-body').innerHTML = html;
-        } catch(e) {}
-        loader.style.display = 'none';
-    }
-
-    function calcEMA(data, period) { const k = 2 / (period + 1); let ema = data[0]; for (let i = 1; i < data.length; i++) { ema = data[i] * k + ema * (1 - k); } return ema; }
-    function calcMA(d, p) { if(d.length<p)return 0; return d.slice(-p).reduce((a,b)=>a+b,0)/p; }
-    function calcRSI(c, p) { let g=0,l=0; for(let i=c.length-p-1; i<c.length-1; i++){ let d=c[i+1]-c[i]; if(d>0)g+=d; else l-=d; } let rs=(g/p)/(l/p); return 100-(100/(1+rs)); }
-    function calcATR(h, l, c, p) { let s=0; for(let i=1; i<=p; i++) { let idx=h.length-i; s+=Math.max(h[idx]-l[idx], Math.abs(h[idx]-c[idx-1]), Math.abs(l[idx]-c[idx-1])); } return s/p; }
-    function calcKD(h, l, c, p, k, d) { let low=Math.min(...l.slice(-p)), high=Math.max(...h.slice(-p)), cl=c[c.length-1]; let rsv=(cl-low)/(high-low)*100; return {k:rsv, d:rsv}; }
-    function updateScoreUI(id, pass, txtP, txtF) { document.getElementById(id).innerHTML = pass ? `<span class="grad-text-green">✅ ${txtP}</span>` : `<span style="color:#555">⬜ ${txtF}</span>`; }
-    async function fetchOrderBook() { try { const res = await fetch(`https://api.binance.com/api/v3/depth?symbol=${currentSymbol}&limit=20`); if(!res.ok) return; const data = await res.json(); let b=data.bids.reduce((a,v)=>a+parseFloat(v[1]),0), s=data.asks.reduce((a,v)=>a+parseFloat(v[1]),0), t=b+s; document.getElementById('ob-buy-bar').style.width=(b/t*100)+'%'; document.getElementById('ob-sell-bar').style.width=(s/t*100)+'%'; document.getElementById('ob-buy-pct').innerText=(b/t*100).toFixed(1)+'%'; document.getElementById('ob-sell-pct').innerText=(s/t*100).toFixed(1)+'%'; } catch(e){} }
+    document.getElementById('score-macd').innerHTML=`<span class="badge ${macdBull?'badge-bull':'badge-bear'}">${macdBull?'多頭 ▲':'空頭 ▼'}</span>`;
     
-    async function runQuantAnalysis() {
-        const interval = tfMap[currentTimeframe].binance;
-        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${interval}&limit=150`);
-        if(!res.ok) return;
-        const data = await res.json();
-        const closes = data.map(d => parseFloat(d[4])); const highs = data.map(d => parseFloat(d[2])); const lows = data.map(d => parseFloat(d[3])); const curClose = closes[closes.length-1];
-        const ma7 = calcMA(closes, 7); const ma25 = calcMA(closes, 25); const ma99 = calcMA(closes, 99); const rsi = calcRSI(closes, 14); const atr = calcATR(highs, lows, closes, 14);
-        const ph = highs[highs.length-2], pl = lows[lows.length-2], pc = closes[closes.length-2]; const pp = (ph+pl+pc)/3;
-        document.getElementById('pp-p').innerText = fmt(pp); document.getElementById('pp-r1').innerText = fmt(2*pp-pl); document.getElementById('pp-s1').innerText = fmt(2*pp-ph); document.getElementById('pp-r2').innerText = fmt(pp+(ph-pl)); document.getElementById('pp-s2').innerText = fmt(pp-(ph-pl));
+    const bbPos = cur>bb.upper?'突破上軌⚠️':cur<bb.lower?'跌破下軌🔥':'通道內';
+    document.getElementById('score-bb').innerHTML=`<span class="badge badge-${cur>bb.upper?'bear':cur<bb.lower?'bull':'neu'}">${bbPos}</span>`;
 
-        let score = 0;
-        if(curClose > ma99) { score+=2; updateScoreUI('score-ma99', true, 'MA99 多', 'MA99 空'); } else updateScoreUI('score-ma99', false, 'MA99 多', 'MA99 空');
-        if(curClose > ma25) { score+=1; updateScoreUI('score-ma25', true, 'MA25 多', 'MA25 空'); } else updateScoreUI('score-ma25', false, 'MA25 多', 'MA25 空');
-        if(ma7 > ma25) { score+=1; updateScoreUI('score-cross', true, '金叉', '死叉'); } else updateScoreUI('score-cross', false, '金叉', '死叉');
-        
-        const tEl = document.getElementById('trend-display'); const sBar = document.getElementById('signal-bar'); const sVal = document.getElementById('signal-val');
-        let confidence = 0; if(score >= 2) confidence = 75; if(score >= 3) confidence = 90; if(score <= 0) confidence = 20;
-        sBar.style.width = confidence + "%"; sVal.innerText = confidence + "%";
-        
-        if(score>=2) { tEl.innerHTML=`<span class="badge-bull">🚀 強多</span>`; sBar.style.background = "#0ECB81"; }
-        else if(score>0) { tEl.innerHTML=`<span class="badge-neutral">↗️ 震盪</span>`; sBar.style.background = "#F0B90B"; }
-        else { tEl.innerHTML=`<span class="badge-bear">🐻 修正</span>`; sBar.style.background = "#F6465D"; }
+    document.getElementById('atr-raw').innerText = fmt(atr14);
+    document.getElementById('atr-pct').innerText = `${atrPct}%`;
+    document.getElementById('atr-sl-price').innerText = fmt(cur - atr14*2.5);
+    document.getElementById('adx-val').innerHTML = `<span class="badge ${adxStrong?'badge-blue':'badge-neu'}">${adx.toFixed(0)} ${adxStrong?'趨勢強':'震盪'}</span>`;
+    document.getElementById('stochrsi-val').innerHTML = `<span class="badge ${stochK>80?'badge-bear':stochK<20?'badge-bull':'badge-neu'}">${stochK.toFixed(1)} ${stochK>80?'超買':'超賣'}</span>`;
 
-        const body = Math.abs(curClose - parseFloat(data[data.length-1][1])); const ls = Math.min(curClose, parseFloat(data[data.length-1][1])) - lows[lows.length-1];
-        let pTxt = "無"; if(ls > body*2) pTxt = "🔨 錘頭";
-        document.getElementById('pattern-res').innerText = pTxt; 
-        
-        // 更保守的動態防禦止損：ATR 乘數拉大至 2.5 倍，防止惡意刺穿
-        document.getElementById('atr-sl-price').innerText = fmt(curClose - atr*2.5);
+    // Volume
+    document.getElementById('vol-status').innerHTML = `<span class="badge ${parseFloat(volRatio)>1.2?'badge-bull':'badge-neu'}">${volRatio}× ${parseFloat(volRatio)>1.5?'放量':'正常'}</span>`;
 
-        let act = "";
-        if(score>=2) act = rsi>70 ? "趨勢強但RSI過熱，分批止盈。" : "趨勢完美，拉回買進。";
-        else if(score<=0) act = rsi<30 ? "超賣反彈，激進者可試單。" : "空頭排列，建議觀望。";
-        else act = "區間震盪，低買高賣。";
-        document.getElementById('ai-action-text').innerText = act; document.getElementById('rec-buy').innerText = fmt(ma25); document.getElementById('rec-sell').innerText = fmt(2*pp-pl); 
+    // Range
+    const rangeH = Math.max(...H.slice(-1)), rangeL = Math.min(...L.slice(-1));
+    document.getElementById('range-24h').innerText = fmt(rangeH-rangeL);
+
+    // Signal bar
+    const bar = document.getElementById('signal-bar');
+    bar.style.width = scorePct+'%';
+    bar.style.background = scorePct>=70?'var(--green)':scorePct>=40?'var(--gold)':'var(--red)';
+    document.getElementById('signal-val').innerText = scorePct+'%';
+
+    // Trend display
+    let trendHtml, overallBadge;
+    if(score>=7){ trendHtml='<span class="badge badge-bull" style="font-size:1rem;">🚀 強勢多頭</span>'; overallBadge='badge-bull'; }
+    else if(score>=5){ trendHtml='<span class="badge badge-bull" style="font-size:1rem;">↗️ 偏多震盪</span>'; overallBadge='badge-blue'; }
+    else if(score>=3){ trendHtml='<span class="badge badge-neu" style="font-size:1rem;">↔️ 中性盤整</span>'; overallBadge='badge-neu'; }
+    else { trendHtml='<span class="badge badge-bear" style="font-size:1rem;">🐻 空頭修正</span>'; overallBadge='badge-bear'; }
+    document.getElementById('trend-display').innerHTML = trendHtml;
+    document.getElementById('overall-badge').className = 'badge '+overallBadge;
+    document.getElementById('overall-badge').innerText = score>=7?'強多':score>=5?'偏多':score>=3?'中性':'偏空';
+
+    // Pattern
+    const body = Math.abs(cur - O[O.length-1]);
+    const lowerShadow = Math.min(cur, O[O.length-1]) - L[L.length-1];
+    const upperShadow = H[H.length-1] - Math.max(cur, O[O.length-1]);
+    let pattern='無明顯型態';
+    if(lowerShadow > body*2 && upperShadow < body*0.5) pattern='🔨 鎚頭線 (買入訊號)';
+    else if(upperShadow > body*2 && lowerShadow < body*0.5) pattern='🌟 流星線 (賣出訊號)';
+    else if(body < (H[H.length-1]-L[L.length-1])*0.3) pattern='✦ 十字星 (反轉觀察)';
+    else if(cur > O[O.length-1] && body > atr14*1.5) pattern='📈 強勢大陽線';
+    else if(cur < O[O.length-1] && body > atr14*1.5) pattern='📉 強勢大陰線';
+    document.getElementById('pattern-res').innerText = pattern;
+
+    // Action text
+    let action='';
+    if(score>=7) action = rsi14>72 ? `✅ 強多確認，但RSI ${rsi14.toFixed(0)} 過熱。\n建議：分批止盈，等待拉回至 MA25 (${fmt(ma25)}) 再加碼。\n風控：跌破 MA99 (${fmt(ma99)}) 視為警示。` : `🚀 趨勢完整，動能健康。\n建議：拉回 MA7/MA25 支撐區間買入。\n短期目標：R1 (${fmt(r1)})，強勢可看 R2 (${fmt(r2)})。`;
+    else if(score>=5) action = `↗️ 結構偏多，但動能不足。\n建議：等待突破近期高點確認後追入，\n或在 S1 (${fmt(s1)}) 附近低吸。\n止損設 ATR止損 (${fmt(cur-atr14*2.5)})。`;
+    else if(score>=3) action = `↔️ 震盪格局，無明顯方向。\n建議：低買高賣，區間操作。\n支撐 ${fmt(s1)}～${fmt(s2)}，壓力 ${fmt(r1)}～${fmt(r2)}。`;
+    else action = rsi14<30 ? `🔥 空頭但 RSI ${rsi14.toFixed(0)} 深度超賣！\n建議：可激進試單逆勢反彈，嚴格設定止損。\n中線等待趨勢反轉訊號再做多。` : `🐻 空頭排列，所有指標偏空。\n建議：觀望為主，嚴禁做多。\n等待 RSI 跌至30以下超賣區接刀。`;
+    document.getElementById('ai-action-text').innerText = action;
+    document.getElementById('rec-buy').innerText = fmt(ma25);
+    document.getElementById('rec-sell').innerText = fmt(r1);
+    const rr = ((r1-ma25)/(ma25-(cur-atr14*2.5))).toFixed(2);
+    document.getElementById('risk-reward').innerText = isFinite(rr)&&rr>0 ? '1 : '+rr : '---';
+
+    // Indicators grid
+    renderIndicatorsGrid({ cur, ma7, ma25, ma99, rsi14, macd, stochK, atr14, atrPct, adx, volRatio, bb });
+
+  } catch(e){ console.error('quant err',e); }
+}
+
+function renderIndicatorsGrid(v){
+  const cells = [
+    { n:'RSI(14)',      val: v.rsi14.toFixed(1)+'%',  bull: v.rsi14>50&&v.rsi14<75, bear: v.rsi14>75||v.rsi14<30 },
+    { n:'MACD方向',     val: v.macd>0?'多頭▲':'空頭▼', bull: v.macd>0, bear: v.macd<0 },
+    { n:'MA7/MA25',     val: v.ma7>v.ma25?'金叉':'死叉', bull: v.ma7>v.ma25, bear: v.ma7<v.ma25 },
+    { n:'布林位置',     val: v.cur>v.bb.upper?'上軌外':v.cur<v.bb.lower?'下軌外':'通道內', bull: v.cur<v.bb.lower, bear: v.cur>v.bb.upper },
+    { n:'Stoch RSI',   val: v.stochK.toFixed(0)+'%', bull: v.stochK<20, bear: v.stochK>80 },
+    { n:'ADX強度',     val: v.adx.toFixed(0), bull: v.adx>25, bear: v.adx<20 },
+    { n:'ATR%波動',    val: v.atrPct+'%', bull: parseFloat(v.atrPct)<3, bear: parseFloat(v.atrPct)>8 },
+    { n:'成交量',      val: v.volRatio+'×', bull: parseFloat(v.volRatio)>1.2, bear: parseFloat(v.volRatio)<0.7 },
+    { n:'均線上方數', val: [v.cur>v.ma7,v.cur>v.ma25,v.cur>v.ma99].filter(Boolean).length+'/3', bull: v.cur>v.ma7&&v.cur>v.ma25&&v.cur>v.ma99 },
+    { n:'布林寬度',   val: fmt(v.bb.upper-v.bb.lower), bull: false },
+    { n:'偏離MA25%',  val: ((v.cur-v.ma25)/v.ma25*100).toFixed(1)+'%', bull: (v.cur-v.ma25)/v.ma25>0 },
+    { n:'偏離MA99%',  val: ((v.cur-v.ma99)/v.ma99*100).toFixed(1)+'%', bull: (v.cur-v.ma99)/v.ma99>0 },
+  ];
+  document.getElementById('indicators-grid').innerHTML = cells.map(c=>`
+    <div class="ind-cell ${c.bull?'bull':c.bear?'bear':''}">
+      <div class="ind-name">${c.n}</div>
+      <div class="ind-val ${c.bull?'green':c.bear?'red':'gold'}">${c.val}</div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════════
+//  MULTI-TF MATRIX
+// ══════════════════════════════════════════
+async function fetchMTFMatrix() {
+  const tfs = ['15m','1h','4h','1d'];
+  const results = await Promise.allSettled(tfs.map(async tf=>{
+    const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${tf}&limit=100`);
+    const d = await r.json();
+    const C=d.map(k=>parseFloat(k[4]));
+    const H=d.map(k=>parseFloat(k[2]));
+    const L=d.map(k=>parseFloat(k[3]));
+    const ma7=calcMA(C,7),ma25=calcMA(C,25),ma99=calcMA(C,Math.min(99,C.length));
+    const rsi=calcRSI(C,14),macd=calcEMA(C,12)-calcEMA(C,26);
+    const cur=C[C.length-1];
+    let bull=0;
+    if(cur>ma7) bull++; if(cur>ma25) bull++; if(cur>ma99) bull++;
+    if(macd>0) bull++; if(rsi>50&&rsi<75) bull++;
+    return { tf, bull, total:5 };
+  }));
+  const labels={'15m':'15m','1h':'1H','4h':'4H','1d':'1D'};
+  let html='';
+  results.forEach(r=>{
+    if(r.status==='fulfilled'){
+      const {tf,bull,total}=r.value;
+      const pct=Math.round(bull/total*100);
+      const cls=pct>=70?'green':pct>=40?'gold':'red';
+      html+=`<div class="mtf-cell ${pct>=60?'bull':pct<40?'bear':''}">
+        <div class="mtf-tf">${labels[tf]||tf}</div>
+        <div class="mtf-val ${cls}">${bull}/${total}</div>
+        <div style="font-size:0.65rem;color:var(--text-dim);margin-top:2px;">${pct>=70?'多頭':pct>=40?'中性':'空頭'}</div>
+      </div>`;
     }
+  });
+  // Add combined
+  document.getElementById('mtf-grid').innerHTML = html+
+    `<div class="mtf-cell" style="border-color:var(--border-bright);grid-column:span 2;">
+      <div class="mtf-tf">多週期共識</div>
+      <div class="mtf-val blue" id="mtf-consensus">---</div>
+    </div>`;
+  const scores = results.filter(r=>r.status==='fulfilled').map(r=>r.value.bull/r.value.total);
+  const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
+  document.getElementById('mtf-consensus').innerText = avg>=0.7?'強多 🚀':avg>=0.5?'偏多 ↗️':avg>=0.3?'中性 ↔️':'偏空 🐻';
+}
 
-    async function calculateFib(interval, limit, btnElement) {
-        if(btnElement) { document.querySelectorAll('.fib-btn').forEach(b => b.classList.remove('active')); btnElement.classList.add('active'); }
-        document.getElementById('fib-loading').style.display = 'inline';
-        try {
-            let binInterval = '1d'; if(interval === '1h') binInterval = '1h'; if(interval === '4h') binInterval = '4h'; if(interval === '1w') binInterval = '1w';
-            const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${binInterval}&limit=${limit}`);
-            const data = await res.json();
-            let max = -Infinity, min = Infinity;
-            data.forEach(d => { let h = parseFloat(d[2]); let l = parseFloat(d[3]); if(h > max) max = h; if(l < min) min = l; });
-            const current = parseFloat(data[data.length-1][4]); const diff = max - min;
-            
-            const levels = [ { r: 1, p: max, t: "前高 (High)", c: "row-sell-zone" }, { r: 0.786, p: max - (diff * 0.214), t: "回撤 0.786", c: "" }, { r: 0.618, p: max - (diff * 0.382), t: "黃金口袋 (0.618)", c: "row-buy-zone" }, { r: 0.5, p: max - (diff * 0.5), t: "中軸 (0.5)", c: "" }, { r: 0.382, p: max - (diff * 0.618), t: "弱勢反彈 (0.382)", c: "" }, { r: 0.236, p: max - (diff * 0.764), t: "淺層支撐 (0.236)", c: "" }, { r: 0, p: min, t: "前低 (Low)", c: "row-sell-zone" } ];
+// ══════════════════════════════════════════
+//  ORDER BOOK
+// ══════════════════════════════════════════
+async function fetchOB() {
+  try {
+    const d = await (await fetch(`https://api.binance.com/api/v3/depth?symbol=${currentSymbol}&limit=20`)).json();
+    const b=d.bids.reduce((a,v)=>a+parseFloat(v[1]),0);
+    const s=d.asks.reduce((a,v)=>a+parseFloat(v[1]),0);
+    const t=b+s;
+    document.getElementById('ob-buy-bar').style.width=(b/t*100)+'%';
+    document.getElementById('ob-sell-bar').style.width=(s/t*100)+'%';
+    document.getElementById('ob-buy-pct').innerText=(b/t*100).toFixed(1)+'%';
+    document.getElementById('ob-sell-pct').innerText=(s/t*100).toFixed(1)+'%';
+  } catch(e){}
+}
 
-            let html = "";
-            levels.forEach(l => {
-                const distPct = ((current - l.p) / l.p * 100).toFixed(2); const isNear = Math.abs(parseFloat(distPct)) < 0.5;
-                let distClass = ""; if(parseFloat(distPct) > 0) distClass = "grad-text-green"; else distClass = "grad-text-red";
-                if(isNear) distClass += " dist-near";
-                html += `<tr class="${l.c} ${isNear?'row-active':''}"><td>${(l.r * 100).toFixed(1)}%</td><td style="font-weight:bold; color:#fff;">$${fmt(l.p)}</td><td style="color:#aaa;">${l.t}</td><td class="${distClass}">${distPct > 0 ? '+' : ''}${distPct}%</td></tr>`;
-            });
-            document.getElementById('fib-body').innerHTML = html;
-        } catch (e) {} finally { document.getElementById('fib-loading').style.display = 'none'; }
+// ══════════════════════════════════════════
+//  LIVE PRICE
+// ══════════════════════════════════════════
+async function fetchLivePrice() {
+  try {
+    const d = await (await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${currentSymbol}`)).json();
+    const price = parseFloat(d.lastPrice);
+    const change = parseFloat(d.priceChangePercent);
+    document.getElementById('live-price').innerText = fmt(price);
+    document.getElementById('price-change').innerHTML =
+      `<span style="color:${change>=0?'var(--green)':'var(--red)'}; font-family:var(--mono); font-weight:700;">
+        ${change>=0?'+':''}${change.toFixed(2)}%
+      </span>
+      <span style="color:var(--text-dim);font-size:0.75rem;margin-left:8px;">24H 高: ${fmt(parseFloat(d.highPrice))} 低: ${fmt(parseFloat(d.lowPrice))}</span>`;
+  } catch(e){}
+}
+
+// ══════════════════════════════════════════
+//  FUNDING RATE
+// ══════════════════════════════════════════
+async function fetchFunding() {
+  if(fundingTimer) clearInterval(fundingTimer);
+  try {
+    const d = await (await fetch(`https://fapi.binance.com/fapi/v1/premiumIndex?symbol=${currentSymbol}`)).json();
+    const rate = parseFloat(d.lastFundingRate)*100;
+    const el = document.getElementById('live-funding-rate');
+    const st = document.getElementById('funding-status');
+    el.innerText = rate.toFixed(4)+'%';
+    if(rate>0.015){
+      el.style.color='var(--red)'; st.style.background='var(--red-dim)'; st.style.borderColor='var(--red)'; st.style.color='var(--red)'; st.innerText='🔥 極度貪婪 — 誘多燃料';
+    } else if(rate<0){
+      el.style.color='var(--green)'; st.style.background='var(--green-dim)'; st.style.borderColor='var(--green)'; st.style.color='var(--green)'; st.innerText='😨 負費率 — 軋空燃料';
+    } else {
+      el.style.color='var(--gold)'; st.style.background='var(--gold-dim)'; st.style.borderColor='var(--gold)'; st.style.color='var(--gold)'; st.innerText='⚖️ 情緒中性';
     }
+    const next = parseInt(d.nextFundingTime);
+    fundingTimer = setInterval(()=>{
+      const diff = next - Date.now();
+      if(diff>0){
+        const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+        document.getElementById('funding-countdown').innerText=`下次結算: ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      } else document.getElementById('funding-countdown').innerText='結算中...';
+    },1000);
+    // History
+    const hist = await (await fetch(`https://fapi.binance.com/fapi/v1/fundingRate?symbol=${currentSymbol}&limit=3`)).json();
+    document.getElementById('funding-history').innerHTML = hist.reverse().map(d=>{
+      const r=(parseFloat(d.fundingRate)*100).toFixed(4);
+      const t=new Date(d.fundingTime).toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      const c=parseFloat(r)>0.015?'var(--red)':parseFloat(r)<0?'var(--green)':'var(--gold)';
+      return `<tr><td style="color:var(--text-dim);">${t}</td><td style="color:${c};font-weight:700;text-align:right;">${r}%</td></tr>`;
+    }).join('');
+  } catch(e){
+    document.getElementById('live-funding-rate').innerText='N/A';
+    document.getElementById('funding-status').innerText='無合約數據';
+  }
+}
+
+// ══════════════════════════════════════════
+//  FIB
+// ══════════════════════════════════════════
+async function calcFib(interval, limit, btn) {
+  if(btn){ document.querySelectorAll('.fib-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+  document.getElementById('fib-loading').style.display='inline';
+  try {
+    const binInterval = interval==='1w'?'1w':interval==='1d'?'1d':interval==='4h'?'4h':'1h';
+    const data = await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${binInterval}&limit=${limit}`)).json();
+    let max=-Infinity, min=Infinity;
+    data.forEach(d=>{ if(parseFloat(d[2])>max) max=parseFloat(d[2]); if(parseFloat(d[3])<min) min=parseFloat(d[3]); });
+    const cur=parseFloat(data[data.length-1][4]), diff=max-min;
+    const levels=[
+      {r:'1.000', p:max, t:'前高 (High)', cls:'fib-sell'},
+      {r:'0.786', p:max-diff*0.214, t:'強壓回撤 0.786', cls:''},
+      {r:'0.618', p:max-diff*0.382, t:'🏅 黃金口袋 0.618', cls:'fib-buy'},
+      {r:'0.500', p:max-diff*0.5, t:'中軸 0.5', cls:''},
+      {r:'0.382', p:max-diff*0.618, t:'弱勢反彈 0.382', cls:''},
+      {r:'0.236', p:max-diff*0.764, t:'淺層支撐 0.236', cls:''},
+      {r:'0.000', p:min, t:'前低 (Low)', cls:'fib-sell'},
+      {r:'-0.236', p:min-diff*0.236, t:'延伸支撐 -0.236', cls:'fib-buy'},
+      {r:'-0.618', p:min-diff*0.618, t:'深度目標 -0.618', cls:'fib-buy'},
+    ];
+    let html='';
+    levels.forEach(l=>{
+      const distPct=((cur-l.p)/l.p*100).toFixed(2);
+      const isNear=Math.abs(parseFloat(distPct))<1;
+      const distCls=isNear?'fib-near':parseFloat(distPct)>0?'dist-pos':'dist-neg';
+      // Level strength indicator
+      const strength = l.r==='0.618'?'★★★':l.r==='0.500'||l.r==='0.382'?'★★':l.r==='1.000'||l.r==='0.000'?'★★★★':'★';
+      html+=`<tr class="${l.cls} ${isNear?'dist-near':''}">
+        <td>${l.r}</td>
+        <td style="font-weight:700;color:#fff;">$${fmt(l.p)}</td>
+        <td style="color:var(--text-dim);">${l.t}</td>
+        <td class="${distCls}">${parseFloat(distPct)>=0?'+':''}${distPct}%</td>
+        <td style="color:var(--gold);font-size:0.75rem;">${strength}</td>
+      </tr>`;
+    });
+    document.getElementById('fib-body').innerHTML = html;
+  } catch(e){}
+  document.getElementById('fib-loading').style.display='none';
+}
+
+// ══════════════════════════════════════════
+//  BOTTOM SCANNER
+// ══════════════════════════════════════════
+function updateBottom(lbl, btn) {
+  document.querySelectorAll('.gauge-pill').forEach(b=>b.classList.remove('active')); btn.classList.add('active');
+  renderGauge(lbl); fetchScannerData(lbl);
+}
+
+function renderGauge(lbl) {
+  const tvMap={'15m':'15','1h':'60','4h':'240','1D':'1D','1W':'1W','1M':'1M'};
+  const tvCode = tvMap[lbl]||'1D';
+  const c=document.getElementById('tv-gauge-bottom'); c.innerHTML='';
+  setTimeout(()=>{
+    const d=document.createElement('div'); d.className='tradingview-widget-container'; d.style.cssText='height:380px;width:100%;';
+    d.innerHTML='<div class="tradingview-widget-container__widget" style="height:380px;width:100%;"></div>';
+    const s=document.createElement('script'); s.src='https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js'; s.async=true;
+    s.innerHTML=JSON.stringify({interval:tvCode,width:'100%',height:'380',isTransparent:true,symbol:'BINANCE:'+currentSymbol,showIntervalTabs:false,displayMode:'single',locale:'zh_TW',colorTheme:'dark'});
+    d.appendChild(s); c.appendChild(d);
+  },50);
+}
+
+async function fetchScannerData(lbl) {
+  const loader=document.getElementById('bottom-loading');
+  loader.style.display='inline';
+  document.getElementById('scanner-rows').innerHTML='';
+  const binMap={'15m':'15m','1h':'1h','4h':'4h','1D':'1d','1W':'1w','1M':'1M'};
+  const binInterval=binMap[lbl]||'1d';
+  try {
+    const data=await (await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=${binInterval}&limit=100`)).json();
+    const C=data.map(d=>parseFloat(d[4]));
+    const H=data.map(d=>parseFloat(d[2]));
+    const L=data.map(d=>parseFloat(d[3]));
+    const V=data.map(d=>parseFloat(d[5]));
+    const cur=C[C.length-1];
+
+    const rsi=calcRSI(C,14);
+    const kd=calcKD(H,L,C,9,3,3);
+    const sma20=calcMA(C,20),sma50=calcMA(C,50),sma200=calcMA(C,Math.min(200,C.length));
+    const ema20=calcEMA(C,20),ema50=calcEMA(C,50);
+    const macd=calcEMA(C,12)-calcEMA(C,26);
+    const bb=calcBB(C,20,2);
+    const mom=cur-C[C.length-11];
+    const avgVol=V.slice(-20).reduce((a,b)=>a+b,0)/20;
+    const adx=calcADX(H,L,C,14);
+    const atr=calcATR(H,L,C,14);
+
+    const rows=[
+      {name:'RSI (14)',     val:rsi.toFixed(2), sig:rsi>70?'超買':rsi<30?'超賣':'中性', cls:rsi>70?'sig-s':rsi<30?'sig-b':'sig-n'},
+      {name:'Stoch K (9)',  val:kd.k.toFixed(2)+'%', sig:kd.k>80?'超買':kd.k<20?'超賣':'中性', cls:kd.k>80?'sig-s':kd.k<20?'sig-b':'sig-n'},
+      {name:'MACD',        val:macd.toFixed(4), sig:macd>0?'多頭':'空頭', cls:macd>0?'sig-b':'sig-s'},
+      {name:'SMA 20',      val:fmt(sma20), sig:cur>sma20?'多':'空', cls:cur>sma20?'sig-b':'sig-s'},
+      {name:'SMA 50',      val:fmt(sma50), sig:cur>sma50?'多':'空', cls:cur>sma50?'sig-b':'sig-s'},
+      {name:'SMA 200',     val:fmt(sma200), sig:cur>sma200?'多':'空', cls:cur>sma200?'sig-b':'sig-s'},
+      {name:'EMA 20',      val:fmt(ema20), sig:cur>ema20?'多':'空', cls:cur>ema20?'sig-b':'sig-s'},
+      {name:'EMA 50',      val:fmt(ema50), sig:cur>ema50?'多':'空', cls:cur>ema50?'sig-b':'sig-s'},
+      {name:'布林上軌',    val:fmt(bb.upper), sig:cur>bb.upper?'超買':'正常', cls:cur>bb.upper?'sig-s':'sig-n'},
+      {name:'布林下軌',    val:fmt(bb.lower), sig:cur<bb.lower?'超賣':'正常', cls:cur<bb.lower?'sig-b':'sig-n'},
+      {name:'ADX',         val:adx.toFixed(1), sig:adx>25?'趨勢強':'震盪', cls:adx>25?'sig-b':'sig-n'},
+      {name:'ATR (14)',    val:fmt(atr), sig:'-', cls:'sig-n'},
+      {name:'成交量比例', val:(V[V.length-1]/avgVol).toFixed(2)+'×', sig:V[V.length-1]>avgVol*1.5?'放量':V[V.length-1]<avgVol*0.7?'縮量':'正常', cls:V[V.length-1]>avgVol*1.5?'sig-b':'sig-n'},
+      {name:'動能 (10)',  val:mom>0?'+'+mom.toFixed(2):mom.toFixed(2), sig:mom>0?'正向':'負向', cls:mom>0?'sig-b':'sig-s'},
+    ];
+    document.getElementById('scanner-rows').innerHTML = rows.map(r=>
+      `<tr><td>${r.name}</td><td style="font-family:var(--mono);">${r.val}</td><td><span class="${r.cls}">${r.sig}</span></td></tr>`
+    ).join('');
+  } catch(e){}
+  loader.style.display='none';
+}
+
+// ══════════════════════════════════════════
+//  MATH UTILS
+// ══════════════════════════════════════════
+function fmt(n){ if(!n&&n!==0)return'---'; if(n>10000)return n.toFixed(2); if(n>100)return n.toFixed(3); if(n>1)return n.toFixed(4); if(n<0.0001)return n.toFixed(8); return n.toFixed(6); }
+function calcMA(d,p){ if(d.length<p)return 0; return d.slice(-p).reduce((a,b)=>a+b,0)/p; }
+function calcEMA(d,p){ const k=2/(p+1); let ema=d[0]; for(let i=1;i<d.length;i++) ema=d[i]*k+ema*(1-k); return ema; }
+function calcRSI(c,p){ let g=0,l=0; for(let i=c.length-p-1;i<c.length-1;i++){ const d=c[i+1]-c[i]; d>0?g+=d:l-=d; } const rs=(g/p)/(l/p||0.0001); return 100-(100/(1+rs)); }
+function calcATR(h,l,c,p){ let s=0; for(let i=1;i<=p;i++){ const idx=h.length-i; s+=Math.max(h[idx]-l[idx],Math.abs(h[idx]-c[idx-1]),Math.abs(l[idx]-c[idx-1])); } return s/p; }
+function calcKD(h,l,c,p){ const lo=Math.min(...l.slice(-p)),hi=Math.max(...h.slice(-p)),cl=c[c.length-1]; const rsv=(cl-lo)/(hi-lo||1)*100; return {k:rsv,d:rsv}; }
+function calcBB(d,p,mult){ const ma=calcMA(d,p); const std=Math.sqrt(d.slice(-p).reduce((a,b)=>a+(b-ma)**2,0)/p); return {upper:ma+std*mult,mid:ma,lower:ma-std*mult}; }
+function calcStochRSI(c,p,smooth){ const rsis=[]; for(let i=p;i<c.length;i++) rsis.push(calcRSI(c.slice(0,i+1),p)); const lo=Math.min(...rsis.slice(-p)),hi=Math.max(...rsis.slice(-p)); const cur=rsis[rsis.length-1]; return (cur-lo)/(hi-lo||1)*100; }
+function calcADX(h,l,c,p){
+  let dmPlus=[],dmMinus=[],tr=[];
+  for(let i=1;i<h.length;i++){
+    const up=h[i]-h[i-1],dn=l[i-1]-l[i];
+    dmPlus.push(up>dn&&up>0?up:0);
+    dmMinus.push(dn>up&&dn>0?dn:0);
+    tr.push(Math.max(h[i]-l[i],Math.abs(h[i]-c[i-1]),Math.abs(l[i]-c[i-1])));
+  }
+  const atr14=tr.slice(-p).reduce((a,b)=>a+b,0)/p;
+  const pdi=(dmPlus.slice(-p).reduce((a,b)=>a+b,0)/p)/(atr14||1)*100;
+  const mdi=(dmMinus.slice(-p).reduce((a,b)=>a+b,0)/p)/(atr14||1)*100;
+  const dx=Math.abs(pdi-mdi)/(pdi+mdi||1)*100;
+  return dx;
+}
+function setScore(id, pass, txtP, txtF){
+  document.getElementById(id).innerHTML = pass
+    ? `<span class="badge badge-bull">${txtP}</span>`
+    : `<span class="badge badge-bear">${txtF}</span>`;
+}
+
+// ══════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════
+// Initialize gauge and bottom scanner
+setTimeout(()=>{ renderGauge('4h'); fetchScannerData('4h'); }, 500);
 </script>
-
 </body>
 </html>
