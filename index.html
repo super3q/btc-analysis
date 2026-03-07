@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>BTC 五因子監測</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #080C14; color: #E2E8F0;
+  font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  padding: 16px 12px; min-height: 100vh;
+}
+.mono { font-family: 'JetBrains Mono', monospace; }
+.container { max-width: 520px; margin: 0 auto; }
+
+.header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+.price { font-size: 34px; font-weight: 700; color: #F8FAFC; line-height: 1.1; }
+.change { font-size: 14px; margin-top: 2px; }
+.change.up { color: #10B981; }
+.change.down { color: #EF4444; }
+.ws-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+.ws-dot.on { background: #10B981; box-shadow: 0 0 6px #10B98188; }
+.ws-dot.off { background: #EF4444; box-shadow: 0 0 6px #EF444488; }
+
+.card {
+background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+border-radius: 10px; padding: 12px 14px; margin-bottom: 10px;
+}
+.card-title { font-size: 11px; color: #64748B; letter-spacing: 1px; margin-bottom: 8px; }
+
+.pnl-banner {
+border-radius: 10px; padding: 10px 14px; margin-bottom: 10px;
+display: flex; justify-content: space-between; align-items: center;
+}
+.pnl-banner.profit { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); }
+.pnl-banner.loss { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); }
+
+.alert-box {
+border-radius: 8px; padding: 8px 14px; margin-bottom: 6px;
+font-size: 12px; display: flex; align-items: center; gap: 8px;
+}
+.alert-danger { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #FCA5A5; }
+.alert-warning { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); color: #FDE68A; }
+.alert-ok { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #6EE7B7; }
+
+.posbar-wrap { position: relative; height: 40px; background: rgba(255,255,255,0.04); border-radius: 6px; margin-bottom: 36px; overflow: visible; }
+.posbar-marker { position: absolute; top: 0; bottom: 0; width: 1px; z-index: 5; }
+.posbar-label { position: absolute; bottom: -22px; transform: translateX(-50%); font-size: 9px; white-space: nowrap; text-align: center; }
+.posbar-price { position: absolute; top: -22px; transform: translateX(-50%); font-size: 11px; font-weight: 700; color: #F8FAFC; white-space: nowrap; }
+.posbar-now { position: absolute; top: -2px; bottom: -2px; width: 3px; background: #F8FAFC; border-radius: 2px; z-index: 10; box-shadow: 0 0 8px rgba(248,250,252,0.5); }
+
+.factor {
+background: rgba(255,255,255,0.03); border-radius: 8px;
+padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid #64748B;
+}
+.factor-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.factor-num { font-size: 12px; color: #64748B; }
+.pill { font-size: 11px; font-weight: 600; padding: 2px 10px; border-radius: 4px; }
+.pill-bull { color: #10B981; background: rgba(16,185,129,0.12); }
+.pill-bear { color: #EF4444; background: rgba(239,68,68,0.12); }
+.pill-neutral { color: #F59E0B; background: rgba(245,158,11,0.12); }
+.pill-loading { color: #6B7280; background: rgba(107,114,128,0.12); }
+.factor-val { font-size: 22px; font-weight: 700; color: #F1F5F9; }
+.factor-detail { font-size: 11px; color: #94A3B8; margin-top: 4px; line-height: 1.5; }
+
+.contra-box { border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+.contra-safe { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+.contra-warn { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); }
+.contra-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.contra-item { font-size: 11px; color: #CBD5E1; display: flex; align-items: center; gap: 6px; }
+
+.tech-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.tech-label { font-size: 10px; color: #64748B; }
+.tech-val { font-size: 14px; font-weight: 600; color: #E2E8F0; }
+.tech-val.warn { color: #EF4444; }
+
+.kelly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kelly-label { font-size: 10px; color: #94A3B8; }
+.kelly-val { font-size: 18px; font-weight: 700; }
+.kelly-val.pos { color: #10B981; }
+.kelly-val.neg { color: #EF4444; }
+.kelly-sub { font-size: 10px; color: #64748B; }
+
+.overall-bar {
+border-radius: 10px; padding: 10px 14px; margin-bottom: 12px;
+display: flex; justify-content: space-between; align-items: center;
+}
+
+.footer { font-size: 10px; color: #475569; text-align: center; line-height: 1.6; padding: 8px 0; }
+</style>
+
+</head>
+<body>
+<div class="container" id="app">
+  <div class="header">
+    <div>
+      <div style="font-size:10px;color:#64748B;letter-spacing:2px;">BTC 五因子監測</div>
+      <div class="price mono" id="price">Loading...</div>
+      <div class="change mono" id="change24h"></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:#64748B"><span class="ws-dot off" id="wsDot"></span><span id="wsLabel">連線中</span></div>
+      <div style="font-size:10px;color:#475569;margin-top:2px" id="lastUpdate"></div>
+    </div>
+  </div>
+
+  <div id="pnlBanner"></div>
+  <div id="alerts"></div>
+
+  <!-- Position Map -->
+
+  <div class="card">
+    <div class="card-title">倉位地圖</div>
+    <div class="posbar-wrap" id="posBar"></div>
+  </div>
+
+  <!-- Overall Signal -->
+
+  <div id="overallSignal"></div>
+
+  <!-- Contrarian Check -->
+
+  <div id="contraBox"></div>
+
+  <!-- Factor Cards -->
+
+  <div id="factors"></div>
+
+  <!-- Technicals -->
+
+  <div class="card">
+    <div class="card-title">技術指標</div>
+    <div class="tech-grid" id="techGrid"></div>
+  </div>
+
+  <!-- Kelly -->
+
+  <div class="card">
+    <div class="card-title">凱利公式速算</div>
+    <div class="kelly-grid" id="kellyGrid"></div>
+  </div>
+
+  <div class="footer">
+    數據源：Binance WebSocket + REST API · Fear & Greed: alternative.me<br>
+    因子 2（ETF）、因子 3（地緣政治）需手動判斷<br>
+    非投資建議 · 僅供監測參考
+  </div>
+</div>
+
+<script>
+// ══════════════ STATE ══════════════
+const state = {
+  price: null, change24h: null, vol24h: null,
+  rsi14: null, atr14: null, ma50: null, ma200: null,
+  fundingRate: null, oi: null, fearGreed: null,
+  wsConnected: false, lastUpdate: null,
+};
+
+const POS = {
+  entry: 70740.73, tp: 65800, sl: 72500,
+  addShort: 74200, flipLong: 65900,
+  longTP: 69500, longSL: 64000,
+  lev: 5, size: 1358.2,
+};
+
+// ══════════════ CALCULATIONS ══════════════
+function calcRSI(closes, period = 14) {
+  if (closes.length < period + 1) return null;
+  let gains = 0, losses = 0;
+  for (let i = closes.length - period; i < closes.length; i++) {
+    const d = closes[i] - closes[i - 1];
+    if (d > 0) gains += d; else losses -= d;
+  }
+  if (losses === 0) return 100;
+  return 100 - 100 / (1 + gains / losses / 1);
+}
+
+function calcATR(candles, period = 14) {
+  if (candles.length < period + 1) return null;
+  let sum = 0;
+  for (let i = candles.length - period; i < candles.length; i++) {
+    const h = +candles[i][2], l = +candles[i][3], pc = +candles[i - 1][4];
+    sum += Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc));
+  }
+  return sum / period;
+}
+
+function calcMA(closes, p) {
+  if (closes.length < p) return null;
+  return closes.slice(-p).reduce((a, b) => a + b, 0) / p;
+}
+
+// ══════════════ DATA FETCHING ══════════════
+let ws = null;
+function connectWS() {
+  try {
+    ws = new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@ticker");
+    ws.onopen = () => { state.wsConnected = true; render(); };
+    ws.onmessage = (e) => {
+      const d = JSON.parse(e.data);
+      state.price = parseFloat(d.c);
+      state.change24h = parseFloat(d.P);
+      state.vol24h = parseFloat(d.q);
+      render();
+    };
+    ws.onerror = () => { state.wsConnected = false; render(); };
+    ws.onclose = () => { state.wsConnected = false; render(); setTimeout(connectWS, 5000); };
+  } catch (e) { state.wsConnected = false; render(); setTimeout(connectWS, 10000); }
+}
+
+async function fetchREST() {
+  try {
+    // Klines
+    const kr = await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=201");
+    const klines = await kr.json();
+    if (Array.isArray(klines) && klines.length > 50) {
+      const closes = klines.map(k => +k[4]);
+      // RSI
+      if (closes.length >= 15) {
+        let gains = 0, losses = 0;
+        for (let i = 1; i <= 14; i++) {
+          const d = closes[closes.length - 15 + i] - closes[closes.length - 15 + i - 1];
+          if (d > 0) gains += d; else losses -= d;
+        }
+        const avgG = gains / 14, avgL = losses / 14;
+        state.rsi14 = avgL === 0 ? 100 : 100 - 100 / (1 + avgG / avgL);
+      }
+      state.atr14 = calcATR(klines, 14);
+      state.ma50 = calcMA(closes, 50);
+      if (closes.length >= 200) state.ma200 = calcMA(closes, 200);
+    }
+  } catch (e) { console.error("Klines error:", e); }
+
+  try {
+    // Funding rate
+    const fr = await fetch("https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1");
+    const fd = await fr.json();
+    if (Array.isArray(fd) && fd[0]) state.fundingRate = parseFloat(fd[0].fundingRate);
+  } catch (e) { console.error("Funding error:", e); }
+
+  try {
+    // OI
+    const oir = await fetch("https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT");
+    const oid = await oir.json();
+    if (oid.openInterest) state.oi = parseFloat(oid.openInterest);
+  } catch (e) { console.error("OI error:", e); }
+
+  try {
+    // Fear & Greed
+    const fgr = await fetch("https://api.alternative.me/fng/?limit=1");
+    const fgd = await fgr.json();
+    if (fgd?.data?.[0]) state.fearGreed = parseInt(fgd.data[0].value);
+  } catch (e) { console.error("F&G error:", e); }
+
+  state.lastUpdate = new Date();
+  render();
+}
+
+// ══════════════ RENDERING ══════════════
+function render() {
+  const p = state.price;
+  // Price
+  document.getElementById("price").textContent = p ? `$${p.toLocaleString(undefined, {maximumFractionDigits: 0})}` : "Loading...";
+
+  // 24h change
+  const chEl = document.getElementById("change24h");
+  if (state.change24h !== null) {
+    const c = state.change24h;
+    chEl.textContent = `${c >= 0 ? "+" : ""}${c.toFixed(2)}%`;
+    chEl.className = `change mono ${c >= 0 ? "up" : "down"}`;
+  }
+
+  // WS status
+  const dot = document.getElementById("wsDot");
+  dot.className = `ws-dot ${state.wsConnected ? "on" : "off"}`;
+  document.getElementById("wsLabel").textContent = state.wsConnected ? "即時" : "離線";
+  document.getElementById("lastUpdate").textContent = state.lastUpdate ? `REST: ${state.lastUpdate.toLocaleTimeString()}` : "";
+
+  // PnL
+  renderPnL();
+  renderAlerts();
+  renderPosBar();
+  renderFactors();
+  renderOverall();
+  renderContra();
+  renderTech();
+  renderKelly();
+}
+
+function renderPnL() {
+  const el = document.getElementById("pnlBanner");
+  if (!state.price) { el.innerHTML = ""; return; }
+  const pnlPct = ((POS.entry - state.price) / POS.entry) * 100 * POS.lev;
+  const pnlUsdt = ((POS.entry - state.price) / POS.entry) * POS.size;
+  const isProfit = pnlPct > 0;
+  el.innerHTML = `
+    <div class="pnl-banner ${isProfit ? "profit" : "loss"}">
+      <div>
+        <div style="font-size:11px;color:#94A3B8">空單 @ $70,740 · 5X</div>
+        <div class="mono" style="font-size:22px;font-weight:700;color:${isProfit ? "#10B981" : "#EF4444"}">${pnlPct > 0 ? "+" : ""}${pnlPct.toFixed(2)}%</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:11px;color:#94A3B8">浮盈</div>
+        <div class="mono" style="font-size:16px;font-weight:600;color:${isProfit ? "#10B981" : "#EF4444"}">${pnlUsdt > 0 ? "+" : ""}${pnlUsdt.toFixed(2)} U</div>
+      </div>
+    </div>`;
+}
+
+function renderAlerts() {
+  const el = document.getElementById("alerts");
+  const a = [];
+  const p = state.price;
+  if (p) {
+    if (p >= POS.sl - 300) a.push({ t: "danger", m: `🚨 接近空單止損 $${POS.sl.toLocaleString()}！距離 $${(POS.sl - p).toFixed(0)}` });
+    if (p <= POS.tp + 500 && p > POS.tp) a.push({ t: "warning", m: `⚠️ 接近空單止盈 $${POS.tp.toLocaleString()}，準備平倉+翻多` });
+    if (p <= POS.tp) a.push({ t: "ok", m: `✅ 已達空單止盈區！確認是否已平倉並翻多` });
+    if (p >= POS.addShort - 300 && p < POS.addShort) a.push({ t: "warning", m: `⚠️ 接近加碼空單觸發 $${POS.addShort.toLocaleString()}` });
+  }
+  if (state.rsi14 !== null && state.rsi14 < 30) a.push({ t: "warning", m: `⚠️ 日線 RSI ${state.rsi14.toFixed(1)} 超賣。做空需謹慎。` });
+  if (state.fundingRate !== null && state.fundingRate < -0.01) a.push({ t: "danger", m: `🚨 資金費率極度負值（${(state.fundingRate*100).toFixed(4)}%）。軋空風險高。` });
+
+  el.innerHTML = a.map(x => `<div class="alert-box alert-${x.t}">${x.m}</div>`).join("");
+}
+
+function renderPosBar() {
+  const el = document.getElementById("posBar");
+  const p = state.price;
+  if (!p) { el.innerHTML = ""; return; }
+  const min = 62000, max = 76000, range = max - min;
+  const pct = v => Math.max(0, Math.min(100, (v - min) / range * 100));
+
+  const levels = [
+    { p: POS.longSL, l: "多止損", c: "#EF4444" },
+    { p: POS.tp, l: "空止盈", c: "#10B981" },
+    { p: POS.flipLong, l: "翻多", c: "#3B82F6" },
+    { p: POS.entry, l: "空入場", c: "#F59E0B" },
+    { p: POS.sl, l: "空止損", c: "#EF4444" },
+    { p: POS.addShort, l: "加碼空", c: "#A855F7" },
+  ];
+
+  let html = `<div style="position:absolute;left:0;width:${pct(POS.tp)}%;height:100%;background:rgba(16,185,129,0.08);border-radius:6px 0 0 6px"></div>`;
+  html += `<div style="position:absolute;left:${pct(POS.sl)}%;width:${100-pct(POS.sl)}%;height:100%;background:rgba(239,68,68,0.08);border-radius:0 6px 6px 0"></div>`;
+  html += `<div class="posbar-now" style="left:${pct(p)}%"></div>`;
+  html += `<div class="posbar-price mono" style="left:${pct(p)}%">$${p.toLocaleString(undefined,{maximumFractionDigits:0})}</div>`;
+
+  levels.forEach(lv => {
+    html += `<div class="posbar-marker" style="left:${pct(lv.p)}%;background:${lv.c}66"></div>`;
+    html += `<div class="posbar-label mono" style="left:${pct(lv.p)}%;color:${lv.c}">${lv.l}</div>`;
+  });
+
+  el.innerHTML = html;
+}
+
+function getFactors() {
+  const fr = state.fundingRate;
+  const ch = state.change24h;
+
+  const f1sig = ch === null ? "載入中" : ch < -3 ? "偏空" : ch > 3 ? "偏多" : "中性";
+  const f1det = ch !== null ? `24h 變動 ${ch>0?"+":""}${ch.toFixed(2)}%。BTC-S&P500 相關性 ~0.55。` : "";
+
+  const f2sig = "中性";
+  const f2det = "ETF: 3/5 +$500M, 3/6 -$228M。年初至今淨流出 ~$9 億，正在回升。需手動追蹤 bitbo.io/treasuries/etf-flows";
+
+  const f3sig = "偏空";
+  const f3det = "美伊衝突持續，川普排除談判。油價上漲推高通膨預期，美元走強。";
+
+  const f4sig = fr === null ? "載入中" : fr < -0.005 ? "強烈偏多" : fr < 0 ? "偏多" : fr > 0.01 ? "偏空" : "中性";
+  const f4det = fr !== null ? `資金費率 ${(fr*100).toFixed(4)}%。${fr < 0 ? "空頭支付費用，擁擠度升高。" : "多頭支付費用。"}` : "";
+
+  const f5sig = "偏多";
+  const f5det = "鯨魚 30 天累積 270K BTC（13 年最大）。交易所儲備創 6 年新低 2.31M BTC。";
+
+  return [
+    { num: 1, title: "風險資產動能", sig: f1sig, val: ch !== null ? `${ch>0?"+":""}${ch.toFixed(2)}%` : "—", det: f1det },
+    { num: 2, title: "ETF 資金流", sig: f2sig, val: "手動追蹤", det: f2det },
+    { num: 3, title: "地緣政治風險", sig: f3sig, val: "美伊衝突", det: f3det },
+    { num: 4, title: "衍生品結構", sig: f4sig, val: fr !== null ? `${(fr*100).toFixed(4)}%` : "—", det: f4det },
+    { num: 5, title: "鏈上行為", sig: f5sig, val: "270K BTC", det: f5det },
+  ];
+}
+
+function pillClass(sig) {
+  if (sig.includes("偏多") || sig.includes("強烈偏多")) return "pill-bull";
+  if (sig.includes("偏空") || sig.includes("強烈偏空")) return "pill-bear";
+  if (sig.includes("載入")) return "pill-loading";
+  return "pill-neutral";
+}
+
+function borderColor(sig) {
+  if (sig.includes("偏多")) return "#10B981";
+  if (sig.includes("偏空")) return "#EF4444";
+  return "#F59E0B";
+}
+
+function renderFactors() {
+  const fs = getFactors();
+  document.getElementById("factors").innerHTML = fs.map(f => `
+    <div class="factor" style="border-left-color:${borderColor(f.sig)}">
+      <div class="factor-head">
+        <span class="factor-num">因子 ${f.num} · ${f.title}</span>
+        <span class="pill ${pillClass(f.sig)}">${f.sig}</span>
+      </div>
+      <div class="factor-val mono">${f.val}</div>
+      <div class="factor-detail">${f.det}</div>
+    </div>
+  `).join("");
+}
+
+function renderOverall() {
+  const fs = getFactors();
+  const bear = fs.filter(f => f.sig.includes("偏空")).length;
+  const bull = fs.filter(f => f.sig.includes("偏多")).length;
+  const color = bear > bull ? "#EF4444" : bull > bear ? "#10B981" : "#F59E0B";
+  const text = bear > bull ? "偏空" : bull > bear ? "偏多（空單需謹慎）" : "中性（觀望）";
+  document.getElementById("overallSignal").innerHTML = `
+    <div class="overall-bar" style="background:${color}10;border:1px solid ${color}33">
+      <span style="font-size:13px;color:#CBD5E1">五因子綜合信號</span>
+      <span style="font-size:14px;font-weight:700;color:${color}">${text} (${bear}空 / ${bull}多)</span>
+    </div>`;
+}
+
+function renderContra() {
+  const el = document.getElementById("contraBox");
+  const fg = state.fearGreed;
+  const rsi = state.rsi14;
+  const fr = state.fundingRate;
+
+  const conds = [
+    { l: "Fear & Greed < 20", met: fg !== null ? fg < 20 : null, v: fg ?? "—" },
+    { l: "Daily RSI < 30", met: rsi !== null ? rsi < 30 : null, v: rsi ? rsi.toFixed(1) : "—" },
+    { l: "資金費率為負", met: fr !== null ? fr < 0 : null, v: fr ? (fr*100).toFixed(4)+"%" : "—" },
+    { l: "鯨魚累積中", met: true, v: "270K BTC" },
+  ];
+  const metCount = conds.filter(c => c.met === true).length;
+  const warn = metCount >= 3;
+
+  el.innerHTML = `
+    <div class="contra-box ${warn ? "contra-warn" : "contra-safe"}">
+      <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:${warn ? "#FCA5A5" : "#64748B"}">
+        ${warn ? "🚨 逆向指標警報：做空正在與歷史統計對抗" : "📊 逆向指標檢查表"}
+      </div>
+      <div class="contra-grid">
+        ${conds.map(c => `
+          <div class="contra-item">
+            <span style="font-size:14px">${c.met === true ? "✅" : c.met === false ? "❌" : "❓"}</span>
+            <span>${c.l}: <span class="mono" style="color:#F1F5F9">${c.v}</span></span>
+          </div>
+        `).join("")}
+      </div>
+      ${warn ? '<div style="font-size:11px;color:#FCA5A5;margin-top:8px;line-height:1.6">K33 數據：此條件下 90 天做多勝率 78%。空單倉位應維持最小化。</div>' : ""}
+    </div>`;
+}
+
+function renderTech() {
+  const items = [
+    { l: "RSI(14)", v: state.rsi14 ? state.rsi14.toFixed(1) : "—", w: state.rsi14 && state.rsi14 < 30 },
+    { l: "ATR(14)", v: state.atr14 ? `$${state.atr14.toFixed(0)}` : "—" },
+    { l: "MA50", v: state.ma50 ? `$${(state.ma50/1000).toFixed(1)}K` : "—" },
+    { l: "MA200", v: state.ma200 ? `$${(state.ma200/1000).toFixed(1)}K` : "—" },
+    { l: "OI (BTC)", v: state.oi ? `${(state.oi/1000).toFixed(1)}K` : "—" },
+    { l: "Vol 24h", v: state.vol24h ? `$${(state.vol24h/1e9).toFixed(2)}B` : "—" },
+  ];
+  document.getElementById("techGrid").innerHTML = items.map(t => `
+    <div>
+      <div class="tech-label">${t.l}</div>
+      <div class="tech-val mono ${t.w ? "warn" : ""}">${t.v}</div>
+    </div>
+  `).join("");
+}
+
+function renderKelly() {
+  const reward = POS.entry - POS.tp;
+  const risk = POS.sl - POS.entry;
+  const b = reward / risk;
+
+  const scenarios = [
+    { wr: 0.4, label: "樂觀 (40%)" },
+    { wr: 0.3, label: "保守 (30%)" },
+  ];
+
+  document.getElementById("kellyGrid").innerHTML = scenarios.map(s => {
+    const k = (b * s.wr - (1 - s.wr)) / b;
+    return `
+      <div>
+        <div class="kelly-label">勝率 ${s.label}</div>
+        <div class="kelly-val mono ${k > 0 ? "pos" : "neg"}">${k > 0 ? (k*100).toFixed(1)+"%" : "不下注"}</div>
+        <div class="kelly-sub">R/R = ${b.toFixed(2)}:1</div>
+      </div>`;
+  }).join("");
+}
+
+// ══════════════ INIT ══════════════
+connectWS();
+fetchREST();
+setInterval(fetchREST, 30000);
+render();
+</script>
+
+</body>
+</html>
