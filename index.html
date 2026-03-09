@@ -3,1023 +3,716 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="BTC終端">
 <meta name="theme-color" content="#080C14">
 <title>BTC 五因子量化終端</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body,#root{height:100%;background:#080C14}
-body{font-family:-apple-system,'SF Pro Display','PingFang TC',sans-serif;color:#94A3B8;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#080C14;color:#94A3B8;font-family:-apple-system,'SF Pro Display','PingFang TC',sans-serif;overscroll-behavior:none}
 ::-webkit-scrollbar{width:0;height:0}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;padding:0}
+input{font-family:inherit}
+
+/* Layout */
+#app{max-width:520px;margin:0 auto;min-height:100dvh;position:relative;background:#080C14}
+#header{position:sticky;top:0;z-index:100;background:rgba(8,12,20,.96);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.06);padding:8px 14px 6px;display:flex;justify-content:space-between;align-items:center}
+#screen{min-height:calc(100dvh - 110px);overflow-y:auto;padding:0 12px 80px}
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;background:rgba(8,12,20,.97);border-top:1px solid rgba(255,255,255,.06);display:flex;height:56px;z-index:200;backdrop-filter:blur(20px)}
+
+/* Nav buttons */
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;padding:6px 0}
+.nav-btn .nav-icon{font-size:20px;line-height:1}
+.nav-btn .nav-label{font-size:9px;font-weight:400;color:#64748B}
+.nav-btn.active .nav-label{color:#00D4BC;font-weight:700}
+.nav-btn .nav-dot{width:20px;height:2px;border-radius:1px;background:#00D4BC;display:none}
+.nav-btn.active .nav-dot{display:block}
+
+/* Cards */
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.card-title{font-size:10px;color:#64748B;letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase}
+.topbar{position:sticky;top:0;z-index:50;background:#080C14;border-bottom:1px solid rgba(255,255,255,.06);padding:11px 14px 9px;display:flex;justify-content:space-between;align-items:center;margin:0 -12px}
+
+/* Factor bar */
+.factor-row{border-left:3px solid #64748B;padding:8px 10px;margin-bottom:6px;background:rgba(255,255,255,.02);border-radius:0 8px 8px 0}
+.factor-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
+
+/* Alert boxes */
+.alert{border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:12px;display:flex;align-items:center;gap:8px}
+.alert-danger{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#FCA5A5}
+.alert-warning{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#FDE68A}
+.alert-ok{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#6EE7B7}
+
+/* Grid helpers */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+
+/* Settings overlay */
+#settings-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;backdrop-filter:blur(4px);overflow-y:auto;padding:40px 12px 40px}
+#settings-overlay.open{display:block}
+#settings-panel{background:#0F1629;border:1px solid rgba(255,255,255,.1);border-radius:14px;width:100%;max-width:480px;margin:0 auto;padding:20px 16px}
+.s-label{font-size:10px;color:#6366F1;font-weight:600;letter-spacing:1px;margin-bottom:8px;border-bottom:1px solid rgba(99,102,241,.2);padding-bottom:4px;margin-top:14px}
+.s-input{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:7px 9px;color:#F1F5F9;font-size:13px;font-family:monospace;outline:none}
+.s-input:focus{border-color:rgba(99,102,241,.5)}
+.sig-btn{padding:4px 12px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);color:#64748B}
+.sig-btn.sel-bull{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:#10B981}
+.sig-btn.sel-bear{background:rgba(239,68,68,.15);border-color:rgba(239,68,68,.4);color:#EF4444}
+.sig-btn.sel-neutral{background:rgba(245,158,11,.15);border-color:rgba(245,158,11,.4);color:#F59E0B}
+
+/* Order card */
+.order-card{border-left:3px solid;border-radius:10px;padding:11px 14px;margin-bottom:8px;border-top:1px solid;border-right:1px solid;border-bottom:1px solid}
+
+/* Tab buttons */
+.tab-btn{padding:5px 12px;border-radius:6px;font-size:11px;white-space:nowrap;cursor:pointer;border:1px solid rgba(255,255,255,.07);background:transparent;color:#64748B}
+.tab-btn.active{background:rgba(99,102,241,.15);border-color:#6366F1;color:#A5B4FC;font-weight:700}
+
+/* Position map */
+.posbar{position:relative;height:36px;background:rgba(255,255,255,.04);border-radius:6px;margin-bottom:40px;overflow:visible}
+
+/* OB bar */
+.ob-bar{height:16px;background:rgba(255,255,255,.06);border-radius:8px;overflow:hidden;display:flex;margin-bottom:6px}
+
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes glow{0%,100%{box-shadow:0 0 4px currentColor}50%{box-shadow:0 0 12px currentColor}}
+.near-pulse{animation:pulse 1s infinite}
 </style>
+
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const { useState, useEffect, useCallback, useRef } = React;
-
-// ═══════════════════════════════════════════════════════════════
-//  BTC 五因子量化終端 — Mobile App Edition
-//  原始功能完整移植 + iOS/Android 原生介面
-// ═══════════════════════════════════════════════════════════════
-
-// ─── Theme ───────────────────────────────────────────────────
-const T = {
-bg:     “#080C14”,
-card:   “rgba(255,255,255,0.03)”,
-border: “rgba(255,255,255,0.06)”,
-muted:  “#64748B”,
-text:   “#94A3B8”,
-white:  “#F1F5F9”,
-green:  “#10B981”,
-red:    “#EF4444”,
-yellow: “#F59E0B”,
-blue:   “#6366F1”,
-};
-
-// ─── Defaults ────────────────────────────────────────────────
-// 📸 更新時間：2026-03-09 07:44（依幣安截圖）
-const DEFAULTS = {
-// ── 現有空單倉位 ──
-entry: 67762.85,   // 開倉均價
-size:  3379.6,     // 持倉量 USDT
-lev:   5,          // 全倉 5X
-liquidation: 85761.37, // 強平價
-
-// ── 空單止盈止損 ──
-tp:    66200,      // 平空止盈 @66,200（只減倉）
-sl:    72500,      // 止盈止損/平空 @72,500（只減倉）
-
-// ── 加碼空單條件 ──
-addShort:  68500,  // 限價止盈/開空 @68,500（959U，≥68,500觸發）
-addShort2: 72500,  // 限價止盈/開空 @72,500（4,930U，≥72,500觸發）
-addShort3: 74200,  // 限價止盈/開空 @74,200（7,494.2U，≥74,200觸發）
-
-// ── 多單條件（翻多/下方買入）──
-flipLong:  65500,  // 限價止盈/開多 @65,500（2,489U，≤65,500觸發）
-flipLong2: 65808,  // 限價止盈/開多 @65,808（987.2U，≤65,800觸發）
-flipLong3: 65010,  // 限價止盈/開多 @65,010（975.2U，≤65,010觸發）
-
-// ── 多單止盈止損 ──
-longTP:    69500,  // 限價止盈/平多 @69,500（9,938.5U，≥69,500只減倉）
-longSL:    64000,  // 止盈止損/平多 @64,000（9,984U，≤64,000只減倉）
-
-// ── 因子信號 ──
-f2sig: “中性”, f3sig: “偏空”, f5sig: “偏多”,
-f2note: “ETF: 需追蹤 bitbo.io/treasuries/etf-flows”,
-f3note: “美伊衝突持續，油價上漲，美元走強。”,
-f5note: “鯨魚30天累積270K BTC。交易所儲備創6年新低。”,
-};
-
-// ── 條件單完整清單（從截圖讀取，10筆）──────────────────────────
-const ALL_ORDERS = [
-// 開空
-{ type:“限價止盈”, dir:“開空”, price:68500,  size:959,    trigger:“≥68,500”,  col:”#EF4444”, date:“03-09 17:47” },
-{ type:“限價止盈”, dir:“開空”, price:72500,  size:4930,   trigger:“≥72,500”,  col:”#EF4444”, date:“03-07 23:02” },
-{ type:“限價止盈”, dir:“開空”, price:74200,  size:7494.2, trigger:“≥74,200”,  col:”#EF4444”, date:“03-07 10:58” },
-// 平空
-{ type:“限價止盈”, dir:“平空”, price:66200,  size:1191.6, trigger:“≤66,200”,  col:”#10B981”, date:“03-09 14:57”, reduceOnly:true },
-{ type:“止盈止損”, dir:“平空”, price:72500,  size:9932.5, trigger:“≥72,500”,  col:”#10B981”, date:“03-07 20:54”, reduceOnly:true },
-// 開多
-{ type:“限價止盈”, dir:“開多”, price:65500,  size:2489,   trigger:“≤65,500”,  col:”#10B981”, date:“03-09 06:22” },
-{ type:“限價止盈”, dir:“開多”, price:65808,  size:987.2,  trigger:“≤65,800”,  col:”#10B981”, date:“03-09 08:29” },
-{ type:“限價止盈”, dir:“開多”, price:65010,  size:975.2,  trigger:“≤65,010”,  col:”#10B981”, date:“03-09 06:26” },
-// 平多
-{ type:“限價止盈”, dir:“平多”, price:69500,  size:9938.5, trigger:“≥69,500”,  col:”#EF4444”, date:“03-07 21:02”, reduceOnly:true },
-{ type:“止盈止損”, dir:“平多”, price:64000,  size:9984,   trigger:“≤64,000”,  col:”#EF4444”, date:“03-07 20:54”, reduceOnly:true },
-];
-
-function loadPOS() {
-try { const s = localStorage.getItem(“btc_pos5”); if (s) return { …DEFAULTS, …JSON.parse(s) }; } catch (e) {}
-return { …DEFAULTS };
-}
-
-// ─── Helpers ─────────────────────────────────────────────────
-const fmt = n => {
-if (n === null || n === undefined) return “—”;
-if (n > 1000) return n.toFixed(2);
-if (n > 1)    return n.toFixed(4);
-if (Math.abs(n) < 0.0001) return n.toFixed(8);
-return n.toFixed(6);
-};
-const pillColor = sig => {
-if (!sig) return T.muted;
-if (sig.includes(“偏多”)) return T.green;
-if (sig.includes(“偏空”)) return T.red;
-if (sig.includes(“載入”)) return T.muted;
-return T.yellow;
-};
-const borderCol = sig => {
-if (!sig) return T.muted;
-if (sig.includes(“偏多”)) return T.green;
-if (sig.includes(“偏空”)) return T.red;
-return T.yellow;
-};
-
-// ─── Shared mini-components ──────────────────────────────────
-const Card = ({ children, style = {} }) => (
-
-  <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "12px 14px", marginBottom: 10, ...style }}>
-    {children}
-  </div>
-);
-const CardTitle = ({ children }) => (
-  <div style={{ fontSize: 10, color: T.muted, letterSpacing: "1.5px", marginBottom: 8, textTransform: "uppercase" }}>{children}</div>
-);
-const Pill = ({ sig }) => (
-  <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 4, color: pillColor(sig), background: `${pillColor(sig)}18` }}>
-    {sig || "—"}
-  </span>
-);
-const SectionTitle = ({ children }) => (
-  <div style={{ color: T.white, margin: "20px 0 10px", borderLeft: "3px solid #0575e6", paddingLeft: 10, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 }}>
-    {children}
-  </div>
-);
-
-// ─── TV Widget (iframe) ──────────────────────────────────────
-function TVAdvancedChart({ symbol = “BTCUSDT” }) {
-const src = `https://s.tradingview.com/widgetembed/?frameElementId=tv_main&symbol=BINANCE%3A${symbol}.P&interval=240&hidesidetoolbar=0&theme=dark&style=1&timezone=Asia%2FTaipei&locale=zh_TW&withdateranges=1&studies=STD%3BRSI%2CSTD%3BMACD%2CMASimple%40tv-basicstudies%2CAutoFibRetracement%40tv-basicstudies`;
-return (
-<iframe src={src} style={{ width: “100%”, height: “100%”, border: “none”, display: “block” }}
-allowTransparency=“true” scrolling=“no” frameBorder=“0” allow=“clipboard-write” />
-);
-}
-function TVMiniWidget({ symbol }) {
-const src = `https://s.tradingview.com/widgetembed/?frameElementId=tv_mini&symbol=${encodeURIComponent(symbol)}&interval=D&theme=dark&style=3&locale=zh_TW&hide_side_toolbar=1&hide_top_toolbar=1&save_image=0`;
-return <iframe src={src} style={{ width: “100%”, height: “100%”, border: “none” }} scrolling=“no” frameBorder=“0” />;
-}
-
-// ─── Screens ─────────────────────────────────────────────────
-function TopBar({ title, sub, rightEl }) {
-return (
-<div style={{ position: “sticky”, top: 0, zIndex: 50, background: T.bg, borderBottom: `1px solid ${T.border}`, padding: “11px 14px 9px”, display: “flex”, justifyContent: “space-between”, alignItems: “center” }}>
-<div>
-<div style={{ fontSize: 15, fontWeight: 800, color: T.white, letterSpacing: “-0.3px” }}>{title}</div>
-{sub && <div style={{ fontSize: 10, color: T.muted, marginTop: 1 }}>{sub}</div>}
-</div>
-{rightEl}
-</div>
-);
-}
-
-// ════════ SCREEN: 總覽 ════════
-function OverviewScreen({ state, pos }) {
-const p = state.price;
-const pnlPct = p ? ((pos.entry - p) / pos.entry * 100 * pos.lev) : null;
-const pnlU   = p ? ((pos.entry - p) / pos.entry * pos.size) : null;
-const profit  = pnlPct > 0;
-
-const factors = getFactors(state, pos);
-const bear = factors.filter(f => f.sig?.includes(“偏空”)).length;
-const bull = factors.filter(f => f.sig?.includes(“偏多”)).length;
-const overallCol = bear > bull ? T.red : bull > bear ? T.green : T.yellow;
-const overallTxt = bear > bull ? “偏空” : bull > bear ? “偏多” : “中性”;
-
-// Contra signals
-const cs = [
-{ l: “F&G<20”,  met: state.fearGreed !== null ? state.fearGreed < 20 : null, v: state.fearGreed ?? “—” },
-{ l: “RSI<30”,  met: state.rsi14 !== null ? state.rsi14 < 30 : null, v: state.rsi14 ? state.rsi14.toFixed(1) : “—” },
-{ l: “費率負”,  met: state.fundingRate !== null ? state.fundingRate < 0 : null, v: state.fundingRate !== null ? (state.fundingRate * 100).toFixed(4) + “%” : “—” },
-{ l: “鯨魚累積”, met: pos.f5sig === “偏多”, v: pos.f5sig === “偏多” ? “是” : “否” },
-];
-const contraWarn = cs.filter(c => c.met === true).length >= 3;
-
-return (
-<div style={{ padding: “0 12px 80px” }}>
-<TopBar title="BTC 五因子終端" sub="量化分析 · 即時監控" />
-
-```
-  {/* PnL Banner */}
-  {p && (
-    <div style={{ marginTop: 12, borderRadius: 12, padding: "12px 14px", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", background: profit ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)", border: `1px solid ${profit ? T.green : T.red}33` }}>
-      <div>
-        <div style={{ fontSize: 10, color: T.muted }}>空單@${pos.entry.toLocaleString()} · {pos.lev}X</div>
-        <div style={{ fontSize: 22, fontWeight: 800, color: profit ? T.green : T.red, fontFamily: "monospace" }}>
-          {pnlPct > 0 ? "+" : ""}{pnlPct?.toFixed(2)}%
-        </div>
-      </div>
-      <div style={{ textAlign: "right" }}>
-        <div style={{ fontSize: 10, color: T.muted }}>浮盈</div>
-        <div style={{ fontSize: 16, fontWeight: 700, color: profit ? T.green : T.red, fontFamily: "monospace" }}>
-          {pnlU > 0 ? "+" : ""}{pnlU?.toFixed(2)}U
-        </div>
-      </div>
-    </div>
-  )}
-
-  {/* Alerts */}
-  {p && (
-    <div style={{ marginBottom: 6 }}>
-      {p >= pos.sl - 300 && <AlertBox type="danger" msg={`🚨 接近空單止損 $${pos.sl.toLocaleString()}！距離 $${(pos.sl - p).toFixed(0)}`} />}
-      {p <= pos.tp + 500 && p > pos.tp && <AlertBox type="warning" msg={`⚠️ 接近空單止盈 $${pos.tp.toLocaleString()}`} />}
-      {p <= pos.tp && <AlertBox type="ok" msg="✅ 已達空單止盈區！" />}
-      {state.rsi14 !== null && state.rsi14 < 30 && <AlertBox type="warning" msg={`⚠️ RSI ${state.rsi14.toFixed(1)} 超賣`} />}
-      {state.fundingRate !== null && state.fundingRate < -0.01 && <AlertBox type="danger" msg={`🚨 費率極負 (${(state.fundingRate * 100).toFixed(4)}%) 軋空風險`} />}
-    </div>
-  )}
-
-  {/* Overall */}
-  <div style={{ borderRadius: 10, padding: "10px 14px", marginBottom: 10, display: "flex", justifyContent: "space-between", alignItems: "center", background: `${overallCol}10`, border: `1px solid ${overallCol}33` }}>
-    <span style={{ fontSize: 12, color: T.text }}>五因子綜合信號</span>
-    <span style={{ fontSize: 14, fontWeight: 700, color: overallCol }}>{overallTxt} ({bear}空/{bull}多)</span>
-  </div>
-
-  {/* 5 Factors */}
-  <Card>
-    <CardTitle>五大因子</CardTitle>
-    {factors.map((f, i) => (
-      <div key={i} style={{ borderLeft: `3px solid ${borderCol(f.sig)}`, padding: "8px 10px", marginBottom: 6, background: "rgba(255,255,255,0.02)", borderRadius: "0 8px 8px 0" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <span style={{ fontSize: 10, color: T.muted }}>因子{f.num} · {f.title}</span>
-          <Pill sig={f.sig} />
-        </div>
-        <div style={{ fontSize: 16, fontWeight: 700, color: T.white, fontFamily: "monospace", marginTop: 2 }}>{f.val}</div>
-        {f.det && <div style={{ fontSize: 10, color: T.text, marginTop: 2, lineHeight: 1.4 }}>{f.det}</div>}
-      </div>
-    ))}
-  </Card>
-
-  {/* Contra */}
-  <div style={{ borderRadius: 10, padding: "12px 14px", marginBottom: 10, background: contraWarn ? "rgba(239,68,68,0.08)" : T.card, border: `1px solid ${contraWarn ? T.red + "55" : T.border}` }}>
-    <div style={{ fontSize: 11, fontWeight: 700, color: contraWarn ? "#FCA5A5" : T.muted, marginBottom: 8 }}>
-      {contraWarn ? "🚨 逆向警報：做空對抗統計" : "📊 逆向檢查"}
-    </div>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-      {cs.map((c, i) => (
-        <div key={i} style={{ fontSize: 11, color: "#CBD5E1", display: "flex", alignItems: "center", gap: 6 }}>
-          <span>{c.met === true ? "✅" : c.met === false ? "❌" : "❓"}</span>
-          <span>{c.l}: <span style={{ fontFamily: "monospace", color: T.white }}>{c.v}</span></span>
-        </div>
-      ))}
-    </div>
-    {contraWarn && <div style={{ fontSize: 10, color: "#FCA5A5", marginTop: 8 }}>K33：90天做多勝率78%</div>}
-  </div>
-
-  {/* Tech Grid */}
-  <Card>
-    <CardTitle>技術指標</CardTitle>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 10 }}>
-      {[
-        { l: "RSI(14)", v: state.rsi14 ? state.rsi14.toFixed(1) : "—", warn: state.rsi14 && state.rsi14 < 30 },
-        { l: "ATR(14)", v: state.atr14 ? `$${state.atr14.toFixed(0)}` : "—" },
-        { l: "MA50",    v: state.ma50 ? `$${(state.ma50 / 1000).toFixed(1)}K` : "—" },
-        { l: "MA200",   v: state.ma200 ? `$${(state.ma200 / 1000).toFixed(1)}K` : "—" },
-        { l: "OI",      v: state.oi ? `${(state.oi / 1000).toFixed(1)}K` : "—" },
-        { l: "Vol 24h", v: state.vol24h ? `$${(state.vol24h / 1e9).toFixed(2)}B` : "—" },
-      ].map((item, i) => (
-        <div key={i}>
-          <div style={{ fontSize: 9, color: T.muted }}>{item.l}</div>
-          <div style={{ fontSize: 14, fontWeight: 700, color: item.warn ? T.red : T.white, fontFamily: "monospace" }}>{item.v}</div>
-        </div>
-      ))}
-    </div>
-  </Card>
-
-  {/* Kelly */}
-  <Card>
-    <CardTitle>凱利公式速算</CardTitle>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-      {[{ wr: 0.4, label: "樂觀40%" }, { wr: 0.3, label: "保守30%" }].map((s, i) => {
-        const rw = pos.entry - pos.tp, rk = pos.sl - pos.entry, b = rw / rk;
-        const k = (b * s.wr - (1 - s.wr)) / b;
-        return (
-          <div key={i}>
-            <div style={{ fontSize: 10, color: T.text }}>{s.label}</div>
-            <div style={{ fontSize: 18, fontWeight: 800, fontFamily: "monospace", color: k > 0 ? T.green : T.red }}>
-              {k > 0 ? (k * 100).toFixed(1) + "%" : "不下注"}
-            </div>
-            <div style={{ fontSize: 10, color: T.muted }}>R/R = {b.toFixed(2)}:1</div>
-          </div>
-        );
-      })}
-    </div>
-  </Card>
-</div>
-```
-
-);
-}
-
-function AlertBox({ type, msg }) {
-const colors = { danger: [T.red, “#FCA5A5”], warning: [T.yellow, “#FDE68A”], ok: [T.green, “#6EE7B7”] };
-const [bg, fg] = colors[type] || [T.muted, T.text];
-return (
-<div style={{ borderRadius: 8, padding: “8px 12px”, marginBottom: 6, fontSize: 12, display: “flex”, alignItems: “center”, gap: 8, background: `${bg}15`, border: `1px solid ${bg}44`, color: fg }}>
-{msg}
-</div>
-);
-}
-
-// ════════ SCREEN: 圖表 ════════
-function ChartScreen({ state }) {
-const p = state.price;
-const [activeTab, setActiveTab] = useState(“btc”);
-const macroCharts = [
-{ id: “vix”,   label: “VIX”,   symbol: “CAPITALCOM:VIX” },
-{ id: “nq”,    label: “NQ”,    symbol: “CAPITALCOM:US100” },
-{ id: “dxy”,   label: “DXY”,   symbol: “CAPITALCOM:DXY” },
-{ id: “us10y”, label: “US10Y”, symbol: “FRED:DGS10” },
-{ id: “gold”,  label: “黃金”,  symbol: “CAPITALCOM:GOLD” },
-];
-return (
-<div style={{ display: “flex”, flexDirection: “column”, height: “calc(100dvh - 56px)” }}>
-<TopBar title="技術分析" sub="BINANCE:BTCUSDT.P · 4H" />
-{/* Tabs */}
-<div style={{ display: “flex”, gap: 4, padding: “8px 12px 4px”, background: T.bg, borderBottom: `1px solid ${T.border}`, overflowX: “auto” }}>
-<TabBtn label=“BTC合約” active={activeTab === “btc”} onClick={() => setActiveTab(“btc”)} />
-<TabBtn label=“CME期貨” active={activeTab === “cme”} onClick={() => setActiveTab(“cme”)} />
-{macroCharts.map(m => <TabBtn key={m.id} label={m.label} active={activeTab === m.id} onClick={() => setActiveTab(m.id)} />)}
-</div>
-<div style={{ flex: 1, overflow: “hidden”, position: “relative” }}>
-{activeTab === “btc” && (
-<iframe
-src={`https://s.tradingview.com/widgetembed/?frameElementId=tv_btc&symbol=BINANCE%3ABTCUSDT.P&interval=240&hidesidetoolbar=0&theme=dark&style=1&timezone=Asia%2FTaipei&locale=zh_TW&withdateranges=1&studies=STD%3BRSI%2CSTD%3BMACD%2CMASimple%40tv-basicstudies%2CAutoFibRetracement%40tv-basicstudies`}
-style={{ width: “100%”, height: “100%”, border: “none” }} allowTransparency=“true” frameBorder=“0” allow=“clipboard-write” />
-)}
-{activeTab === “cme” && (
-<iframe
-src={`https://s.tradingview.com/widgetembed/?frameElementId=tv_cme&symbol=CME%3ABTC1!&interval=D&hidesidetoolbar=0&theme=dark&style=1&timezone=Asia%2FTaipei&locale=zh_TW&withdateranges=1`}
-style={{ width: “100%”, height: “100%”, border: “none” }} allowTransparency=“true” frameBorder=“0” />
-)}
-{macroCharts.map(m => activeTab === m.id && (
-<iframe key={m.id}
-src={`https://s.tradingview.com/widgetembed/?frameElementId=tv_${m.id}&symbol=${encodeURIComponent(m.symbol)}&interval=D&hidesidetoolbar=0&theme=dark&style=3&timezone=Asia%2FTaipei&locale=zh_TW&withdateranges=1`}
-style={{ width: “100%”, height: “100%”, border: “none” }} allowTransparency=“true” frameBorder=“0” />
-))}
-</div>
-</div>
-);
-}
-const TabBtn = ({ label, active, onClick }) => (
-<button onClick={onClick} style={{ padding: “5px 12px”, borderRadius: 6, fontSize: 11, fontWeight: active ? 700 : 400, whiteSpace: “nowrap”, cursor: “pointer”, background: active ? “rgba(99,102,241,0.15)” : “transparent”, border: `1px solid ${active ? "#6366F1" : T.border}`, color: active ? “#A5B4FC” : T.muted, fontFamily: “inherit” }}>
-{label}
-</button>
-);
-
-// ════════ SCREEN: 籌碼 ════════
-function WhaleScreen({ state, obData, pivots, deribit, funding }) {
-return (
-<div style={{ padding: “0 12px 80px”, overflowY: “auto” }}>
-<TopBar title="主力籌碼" sub="訂單簿 · Deribit · 資金費率" />
-
-```
-  {/* Order Book */}
-  <Card style={{ marginTop: 12 }}>
-    <CardTitle>⚡ 合約掛單壓力</CardTitle>
-    <div style={{ height: 16, background: "rgba(255,255,255,0.06)", borderRadius: 8, overflow: "hidden", display: "flex", marginBottom: 6 }}>
-      <div style={{ width: `${obData.buyPct}%`, background: T.green, display: "flex", alignItems: "center", paddingLeft: 6, fontSize: 9, color: "#000", fontWeight: 700 }} />
-      <div style={{ flex: 1, background: T.red, display: "flex", alignItems: "center", justifyContent: "flex-end", paddingRight: 6, fontSize: 9, color: "#fff", fontWeight: 700 }} />
-    </div>
-    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, fontWeight: 700 }}>
-      <span style={{ color: T.green }}>多: {obData.buyPct?.toFixed(1) ?? "--"}%</span>
-      <span style={{ color: T.red }}>空: {obData.sellPct?.toFixed(1) ?? "--"}%</span>
-    </div>
-
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 12 }}>
-      {[
-        { label: "🛡️ 最大多頭護盤", price: obData.bidWall?.price, vol: obData.bidWall?.vol, col: T.green },
-        { label: "🔥 最大空軍壓制", price: obData.askWall?.price, vol: obData.askWall?.vol, col: T.red },
-      ].map((w, i) => (
-        <div key={i} style={{ background: "#161a1e", border: `1px solid #2b3139`, borderLeft: `3px solid ${w.col}`, borderRadius: 8, padding: 10 }}>
-          <div style={{ fontSize: 9, color: T.muted }}>{w.label}</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: w.col, fontFamily: "monospace" }}>${fmt(w.price)}</div>
-          <div style={{ fontSize: 10, color: T.text }}>量: {w.vol?.toFixed(2) ?? "--"}</div>
-        </div>
-      ))}
-    </div>
-  </Card>
-
-  {/* Pivots */}
-  <Card>
-    <CardTitle>🎯 機構樞軸點</CardTitle>
-    {[
-      { l: "R2", v: pivots.r2, col: T.red },
-      { l: "R1", v: pivots.r1, col: T.red },
-      { l: "P",  v: pivots.p,  col: T.yellow },
-      { l: "S1", v: pivots.s1, col: T.green },
-      { l: "S2", v: pivots.s2, col: T.green },
-    ].map((item, i) => (
-      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "7px 0", borderBottom: i < 4 ? `1px solid ${T.border}` : "none" }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: item.col }}>{item.l}</span>
-        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", color: T.white }}>{item.v ? `$${fmt(item.v)}` : "---"}</span>
-      </div>
-    ))}
-  </Card>
-
-  {/* Deribit PCR */}
-  <Card>
-    <CardTitle>🎯 Deribit 期權 PCR</CardTitle>
-    <div style={{ textAlign: "center", padding: "8px 0" }}>
-      <div style={{ fontSize: 40, fontWeight: 800, fontFamily: "monospace", color: T.white }}>{deribit.pcr ?? "--"}</div>
-      <div style={{ marginTop: 6, padding: "4px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700, display: "inline-block", ...deribit.style }}>{deribit.status ?? "讀取中..."}</div>
-      <div style={{ fontSize: 10, color: T.muted, marginTop: 8 }}>PCR&gt;1 極度看空→軋空燃料 ｜ PCR&lt;0.6 極度貪婪→下殺燃料</div>
-    </div>
-  </Card>
-
-  {/* Funding Rate */}
-  <Card>
-    <CardTitle>💰 幣安資金費率</CardTitle>
-    <div style={{ textAlign: "center", padding: "6px 0 10px" }}>
-      <div style={{ fontSize: 36, fontWeight: 800, fontFamily: "monospace", color: funding.rateCol ?? T.white }}>{funding.rate ?? "---"}</div>
-      <div style={{ marginTop: 6, padding: "4px 16px", borderRadius: 20, fontSize: 12, fontWeight: 700, display: "inline-block", ...funding.statusStyle }}>{funding.status ?? "加載中..."}</div>
-      <div style={{ fontSize: 11, color: T.muted, marginTop: 6, fontFamily: "monospace" }}>{funding.countdown ?? "下次: --:--:--"}</div>
-    </div>
-    {funding.history?.length > 0 && (
-      <div style={{ borderRadius: 6, overflow: "hidden", marginTop: 6 }}>
-        <div style={{ background: "#2b3139", padding: "5px 10px", fontSize: 10, color: T.text, textAlign: "center" }}>歷史費率</div>
-        {funding.history.map((h, i) => (
-          <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "5px 10px", borderBottom: i < funding.history.length - 1 ? `1px solid ${T.border}` : "none", fontSize: 11 }}>
-            <span style={{ color: T.muted }}>{h.time}</span>
-            <span style={{ fontFamily: "monospace", fontWeight: 700, color: h.col }}>{h.rate}</span>
-          </div>
-        ))}
-      </div>
-    )}
-  </Card>
-</div>
-```
-
-);
-}
-
-// ════════ SCREEN: 倉位 ════════
-function PositionScreen({ state, pos, onEdit }) {
-const p = state.price;
-const mn = Math.min(pos.longSL, pos.tp, p ?? pos.tp) - 1500;
-const mx = Math.max(pos.addShort, pos.sl, p ?? pos.sl) + 1500;
-const rg = mx - mn;
-const pc = v => Math.max(0, Math.min(100, (v - mn) / rg * 100));
-
-const levels = [
-{ p: pos.longSL, l: “多止損”, c: T.red },
-{ p: pos.tp,     l: “空止盈”, c: T.green },
-{ p: pos.flipLong,l:“翻多”,  c: “#3B82F6” },
-{ p: pos.entry,  l: “空入場”, c: T.yellow },
-{ p: pos.sl,     l: “空止損”, c: T.red },
-{ p: pos.addShort,l:“加碼空”,c: “#A855F7” },
-];
-
-return (
-<div style={{ padding: “0 12px 80px” }}>
-<TopBar title=“倉位管理” sub=“空單監控 · 條件單”
-rightEl={<button onClick={onEdit} style={{ background: “rgba(99,102,241,0.15)”, border: “1px solid rgba(99,102,241,0.3)”, color: “#A5B4FC”, padding: “6px 12px”, borderRadius: 8, fontSize: 12, cursor: “pointer”, fontFamily: “inherit” }}>⚙ 設定</button>} />
-
-```
-  {/* Position Map */}
-  <Card style={{ marginTop: 12 }}>
-    <CardTitle>倉位地圖</CardTitle>
-    <div style={{ position: "relative", height: 36, background: "rgba(255,255,255,0.04)", borderRadius: 6, marginBottom: 40, overflow: "visible" }}>
-      {/* green zone */}
-      <div style={{ position: "absolute", left: 0, width: `${pc(pos.tp)}%`, top: 0, bottom: 0, background: "rgba(16,185,129,0.08)", borderRadius: "6px 0 0 6px" }} />
-      {/* red zone */}
-      <div style={{ position: "absolute", left: `${pc(pos.sl)}%`, right: 0, top: 0, bottom: 0, background: "rgba(239,68,68,0.08)", borderRadius: "0 6px 6px 0" }} />
-      {/* current price */}
-      {p && <>
-        <div style={{ position: "absolute", left: `${pc(p)}%`, top: -2, bottom: -2, width: 3, background: T.white, borderRadius: 2, zIndex: 10 }} />
-        <div style={{ position: "absolute", left: `${pc(p)}%`, top: -22, transform: "translateX(-50%)", fontSize: 10, fontWeight: 700, color: T.white, whiteSpace: "nowrap", fontFamily: "monospace" }}>${p?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
-      </>}
-      {/* level markers */}
-      {levels.map((lv, i) => (
-        <div key={i}>
-          <div style={{ position: "absolute", left: `${pc(lv.p)}%`, top: 0, bottom: 0, width: 1, background: lv.c + "88" }} />
-          <div style={{ position: "absolute", left: `${pc(lv.p)}%`, bottom: -20, transform: "translateX(-50%)", fontSize: 9, color: lv.c, whiteSpace: "nowrap" }}>{lv.l}</div>
-        </div>
-      ))}
-    </div>
-  </Card>
-
-  {/* Position Details */}
-  <Card>
-    <CardTitle>空單參數</CardTitle>
-    {[
-      { l: "入場價", v: `$${pos.entry.toLocaleString()}`, c: T.yellow },
-      { l: "槓桿",   v: `${pos.lev}X`,                   c: T.white },
-      { l: "持倉量", v: `${pos.size} USDT`,              c: T.white },
-      { l: "止盈",   v: `$${pos.tp.toLocaleString()}`,   c: T.green },
-      { l: "止損",   v: `$${pos.sl.toLocaleString()}`,   c: T.red },
-    ].map((row, i) => (
-      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: i < 4 ? `1px solid ${T.border}` : "none" }}>
-        <span style={{ fontSize: 11, color: T.muted }}>{row.l}</span>
-        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", color: row.c }}>{row.v}</span>
-      </div>
-    ))}
-  </Card>
-
-  {/* Conditional Orders */}
-  <Card>
-    <CardTitle>條件單</CardTitle>
-    {[
-      { l: "加碼空單",  v: `$${pos.addShort.toLocaleString()}`, c: "#A855F7" },
-      { l: "翻多觸發",  v: `$${pos.flipLong.toLocaleString()}`, c: "#3B82F6" },
-      { l: "多單止盈",  v: `$${pos.longTP.toLocaleString()}`,   c: T.green },
-      { l: "多單止損",  v: `$${pos.longSL.toLocaleString()}`,   c: T.red },
-    ].map((row, i) => (
-      <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: i < 3 ? `1px solid ${T.border}` : "none" }}>
-        <span style={{ fontSize: 11, color: T.muted }}>{row.l}</span>
-        <span style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", color: row.c }}>{row.v}</span>
-      </div>
-    ))}
-  </Card>
-</div>
-```
-
-);
-}
-
-// ════════ SCREEN: 條件單總覽 ════════
-// 每次收到新截圖，只需更新頂部的 ALL_ORDERS 陣列即可
-function OrdersScreen({ state, pos }) {
-const p = state.price;
-const [filter, setFilter] = useState(“全部”);
-const filters = [“全部”, “開空”, “平空”, “開多”, “平多”];
-
-const displayed = filter === “全部” ? ALL_ORDERS : ALL_ORDERS.filter(o => o.dir === filter);
-
-// Sort by price desc so you can see the ladder
-const sorted = […displayed].sort((a, b) => b.price - a.price);
-
-// Distance from current price
-const dist = (price) => {
-if (!p) return null;
-return ((price - p) / p * 100);
-};
-
-// Color by direction
-const dirColor = dir => {
-if (dir === “開空”) return “#EF4444”;
-if (dir === “平空”) return “#10B981”;
-if (dir === “開多”) return “#10B981”;
-if (dir === “平多”) return “#EF4444”;
-return T.muted;
-};
-const dirBg = dir => `${dirColor(dir)}12`;
-
-// Which orders are “near” (within 2%)
-const isNear = (price) => p ? Math.abs((price - p) / p) < 0.02 : false;
-
-return (
-<div style={{ padding: “0 12px 80px” }}>
-<TopBar
-title=“條件單總覽”
-sub={`📸 截圖更新：2026-03-09 07:44 · 共 ${ALL_ORDERS.length} 筆`}
-/>
-
-```
-  {/* Current position summary */}
-  <div style={{ marginTop: 12, background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 12, padding: "12px 14px", marginBottom: 12 }}>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ background: T.red, color: "#fff", fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 4 }}>空</span>
-        <span style={{ fontSize: 13, fontWeight: 700, color: T.white }}>BTCUSDT 永續 · 全倉 5X</span>
-      </div>
-      {p && (
-        <span style={{ fontSize: 12, fontWeight: 700, color: p < pos.entry ? T.green : T.red, fontFamily: "monospace" }}>
-          {((pos.entry - p) / pos.entry * 100 * pos.lev).toFixed(2)}%
-        </span>
-      )}
-    </div>
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
-      {[
-        { l: "開倉均價", v: `$${pos.entry.toLocaleString()}`, c: T.yellow },
-        { l: "持倉",    v: `${pos.size} U`,                  c: T.white },
-        { l: "強平",    v: `$${pos.liquidation?.toLocaleString() ?? "85,761"}`, c: T.red },
-      ].map((r, i) => (
-        <div key={i} style={{ background: "rgba(0,0,0,0.25)", borderRadius: 8, padding: "7px 10px" }}>
-          <div style={{ fontSize: 9, color: T.muted }}>{r.l}</div>
-          <div style={{ fontSize: 13, fontWeight: 700, fontFamily: "monospace", color: r.c }}>{r.v}</div>
-        </div>
-      ))}
-    </div>
-  </div>
-
-  {/* Filter tabs */}
-  <div style={{ display: "flex", gap: 5, marginBottom: 10, overflowX: "auto" }}>
-    {filters.map(f => (
-      <button key={f} onClick={() => setFilter(f)} style={{
-        padding: "5px 12px", borderRadius: 20, fontSize: 11, fontWeight: filter === f ? 700 : 400,
-        whiteSpace: "nowrap", cursor: "pointer", fontFamily: "inherit",
-        background: filter === f ? "rgba(99,102,241,0.2)" : "rgba(255,255,255,0.03)",
-        border: `1px solid ${filter === f ? "#6366F1" : T.border}`,
-        color: filter === f ? "#A5B4FC" : T.muted,
-      }}>{f} {filter === f ? `(${displayed.length})` : ""}</button>
-    ))}
-  </div>
-
-  {/* Price ladder visual */}
-  {p && (
-    <Card style={{ marginBottom: 12 }}>
-      <CardTitle>掛單價格梯度</CardTitle>
-      <div style={{ position: "relative", height: 28, background: "rgba(255,255,255,0.03)", borderRadius: 6, marginBottom: 28 }}>
-        {(() => {
-          const prices = ALL_ORDERS.map(o => o.price);
-          const mn = Math.min(...prices, p) - 1500;
-          const mx = Math.max(...prices, p) + 1500;
-          const rg = mx - mn;
-          const pc = v => Math.max(0, Math.min(100, (v - mn) / rg * 100));
-          return <>
-            {/* current price line */}
-            <div style={{ position: "absolute", left: `${pc(p)}%`, top: 0, bottom: 0, width: 2, background: T.white, borderRadius: 1 }} />
-            <div style={{ position: "absolute", left: `${pc(p)}%`, top: -18, transform: "translateX(-50%)", fontSize: 9, fontWeight: 700, color: T.white, whiteSpace: "nowrap", fontFamily: "monospace" }}>
-              NOW ${p.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-            </div>
-            {/* order dots */}
-            {ALL_ORDERS.map((o, i) => (
-              <div key={i} style={{
-                position: "absolute", left: `${pc(o.price)}%`, top: "50%", transform: "translate(-50%,-50%)",
-                width: 8, height: 8, borderRadius: "50%", background: dirColor(o.dir),
-                boxShadow: isNear(o.price) ? `0 0 6px ${dirColor(o.dir)}` : "none",
-              }} title={`${o.dir} $${o.price}`} />
-            ))}
-            {/* price labels bottom */}
-            {ALL_ORDERS.map((o, i) => (
-              <div key={i} style={{ position: "absolute", left: `${pc(o.price)}%`, bottom: -20, transform: "translateX(-50%)", fontSize: 8, color: dirColor(o.dir), whiteSpace: "nowrap" }}>
-                {(o.price / 1000).toFixed(1)}K
-              </div>
-            ))}
-          </>;
-        })()}
-      </div>
-    </Card>
-  )}
-
-  {/* Order list */}
-  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-    {sorted.map((o, i) => {
-      const d = dist(o.price);
-      const near = isNear(o.price);
-      return (
-        <div key={i} style={{
-          background: near ? `${dirColor(o.dir)}10` : T.card,
-          border: `1px solid ${near ? dirColor(o.dir) + "55" : T.border}`,
-          borderLeft: `3px solid ${dirColor(o.dir)}`,
-          borderRadius: 10, padding: "11px 14px",
-        }}>
-          {/* Near indicator */}
-          {near && (
-            <div style={{ fontSize: 9, color: dirColor(o.dir), fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 4 }}>
-              <span style={{ width: 6, height: 6, borderRadius: "50%", background: dirColor(o.dir), display: "inline-block", animation: "pulse 1s infinite" }} />
-              ⚡ 接近觸發！距離 {d?.toFixed(2)}%
-            </div>
-          )}
-          {/* Header */}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 4, background: dirBg(o.dir), color: dirColor(o.dir) }}>{o.dir}</span>
-              <span style={{ fontSize: 10, color: T.muted }}>{o.type}</span>
-              {o.reduceOnly && <span style={{ fontSize: 9, color: "#A855F7", background: "rgba(168,85,247,0.12)", padding: "1px 6px", borderRadius: 4 }}>只減倉</span>}
-            </div>
-            <span style={{ fontSize: 9, color: T.muted, fontFamily: "monospace" }}>2026-{o.date}</span>
-          </div>
-          {/* Details */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-            <div>
-              <div style={{ fontSize: 9, color: T.muted }}>價格</div>
-              <div style={{ fontSize: 15, fontWeight: 800, fontFamily: "monospace", color: T.white }}>${o.price.toLocaleString()}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: 9, color: T.muted }}>數量(USDT)</div>
-              <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "monospace", color: T.text }}>{o.size.toLocaleString()}</div>
-            </div>
-            <div>
-              <div style={{ fontSize: 9, color: T.muted }}>距現價</div>
-              <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "monospace", color: d === null ? T.muted : d > 0 ? T.red : T.green }}>
-                {d !== null ? `${d > 0 ? "+" : ""}${d.toFixed(2)}%` : "—"}
-              </div>
-            </div>
-          </div>
-          {/* Trigger */}
-          <div style={{ marginTop: 6, fontSize: 10, color: T.muted }}>
-            觸發條件：<span style={{ color: T.text, fontFamily: "monospace" }}>{o.trigger}</span>
-          </div>
-        </div>
-      );
-    })}
-  </div>
-
-  {/* Update instruction */}
-  <div style={{ marginTop: 16, padding: "10px 14px", background: "rgba(99,102,241,0.06)", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 10, fontSize: 10, color: "#818CF8", lineHeight: 1.8 }}>
-    📸 更新掛單：截圖幣安條件單頁面傳給 Claude，Claude 會自動識別並更新 ALL_ORDERS 陣列
-  </div>
-</div>
-```
-
-);
-}
-
-// ════════ SETTINGS PANEL ════════
-function SettingsPanel({ pos, onSave, onClose }) {
-const [local, setLocal] = useState({ …pos });
-const update = (k, v) => setLocal(p => ({ …p, [k]: v }));
-const Field = ({ label, k, type = “number” }) => (
-<div style={{ flex: 1 }}>
-<div style={{ fontSize: 10, color: T.muted, marginBottom: 3 }}>{label}</div>
-<input type={type} value={local[k]} onChange={e => update(k, type === “number” ? parseFloat(e.target.value) || 0 : e.target.value)}
-style={{ width: “100%”, background: “rgba(255,255,255,0.05)”, border: `1px solid ${T.border}`, borderRadius: 6, padding: “7px 9px”, color: T.white, fontSize: 13, fontFamily: “monospace”, outline: “none”, boxSizing: “border-box” }} />
-</div>
-);
-const mfDefs = [
-{ key: “f2sig”, label: “因子2 · ETF資金流”, nk: “f2note” },
-{ key: “f3sig”, label: “因子3 · 地緣政治”, nk: “f3note” },
-{ key: “f5sig”, label: “因子5 · 鏈上行為”, nk: “f5note” },
-];
-return (
-<div style={{ position: “fixed”, inset: 0, background: “rgba(0,0,0,0.7)”, zIndex: 200, backdropFilter: “blur(4px)”, display: “flex”, justifyContent: “center”, alignItems: “flex-start”, padding: “40px 12px 20px”, overflowY: “auto” }} onClick={e => e.target === e.currentTarget && onClose()}>
-<div style={{ background: “#0F1629”, border: `1px solid rgba(255,255,255,0.1)`, borderRadius: 14, width: “100%”, maxWidth: 480, padding: “20px 16px” }}>
-<div style={{ display: “flex”, justifyContent: “space-between”, alignItems: “center”, marginBottom: 16 }}>
-<div style={{ fontSize: 15, fontWeight: 700, color: T.white }}>⚙ 倉位與因子設定</div>
-<button onClick={onClose} style={{ background: “none”, border: “none”, color: T.muted, fontSize: 22, cursor: “pointer” }}>✕</button>
-</div>
-<SLabel>空單倉位</SLabel>
-<div style={{ display: “flex”, gap: 8, marginBottom: 8 }}><Field label="入場價" k="entry" /><Field label="持倉量(USDT)" k="size" /></div>
-<div style={{ display: “flex”, gap: 8, marginBottom: 14 }}><Field label="止盈" k="tp" /><Field label="止損" k="sl" /><Field label="槓桿" k="lev" /></div>
-<SLabel>條件單</SLabel>
-<div style={{ display: “flex”, gap: 8, marginBottom: 8 }}><Field label="加碼空單" k="addShort" /><Field label="翻多觸發" k="flipLong" /></div>
-<div style={{ display: “flex”, gap: 8, marginBottom: 14 }}><Field label="多單止盈" k="longTP" /><Field label="多單止損" k="longSL" /></div>
-<SLabel>手動因子信號</SLabel>
-{mfDefs.map(f => (
-<div key={f.key} style={{ borderBottom: `1px solid ${T.border}`, paddingBottom: 10, marginBottom: 10 }}>
-<div style={{ fontSize: 11, color: “#CBD5E1”, marginBottom: 6 }}>{f.label}</div>
-<div style={{ display: “flex”, gap: 4, marginBottom: 6 }}>
-{[“偏空”, “中性”, “偏多”].map(sig => {
-const sel = local[f.key] === sig;
-const col = sig === “偏空” ? T.red : sig === “偏多” ? T.green : T.yellow;
-return (
-<button key={sig} onClick={() => update(f.key, sig)}
-style={{ padding: “4px 12px”, borderRadius: 4, fontSize: 11, fontWeight: 600, cursor: “pointer”, fontFamily: “inherit”, background: sel ? `${col}20` : “rgba(255,255,255,0.03)”, border: `1px solid ${sel ? col + "66" : T.border}`, color: sel ? col : T.muted }}>
-{sig}
-</button>
-);
-})}
-</div>
-<input value={local[f.nk] || “”} onChange={e => update(f.nk, e.target.value)} placeholder=“備註…”
-style={{ width: “100%”, background: “rgba(255,255,255,0.03)”, border: `1px solid ${T.border}`, borderRadius: 4, padding: “4px 8px”, color: T.text, fontSize: 11, outline: “none”, boxSizing: “border-box” }} />
-</div>
-))}
-<button onClick={() => onSave(local)} style={{ width: “100%”, padding: 11, borderRadius: 8, border: “none”, background: “linear-gradient(135deg,#6366F1,#8B5CF6)”, color: “#fff”, fontSize: 14, fontWeight: 600, cursor: “pointer”, marginTop: 4 }}>💾 儲存並套用</button>
-<button onClick={() => { onSave({ …DEFAULTS }); }} style={{ width: “100%”, padding: 8, borderRadius: 8, marginTop: 6, border: `1px solid rgba(239,68,68,0.3)`, background: “transparent”, color: “#FCA5A5”, fontSize: 12, cursor: “pointer” }}>重置為預設值</button>
-</div>
-</div>
-);
-}
-const SLabel = ({ children }) => <div style={{ fontSize: 10, color: T.blue, fontWeight: 600, letterSpacing: “1px”, marginBottom: 8, borderBottom: `1px solid rgba(99,102,241,0.2)`, paddingBottom: 4 }}>{children}</div>;
-
-// ─── Factor Builder ───────────────────────────────────────────
-function getFactors(state, pos) {
-const ch = state.change24h;
-const fr = state.fundingRate;
-return [
-{
-num: 1, title: “風險資產動能”,
-sig: ch === null ? “載入中” : ch < -3 ? “偏空” : ch > 3 ? “偏多” : “中性”,
-val: ch !== null ? `${ch > 0 ? "+" : ""}${ch.toFixed(2)}%` : “—”,
-det: ch !== null ? `24h ${ch > 0 ? "+" : ""}${ch.toFixed(2)}% · S&P相關0.55` : “”,
-},
-{ num: 2, title: “ETF資金流”,    sig: pos.f2sig, val: pos.f2sig, det: pos.f2note },
-{ num: 3, title: “地緣政治”,     sig: pos.f3sig, val: pos.f3sig, det: pos.f3note },
-{
-num: 4, title: “衍生品結構”,
-sig: fr === null ? “載入中” : fr < -0.005 ? “偏多” : fr < 0 ? “偏多” : fr > 0.01 ? “偏空” : “中性”,
-val: fr !== null ? `${(fr * 100).toFixed(4)}%` : “—”,
-det: fr !== null ? `費率 ${(fr * 100).toFixed(4)}% ${fr < 0 ? "· 空頭付費" : "· 多頭付費"}` : “”,
-},
-{ num: 5, title: “鏈上行為”,     sig: pos.f5sig, val: pos.f5sig, det: pos.f5note },
-];
-}
-
-// ─── Bottom Nav ───────────────────────────────────────────────
-const NAV = [
-{ id: “overview”,  icon: “⊙”,  label: “總覽” },
-{ id: “chart”,     icon: “📈”, label: “圖表” },
-{ id: “whale”,     icon: “🐋”, label: “籌碼” },
-{ id: “position”,  icon: “🎯”, label: “倉位” },
-{ id: “orders”,    icon: “📋”, label: “掛單” },
-];
-
-// ─── Main App ─────────────────────────────────────────────────
-function App() {
-const [nav, setNav] = useState(“overview”);
-const [pos, setPos] = useState(loadPOS());
-const [showSettings, setShowSettings] = useState(false);
-
-// Market state
-const [mkt, setMkt] = useState({
-price: null, change24h: null, vol24h: null,
-rsi14: null, atr14: null, ma50: null, ma200: null,
-fundingRate: null, oi: null, fearGreed: null,
-wsConnected: false, lastUpdate: null,
-});
-const [obData, setObData]     = useState({ buyPct: 50, sellPct: 50, bidWall: null, askWall: null });
-const [pivots, setPivots]     = useState({});
-const [deribit, setDeribit]   = useState({ pcr: null, status: “讀取中…”, style: {} });
-const [funding, setFunding]   = useState({ rate: null, rateCol: T.white, status: “加載中…”, statusStyle: {}, countdown: null, history: [] });
-
-// ── WebSocket ──────────────────────────────────────────────
-useEffect(() => {
-let ws;
-const connect = () => {
-try {
-ws = new WebSocket(“wss://stream.binance.com:9443/ws/btcusdt@ticker”);
-ws.onopen  = () => setMkt(m => ({ …m, wsConnected: true }));
-ws.onmessage = e => {
-const d = JSON.parse(e.data);
-setMkt(m => ({ …m, price: parseFloat(d.c), change24h: parseFloat(d.P), vol24h: parseFloat(d.q) }));
-};
-ws.onerror = ws.onclose = () => { setMkt(m => ({ …m, wsConnected: false })); setTimeout(connect, 5000); };
-} catch { setTimeout(connect, 10000); }
-};
-connect();
-return () => ws?.close();
-}, []);
-
-// ── REST polling ──────────────────────────────────────────
-const fetchREST = useCallback(async () => {
-// Klines for RSI / ATR / MA
-try {
-const r = await fetch(“https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=201”);
-const k = await r.json();
-if (Array.isArray(k) && k.length > 50) {
-const c = k.map(x => +x[4]);
-// RSI
-let g = 0, l = 0;
-for (let i = 1; i <= 14; i++) { const d = c[c.length - 15 + i] - c[c.length - 15 + i - 1]; if (d > 0) g += d; else l -= d; }
-const ag = g / 14, al = l / 14;
-const rsi = al === 0 ? 100 : 100 - 100 / (1 + ag / al);
-// ATR
-let atrSum = 0;
-for (let i = k.length - 14; i < k.length; i++) {
-const h = +k[i][2], lo = +k[i][3], pc = +k[i - 1][4];
-atrSum += Math.max(h - lo, Math.abs(h - pc), Math.abs(lo - pc));
-}
-const atr = atrSum / 14;
-const ma50 = c.slice(-50).reduce((a, b) => a + b, 0) / 50;
-const ma200 = c.length >= 200 ? c.slice(-200).reduce((a, b) => a + b, 0) / 200 : null;
-setMkt(m => ({ …m, rsi14: rsi, atr14: atr, ma50, ma200, lastUpdate: new Date() }));
-}
-} catch {}
-// Funding
-try {
-const r = await fetch(“https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1”);
-const d = await r.json();
-if (Array.isArray(d) && d[0]) setMkt(m => ({ …m, fundingRate: parseFloat(d[0].fundingRate) }));
-} catch {}
-// OI
-try {
-const r = await fetch(“https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT”);
-const d = await r.json();
-if (d.openInterest) setMkt(m => ({ …m, oi: parseFloat(d.openInterest) }));
-} catch {}
-// Fear & Greed
-try {
-const r = await fetch(“https://api.alternative.me/fng/?limit=1”);
-const d = await r.json();
-if (d?.data?.[0]) setMkt(m => ({ …m, fearGreed: parseInt(d.data[0].value) }));
-} catch {}
-}, []);
-
-const fetchWhaleData = useCallback(async () => {
-// Order Book
-try {
-const r = await fetch(“https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=500”);
-const d = await r.json();
-let b = d.bids.slice(0, 50).reduce((a, v) => a + parseFloat(v[1]), 0);
-let s = d.asks.slice(0, 50).reduce((a, v) => a + parseFloat(v[1]), 0);
-const t = b + s;
-let mB = { price: 0, vol: 0 }, mA = { price: 0, vol: 0 };
-d.bids.forEach(v => { const vol = parseFloat(v[1]); if (vol > mB.vol) { mB = { price: parseFloat(v[0]), vol }; } });
-d.asks.forEach(v => { const vol = parseFloat(v[1]); if (vol > mA.vol) { mA = { price: parseFloat(v[0]), vol }; } });
-setObData({ buyPct: b / t * 100, sellPct: s / t * 100, bidWall: mB, askWall: mA });
-} catch {}
-// Pivots
-try {
-const r = await fetch(“https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=4h&limit=150”);
-const d = await r.json();
-const ph = parseFloat(d[d.length - 2][2]), pl = parseFloat(d[d.length - 2][3]), pc = parseFloat(d[d.length - 2][4]);
-const pp = (ph + pl + pc) / 3;
-setPivots({ p: pp, r1: 2 * pp - pl, r2: pp + (ph - pl), s1: 2 * pp - ph, s2: pp - (ph - pl) });
-} catch {}
-// Deribit
-try {
-const r = await fetch(“https://deribit.com/api/v2/public/get_book_summary_by_currency?currency=BTC&kind=option”);
-const d = await r.json();
-if (d?.result) {
-let cOI = 0, pOI = 0;
-d.result.forEach(i => { if (i.instrument_name.includes(”-C”)) cOI += i.open_interest; if (i.instrument_name.includes(”-P”)) pOI += i.open_interest; });
-if (cOI > 0) {
-const pcr = pOI / cOI;
-setDeribit({
-pcr: pcr.toFixed(2),
-status: pcr > 1 ? “🐻 極度看空(軋空燃料)” : pcr < 0.6 ? “🐂 極度貪婪(下殺燃料)” : “⚖️ 多空平衡”,
-style: pcr > 1 ? { background: “rgba(14,203,129,0.1)”, color: T.green, border: `1px solid ${T.green}` } :
-pcr < 0.6 ? { background: “rgba(239,68,68,0.1)”, color: T.red, border: `1px solid ${T.red}` } :
-{ background: “rgba(240,185,11,0.1)”, color: T.yellow, border: `1px solid ${T.yellow}` },
-});
-}
-}
-} catch {}
-// Funding detail
-try {
-const r = await fetch(“https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT”);
-const d = await r.json();
-const rate = parseFloat(d.lastFundingRate) * 100;
-const rateCol = rate > 0.015 ? T.red : rate < 0 ? T.green : T.yellow;
-const status = rate > 0.015 ? “🔥 極度貪婪” : rate < 0 ? “😨 恐慌負費率” : “⚖️ 中性”;
-const statusStyle = rate > 0.015 ? { background: “rgba(239,68,68,0.15)”, border: `1px solid rgba(239,68,68,0.5)`, color: T.red } :
-rate < 0     ? { background: “rgba(16,185,129,0.15)”, border: `1px solid rgba(16,185,129,0.5)`, color: T.green } :
-{ background: “rgba(245,158,11,0.15)”, border: `1px solid rgba(245,158,11,0.5)`, color: T.yellow };
-// History
-const hr = await fetch(“https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=3”);
-const hd = await hr.json();
-const history = hd.reverse().map(x => {
-const rv = (parseFloat(x.fundingRate) * 100).toFixed(4);
-return { time: new Date(x.fundingTime).toLocaleString(“zh-TW”, { month: “numeric”, day: “numeric”, hour: “2-digit”, minute: “2-digit” }), rate: rv + “%”, col: rv > 0.015 ? T.red : rv < 0 ? T.green : T.yellow };
-});
-// Countdown
-const nt = parseInt(d.nextFundingTime);
-const diff = nt - Date.now();
-const h = Math.floor(diff / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
-setFunding({ rate: rate.toFixed(4) + “%”, rateCol, status, statusStyle, countdown: `下次: ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`, history });
-} catch {}
-}, []);
-
-useEffect(() => {
-fetchREST();
-fetchWhaleData();
-const t1 = setInterval(fetchREST, 30000);
-const t2 = setInterval(fetchWhaleData, 60000);
-return () => { clearInterval(t1); clearInterval(t2); };
-}, [fetchREST, fetchWhaleData]);
-
-const savePos = useCallback(p => {
-setPos(p);
-try { localStorage.setItem(“btc_pos5”, JSON.stringify(p)); } catch {}
-setShowSettings(false);
-}, []);
-
-const p = mkt.price;
-const ch = mkt.change24h;
-
-return (
-<div style={{ background: T.bg, minHeight: “100dvh”, color: T.text, maxWidth: 520, margin: “0 auto”, fontFamily: “-apple-system, ‘SF Pro Display’, sans-serif”, position: “relative” }}>
-
-```
-  {/* Sticky price header */}
-  <div style={{ position: "sticky", top: 0, zIndex: 100, background: "rgba(8,12,20,0.95)", backdropFilter: "blur(12px)", borderBottom: `1px solid ${T.border}`, padding: "8px 14px 6px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+<div id="app">
+  <div id="header">
     <div>
-      <div style={{ fontSize: 9, color: T.muted, letterSpacing: "2px" }}>BTC 五因子量化終端</div>
-      <div style={{ fontSize: 26, fontWeight: 800, color: ch < 0 ? T.red : T.green, fontFamily: "monospace", lineHeight: 1.2 }}>
-        {p ? `$${p.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "連線中..."}
-      </div>
-      {ch !== null && <div style={{ fontSize: 11, fontFamily: "monospace", color: ch >= 0 ? T.green : T.red }}>{ch >= 0 ? "+" : ""}{ch.toFixed(2)}%</div>}
+      <div style="font-size:9px;color:#64748B;letter-spacing:2px">BTC 五因子量化終端</div>
+      <div id="hdr-price" style="font-size:26px;font-weight:800;font-family:monospace;line-height:1.2;color:#10B981">連線中...</div>
+      <div id="hdr-change" style="font-size:11px;font-family:monospace"></div>
     </div>
-    <div style={{ textAlign: "right" }}>
-      <div style={{ fontSize: 10, color: mkt.wsConnected ? T.green : T.red, display: "flex", alignItems: "center", gap: 4, justifyContent: "flex-end" }}>
-        <span style={{ width: 7, height: 7, borderRadius: "50%", background: mkt.wsConnected ? T.green : T.red, display: "inline-block", boxShadow: mkt.wsConnected ? `0 0 6px ${T.green}88` : "none" }} />
-        {mkt.wsConnected ? "即時" : "離線"}
+    <div style="text-align:right">
+      <div style="font-size:10px;display:flex;align-items:center;gap:4px;justify-content:flex-end">
+        <span id="ws-dot" style="width:7px;height:7px;border-radius:50%;background:#EF4444;display:inline-block"></span>
+        <span id="ws-label" style="color:#EF4444">離線</span>
       </div>
-      {mkt.lastUpdate && <div style={{ fontSize: 9, color: T.muted, marginTop: 2 }}>REST: {mkt.lastUpdate.toLocaleTimeString()}</div>}
-      <button onClick={() => setShowSettings(true)} style={{ marginTop: 4, background: "rgba(99,102,241,0.12)", border: "1px solid rgba(99,102,241,0.25)", color: "#A5B4FC", padding: "4px 10px", borderRadius: 6, fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>⚙</button>
+      <div id="rest-time" style="font-size:9px;color:#64748B;margin-top:2px"></div>
+      <button onclick="openSettings()" style="margin-top:4px;background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.25);color:#A5B4FC;padding:4px 10px;border-radius:6px;font-size:11px">⚙</button>
     </div>
   </div>
 
-  {/* Screen content */}
-  <div style={{ minHeight: "calc(100dvh - 56px - 48px)", overflowY: "auto" }}>
-    {nav === "overview"  && <OverviewScreen state={mkt} pos={pos} />}
-    {nav === "chart"     && <ChartScreen state={mkt} />}
-    {nav === "whale"     && <WhaleScreen state={mkt} obData={obData} pivots={pivots} deribit={deribit} funding={funding} />}
-    {nav === "position"  && <PositionScreen state={mkt} pos={pos} onEdit={() => setShowSettings(true)} />}
-    {nav === "orders"    && <OrdersScreen state={mkt} pos={pos} />}
-  </div>
+  <div id="screen"></div>
 
-  {/* Bottom Nav */}
-  <div style={{ position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "100%", maxWidth: 520, background: "rgba(8,12,20,0.97)", borderTop: `1px solid ${T.border}`, display: "flex", justifyContent: "space-around", alignItems: "center", height: 56, zIndex: 200, backdropFilter: "blur(20px)" }}>
-    {NAV.map(n => (
-      <button key={n.id} onClick={() => setNav(n.id)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 2, background: "none", border: "none", cursor: "pointer", padding: "6px 0" }}>
-        <span style={{ fontSize: 20, lineHeight: 1 }}>{n.icon}</span>
-        <span style={{ fontSize: 9, color: nav === n.id ? T.teal ?? "#00D4BC" : T.muted, fontWeight: nav === n.id ? 700 : 400 }}>{n.label}</span>
-        {nav === n.id && <div style={{ width: 20, height: 2, background: "#00D4BC", borderRadius: 1 }} />}
-      </button>
-    ))}
+  <div id="nav">
+    <button class="nav-btn active" data-page="overview" onclick="goPage('overview',this)">
+      <span class="nav-icon">⊙</span><span class="nav-label">總覽</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" data-page="chart" onclick="goPage('chart',this)">
+      <span class="nav-icon">📈</span><span class="nav-label">圖表</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" data-page="whale" onclick="goPage('whale',this)">
+      <span class="nav-icon">🐋</span><span class="nav-label">籌碼</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" data-page="position" onclick="goPage('position',this)">
+      <span class="nav-icon">🎯</span><span class="nav-label">倉位</span><div class="nav-dot"></div>
+    </button>
+    <button class="nav-btn" data-page="orders" onclick="goPage('orders',this)">
+      <span class="nav-icon">📋</span><span class="nav-label">掛單</span><div class="nav-dot"></div>
+    </button>
   </div>
-
-  {/* Settings Panel */}
-  {showSettings && <SettingsPanel pos={pos} onSave={savePos} onClose={() => setShowSettings(false)} />}
 </div>
-```
 
-);
+<!-- Settings Overlay -->
+
+<div id="settings-overlay" onclick="if(event.target===this)closeSettings()">
+<div id="settings-panel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="font-size:15px;font-weight:700;color:#F1F5F9">⚙ 倉位與因子設定</div>
+    <button onclick="closeSettings()" style="color:#64748B;font-size:22px;line-height:1">✕</button>
+  </div>
+  <div class="s-label">空單倉位</div>
+  <div class="g2" style="margin-bottom:8px">
+    <div><div style="font-size:10px;color:#64748B;margin-bottom:3px">入場價</div><input class="s-input" id="s_entry" type="number"></div>
+    <div><div style="font-size:10px;color:#64748B;margin-bottom:3px">持倉量(USDT)</div><input class="s-input" id="s_size" type="number"></div>
+  </div>
+  <div class="g3" style="margin-bottom:8px">
+    <div><div style="font-size:10px;color:#64748B;margin-bottom:3px">止盈</div><input class="s-input" id="s_tp" type="number"></div>
+    <div><div style="font-size:10px;color:#64748B;margin-bottom:3px">止損</div><input class="s-input" id="s_sl" type="number"></div>
+    <div><div style="font-size:10px;color:#64748B;margin-bottom:3px">槓桿</div><input class="s-input" id="s_lev" type="number"></div>
+  </div>
+  <div class="s-label">手動因子信號</div>
+  <div id="s-factors"></div>
+  <button onclick="saveSettings()" style="width:100%;padding:11px;border-radius:8px;border:none;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px">💾 儲存並套用</button>
+  <button onclick="resetSettings()" style="width:100%;padding:8px;border-radius:8px;margin-top:6px;border:1px solid rgba(239,68,68,.3);background:transparent;color:#FCA5A5;font-size:12px;cursor:pointer">重置為預設值</button>
+</div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+//  ⚙️  修改區 — 截圖後更新這裡
+// ════════════════════════════════════════════
+// 📸 更新：2026-03-09 07:44
+const DEFAULTS = {
+  entry:67762.85, size:3379.6, lev:5, liquidation:85761.37,
+  tp:66200, sl:72500,
+  addShort:68500, flipLong:65500, longTP:69500, longSL:64000,
+  f2sig:"中性", f3sig:"偏空", f5sig:"偏多",
+  f2note:"ETF: 需追蹤 bitbo.io/treasuries/etf-flows",
+  f3note:"美伊衝突持續，油價上漲，美元走強。",
+  f5note:"鯨魚30天累積270K BTC。交易所儲備創6年新低。",
+};
+
+const ALL_ORDERS = [
+  {type:"限價止盈",dir:"開空",price:68500,  size:959,    trigger:"≥68,500",  date:"03-09 17:47"},
+  {type:"限價止盈",dir:"開空",price:72500,  size:4930,   trigger:"≥72,500",  date:"03-07 23:02"},
+  {type:"限價止盈",dir:"開空",price:74200,  size:7494.2, trigger:"≥74,200",  date:"03-07 10:58"},
+  {type:"限價止盈",dir:"平空",price:66200,  size:1191.6, trigger:"≤66,200",  date:"03-09 14:57",reduceOnly:true},
+  {type:"止盈止損",dir:"平空",price:72500,  size:9932.5, trigger:"≥72,500",  date:"03-07 20:54",reduceOnly:true},
+  {type:"限價止盈",dir:"開多",price:65500,  size:2489,   trigger:"≤65,500",  date:"03-09 06:22"},
+  {type:"限價止盈",dir:"開多",price:65808,  size:987.2,  trigger:"≤65,800",  date:"03-09 08:29"},
+  {type:"限價止盈",dir:"開多",price:65010,  size:975.2,  trigger:"≤65,010",  date:"03-09 06:26"},
+  {type:"限價止盈",dir:"平多",price:69500,  size:9938.5, trigger:"≥69,500",  date:"03-07 21:02",reduceOnly:true},
+  {type:"止盈止損",dir:"平多",price:64000,  size:9984,   trigger:"≤64,000",  date:"03-07 20:54",reduceOnly:true},
+];
+// ════════════════════════════════════════════
+
+// ── State ────────────────────────────────────
+let POS = {...DEFAULTS};
+try{ const s=localStorage.getItem("btc5"); if(s) POS={...DEFAULTS,...JSON.parse(s)}; }catch(e){}
+
+const MKT = {price:null,change24h:null,vol24h:null,rsi14:null,atr14:null,ma50:null,ma200:null,fundingRate:null,oi:null,fearGreed:null,wsOk:false,lastRest:null};
+let OB   = {buyPct:50,sellPct:50,bid:null,ask:null};
+let PIVOTS = {};
+let DERIBIT= {pcr:null,status:"讀取中...",col:"#64748B"};
+let FUNDING= {rate:null,rateCol:"#F1F5F9",status:"加載中...",statusCol:"#64748B",countdown:"--:--:--",history:[]};
+let currentPage = "overview";
+let fundingTimer = null;
+
+// ── Helpers ──────────────────────────────────
+const $ = id => document.getElementById(id);
+const C = {green:"#10B981",red:"#EF4444",yellow:"#F59E0B",blue:"#6366F1",muted:"#64748B",text:"#94A3B8",white:"#F1F5F9",teal:"#00D4BC"};
+const fmt = n => { if(n==null) return "---"; if(n>1000) return n.toFixed(2); if(n>1) return n.toFixed(4); if(Math.abs(n)<0.0001) return n.toFixed(8); return n.toFixed(6); };
+const pc = (v,mn,mx) => Math.max(0,Math.min(100,(v-mn)/(mx-mn)*100));
+const dirCol = d => (d==="開空"||d==="平多") ? C.red : C.green;
+const sigCol = s => s&&s.includes("偏多")?C.green:s&&s.includes("偏空")?C.red:s&&s.includes("載入")?C.muted:C.yellow;
+const pill = (sig) => `<span class="pill" style="color:${sigCol(sig)};background:${sigCol(sig)}18">${sig||"—"}</span>`;
+
+// ── WebSocket ─────────────────────────────────
+function connectWS(){
+  try{
+    const ws=new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@ticker");
+    ws.onopen=()=>{MKT.wsOk=true;updateHeader()};
+    ws.onmessage=e=>{const d=JSON.parse(e.data);MKT.price=parseFloat(d.c);MKT.change24h=parseFloat(d.P);MKT.vol24h=parseFloat(d.q);updateHeader();renderPage()};
+    ws.onerror=ws.onclose=()=>{MKT.wsOk=false;updateHeader();setTimeout(connectWS,5000)};
+  }catch(e){setTimeout(connectWS,10000)}
 }
 
-const root = ReactDOM.createRoot(document.getElementById(‘root’));
-root.render(React.createElement(App));
+// ── REST ──────────────────────────────────────
+async function fetchREST(){
+  try{
+    const r=await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=201");
+    const k=await r.json();
+    if(Array.isArray(k)&&k.length>50){
+      const c=k.map(x=>+x[4]);
+      let g=0,l=0;
+      for(let i=1;i<=14;i++){const d=c[c.length-15+i]-c[c.length-15+i-1];if(d>0)g+=d;else l-=d}
+      const ag=g/14,al=l/14;
+      MKT.rsi14=al===0?100:100-100/(1+ag/al);
+      let atrSum=0;
+      for(let i=k.length-14;i<k.length;i++){const h=+k[i][2],lo=+k[i][3],pc2=+k[i-1][4];atrSum+=Math.max(h-lo,Math.abs(h-pc2),Math.abs(lo-pc2))}
+      MKT.atr14=atrSum/14;
+      MKT.ma50=c.slice(-50).reduce((a,b)=>a+b,0)/50;
+      if(c.length>=200)MKT.ma200=c.slice(-200).reduce((a,b)=>a+b,0)/200;
+      MKT.lastRest=new Date();
+    }
+  }catch(e){}
+  try{const r=await fetch("https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=1");const d=await r.json();if(Array.isArray(d)&&d[0])MKT.fundingRate=parseFloat(d[0].fundingRate)}catch(e){}
+  try{const r=await fetch("https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT");const d=await r.json();if(d.openInterest)MKT.oi=parseFloat(d.openInterest)}catch(e){}
+  try{const r=await fetch("https://api.alternative.me/fng/?limit=1");const d=await r.json();if(d?.data?.[0])MKT.fearGreed=parseInt(d.data[0].value)}catch(e){}
+  updateHeader();renderPage();
+}
+
+async function fetchWhale(){
+  try{
+    const r=await fetch("https://fapi.binance.com/fapi/v1/depth?symbol=BTCUSDT&limit=500");
+    const d=await r.json();
+    let b=d.bids.slice(0,50).reduce((a,v)=>a+parseFloat(v[1]),0);
+    let s=d.asks.slice(0,50).reduce((a,v)=>a+parseFloat(v[1]),0);
+    const t=b+s;
+    let mB={price:0,vol:0},mA={price:0,vol:0};
+    d.bids.forEach(v=>{const vol=parseFloat(v[1]);if(vol>mB.vol)mB={price:parseFloat(v[0]),vol}});
+    d.asks.forEach(v=>{const vol=parseFloat(v[1]);if(vol>mA.vol)mA={price:parseFloat(v[0]),vol}});
+    OB={buyPct:b/t*100,sellPct:s/t*100,bid:mB,ask:mA};
+  }catch(e){}
+  try{
+    const r=await fetch("https://fapi.binance.com/fapi/v1/klines?symbol=BTCUSDT&interval=4h&limit=150");
+    const d=await r.json();
+    const ph=parseFloat(d[d.length-2][2]),pl=parseFloat(d[d.length-2][3]),pcc=parseFloat(d[d.length-2][4]);
+    const pp=(ph+pl+pcc)/3;
+    PIVOTS={p:pp,r1:2*pp-pl,r2:pp+(ph-pl),s1:2*pp-ph,s2:pp-(ph-pl)};
+  }catch(e){}
+  try{
+    const r=await fetch("https://deribit.com/api/v2/public/get_book_summary_by_currency?currency=BTC&kind=option");
+    const d=await r.json();
+    if(d?.result){
+      let cOI=0,pOI=0;
+      d.result.forEach(i=>{if(i.instrument_name.includes("-C"))cOI+=i.open_interest;if(i.instrument_name.includes("-P"))pOI+=i.open_interest});
+      if(cOI>0){
+        const p=pOI/cOI;
+        DERIBIT={pcr:p.toFixed(2),status:p>1?"🐻 極度看空(軋空燃料)":p<0.6?"🐂 極度貪婪(下殺燃料)":"⚖️ 多空平衡",col:p>1?C.green:p<0.6?C.red:C.yellow};
+      }
+    }
+  }catch(e){}
+  try{
+    const r=await fetch("https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT");
+    const d=await r.json();
+    const rate=parseFloat(d.lastFundingRate)*100;
+    const rateCol=rate>0.015?C.red:rate<0?C.green:C.yellow;
+    const status=rate>0.015?"🔥 極度貪婪":rate<0?"😨 恐慌負費率":"⚖️ 中性";
+    const nt=parseInt(d.nextFundingTime);
+    if(fundingTimer)clearInterval(fundingTimer);
+    fundingTimer=setInterval(()=>{
+      const diff=nt-Date.now();
+      if(diff>0){const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+      FUNDING.countdown=`下次: ${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+      if(currentPage==="whale")renderPage();}
+    },1000);
+    const hr=await fetch("https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=3");
+    const hd=await hr.json();
+    const history=hd.reverse().map(x=>{
+      const rv=(parseFloat(x.fundingRate)*100).toFixed(4);
+      return{time:new Date(x.fundingTime).toLocaleString("zh-TW",{month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit"}),rate:rv+"%",col:rv>0.015?C.red:rv<0?C.green:C.yellow};
+    });
+    FUNDING={rate:rate.toFixed(4)+"%",rateCol,status,statusCol:rateCol,countdown:FUNDING.countdown,history};
+  }catch(e){}
+  if(currentPage==="whale")renderPage();
+}
+
+// ── Header update ─────────────────────────────
+function updateHeader(){
+  const p=MKT.price,ch=MKT.change24h;
+  if(p){
+    $("hdr-price").textContent="$"+p.toLocaleString(undefined,{maximumFractionDigits:0});
+    $("hdr-price").style.color=ch<0?C.red:C.green;
+    if(ch!=null){$("hdr-change").textContent=(ch>=0?"+":"")+ch.toFixed(2)+"%";$("hdr-change").style.color=ch>=0?C.green:C.red}
+  }
+  const dot=$("ws-dot"),lbl=$("ws-label");
+  dot.style.background=MKT.wsOk?C.green:C.red;
+  dot.style.boxShadow=MKT.wsOk?`0 0 6px ${C.green}88`:"none";
+  lbl.textContent=MKT.wsOk?"即時":"離線";
+  lbl.style.color=MKT.wsOk?C.green:C.red;
+  if(MKT.lastRest)$("rest-time").textContent="REST: "+MKT.lastRest.toLocaleTimeString();
+}
+
+// ── Navigation ────────────────────────────────
+function goPage(page,btn){
+  currentPage=page;
+  document.querySelectorAll(".nav-btn").forEach(b=>{b.classList.remove("active")});
+  btn.classList.add("active");
+  renderPage();
+}
+function renderPage(){
+  const s=$("screen");
+  switch(currentPage){
+    case "overview":  s.innerHTML=renderOverview(); break;
+    case "chart":     s.innerHTML=renderChart(); break;
+    case "whale":     s.innerHTML=renderWhale(); break;
+    case "position":  s.innerHTML=renderPosition(); break;
+    case "orders":    s.innerHTML=renderOrders(); break;
+  }
+}
+
+// ════════ PAGE: 總覽 ════════
+function getFactors(){
+  const ch=MKT.change24h,fr=MKT.fundingRate;
+  return[
+    {num:1,title:"風險資產動能",sig:ch==null?"載入中":ch<-3?"偏空":ch>3?"偏多":"中性",val:ch!=null?(ch>0?"+":"")+ch.toFixed(2)+"%":"—",det:ch!=null?`24h ${ch>0?"+":""}${ch.toFixed(2)}% · S&P相關0.55`:""},
+    {num:2,title:"ETF資金流",sig:POS.f2sig,val:POS.f2sig,det:POS.f2note},
+    {num:3,title:"地緣政治",sig:POS.f3sig,val:POS.f3sig,det:POS.f3note},
+    {num:4,title:"衍生品結構",sig:fr==null?"載入中":fr<-0.005?"偏多":fr<0?"偏多":fr>0.01?"偏空":"中性",val:fr!=null?(fr*100).toFixed(4)+"%":"—",det:fr!=null?`費率 ${(fr*100).toFixed(4)}% ${fr<0?"· 空頭付費":"· 多頭付費"}`:""},
+    {num:5,title:"鏈上行為",sig:POS.f5sig,val:POS.f5sig,det:POS.f5note},
+  ];
+}
+function renderOverview(){
+  const p=MKT.price;
+  const fs=getFactors();
+  const bear=fs.filter(f=>f.sig?.includes("偏空")).length;
+  const bull=fs.filter(f=>f.sig?.includes("偏多")).length;
+  const oc=bear>bull?C.red:bull>bear?C.green:C.yellow;
+  const ot=bear>bull?"偏空":bull>bear?"偏多":"中性";
+
+  // PnL
+  let pnlHtml="";
+  if(p){
+    const pct=((POS.entry-p)/POS.entry*100*POS.lev).toFixed(2);
+    const u=((POS.entry-p)/POS.entry*POS.size).toFixed(2);
+    const pos2=pct>0;
+    pnlHtml=`<div style="border-radius:12px;padding:12px 14px;margin:12px 0 10px;display:flex;justify-content:space-between;align-items:center;background:${pos2?"rgba(16,185,129,.08)":"rgba(239,68,68,.08)"};border:1px solid ${pos2?C.green:C.red}33">
+      <div><div style="font-size:10px;color:#64748B">空單@$${POS.entry.toLocaleString()}·${POS.lev}X</div>
+      <div style="font-size:22px;font-weight:800;color:${pos2?C.green:C.red};font-family:monospace">${pct>0?"+":""}${pct}%</div></div>
+      <div style="text-align:right"><div style="font-size:10px;color:#64748B">浮盈</div>
+      <div style="font-size:16px;font-weight:700;color:${pos2?C.green:C.red};font-family:monospace">${u>0?"+":""}${u}U</div></div>
+    </div>`;
+  }
+
+  // Alerts
+  let alerts="";
+  if(p){
+    if(p>=POS.sl-300) alerts+=`<div class="alert alert-danger">🚨 接近止損 $${POS.sl.toLocaleString()}！距 $${(POS.sl-p).toFixed(0)}</div>`;
+    if(p<=POS.tp+500&&p>POS.tp) alerts+=`<div class="alert alert-warning">⚠️ 接近止盈 $${POS.tp.toLocaleString()}</div>`;
+    if(p<=POS.tp) alerts+=`<div class="alert alert-ok">✅ 已達止盈區！</div>`;
+    if(MKT.rsi14!=null&&MKT.rsi14<30) alerts+=`<div class="alert alert-warning">⚠️ RSI ${MKT.rsi14.toFixed(1)} 超賣</div>`;
+    if(MKT.fundingRate!=null&&MKT.fundingRate<-0.01) alerts+=`<div class="alert alert-danger">🚨 費率極負 軋空風險</div>`;
+  }
+
+  // Factors
+  const fHtml=fs.map(f=>`
+    <div class="factor-row" style="border-left-color:${sigCol(f.sig)}">
+      <div class="factor-head"><span style="font-size:10px;color:#64748B">因子${f.num}·${f.title}</span>${pill(f.sig)}</div>
+      <div style="font-size:16px;font-weight:700;color:#F1F5F9;font-family:monospace">${f.val}</div>
+      ${f.det?`<div style="font-size:10px;color:#94A3B8;margin-top:2px;line-height:1.4">${f.det}</div>`:""}
+    </div>`).join("");
+
+  // Contra
+  const cs=[
+    {l:"F&G<20",met:MKT.fearGreed!=null?MKT.fearGreed<20:null,v:MKT.fearGreed??"—"},
+    {l:"RSI<30",met:MKT.rsi14!=null?MKT.rsi14<30:null,v:MKT.rsi14?MKT.rsi14.toFixed(1):"—"},
+    {l:"費率負",met:MKT.fundingRate!=null?MKT.fundingRate<0:null,v:MKT.fundingRate!=null?(MKT.fundingRate*100).toFixed(4)+"%":"—"},
+    {l:"鯨魚累積",met:POS.f5sig==="偏多",v:POS.f5sig==="偏多"?"是":"否"},
+  ];
+  const cw=cs.filter(c=>c.met===true).length>=3;
+  const cHtml=cs.map(c=>`<div style="font-size:11px;color:#CBD5E1;display:flex;align-items:center;gap:6px"><span>${c.met===true?"✅":c.met===false?"❌":"❓"}</span><span>${c.l}: <span style="font-family:monospace;color:#F1F5F9">${c.v}</span></span></div>`).join("");
+
+  // Tech
+  const tech=[
+    {l:"RSI(14)",v:MKT.rsi14?MKT.rsi14.toFixed(1):"—",w:MKT.rsi14&&MKT.rsi14<30},
+    {l:"ATR(14)",v:MKT.atr14?"$"+MKT.atr14.toFixed(0):"—"},
+    {l:"MA50",v:MKT.ma50?"$"+(MKT.ma50/1000).toFixed(1)+"K":"—"},
+    {l:"MA200",v:MKT.ma200?"$"+(MKT.ma200/1000).toFixed(1)+"K":"—"},
+    {l:"OI",v:MKT.oi?(MKT.oi/1000).toFixed(1)+"K":"—"},
+    {l:"Vol 24h",v:MKT.vol24h?"$"+(MKT.vol24h/1e9).toFixed(2)+"B":"—"},
+  ].map(i=>`<div><div style="font-size:9px;color:#64748B">${i.l}</div><div style="font-size:14px;font-weight:700;color:${i.w?C.red:"#F1F5F9"};font-family:monospace">${i.v}</div></div>`).join("");
+
+  // Kelly
+  const rw=POS.entry-POS.tp,rk=POS.sl-POS.entry,b=rw/rk;
+  const k1=(b*.4-(1-.4))/b,k2=(b*.3-(1-.3))/b;
+  const kellyHtml=[[k1,"樂觀40%"],[k2,"保守30%"]].map(([k,l])=>`<div>
+    <div style="font-size:10px;color:#94A3B8">${l}</div>
+    <div style="font-size:18px;font-weight:800;color:${k>0?C.green:C.red};font-family:monospace">${k>0?(k*100).toFixed(1)+"%":"不下注"}</div>
+    <div style="font-size:10px;color:#64748B">R/R=${b.toFixed(2)}:1</div>
+  </div>`).join("");
+
+  return `
+    ${pnlHtml}
+    ${alerts}
+    <div style="border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;background:${oc}10;border:1px solid ${oc}33">
+      <span style="font-size:12px;color:#94A3B8">五因子綜合信號</span>
+      <span style="font-size:14px;font-weight:700;color:${oc}">${ot} (${bear}空/${bull}多)</span>
+    </div>
+    <div class="card"><div class="card-title">五大因子</div>${fHtml}</div>
+    <div style="border-radius:10px;padding:12px 14px;margin-bottom:10px;background:${cw?"rgba(239,68,68,.08)":"rgba(255,255,255,.03)"};border:1px solid ${cw?C.red+"55":"rgba(255,255,255,.06)"}">
+      <div style="font-size:11px;font-weight:700;color:${cw?"#FCA5A5":"#64748B"};margin-bottom:8px">${cw?"🚨 逆向警報：做空對抗統計":"📊 逆向檢查"}</div>
+      <div class="g2" style="gap:6px">${cHtml}</div>
+      ${cw?`<div style="font-size:10px;color:#FCA5A5;margin-top:8px">K33：90天做多勝率78%</div>`:""}
+    </div>
+    <div class="card"><div class="card-title">技術指標</div><div class="g3" style="gap:10px">${tech}</div></div>
+    <div class="card"><div class="card-title">凱利公式速算</div><div class="g2" style="gap:10px">${kellyHtml}</div></div>
+  `;
+}
+
+// ════════ PAGE: 圖表 ════════
+function renderChart(){
+  return `
+    <div style="position:sticky;top:0;z-index:50;background:#080C14;border-bottom:1px solid rgba(255,255,255,.06);padding:11px 14px 9px">
+      <div style="font-size:15px;font-weight:800;color:#F1F5F9">技術分析</div>
+      <div style="font-size:10px;color:#64748B">BINANCE:BTCUSDT.P · 4H</div>
+    </div>
+    <div id="chart-tabs" style="display:flex;gap:4px;padding:8px 0 4px;overflow-x:auto">
+      <button class="tab-btn active" onclick="switchChart('btc',this)">BTC合約</button>
+      <button class="tab-btn" onclick="switchChart('cme',this)">CME期貨</button>
+      <button class="tab-btn" onclick="switchChart('vix',this)">VIX</button>
+      <button class="tab-btn" onclick="switchChart('nq',this)">NQ100</button>
+      <button class="tab-btn" onclick="switchChart('dxy',this)">DXY</button>
+      <button class="tab-btn" onclick="switchChart('us10y',this)">US10Y</button>
+      <button class="tab-btn" onclick="switchChart('gold',this)">黃金</button>
+    </div>
+    <div id="chart-frame" style="height:calc(100dvh - 220px);border-radius:10px;overflow:hidden">
+      <iframe id="tv-frame" src="https://s.tradingview.com/widgetembed/?frameElementId=tv1&symbol=BINANCE%3ABTCUSDT.P&interval=240&theme=dark&style=1&timezone=Asia%2FTaipei&locale=zh_TW&withdateranges=1&studies=STD%3BRSI%2CSTD%3BMACD%2CMASimple%40tv-basicstudies%2CAutoFibRetracement%40tv-basicstudies" style="width:100%;height:100%;border:none" allowtransparency="true" frameborder="0" allow="clipboard-write"></iframe>
+    </div>`;
+}
+function switchChart(id,btn){
+  document.querySelectorAll("#chart-tabs .tab-btn").forEach(b=>b.classList.remove("active"));
+  btn.classList.add("active");
+  const urls={
+    btc:"https://s.tradingview.com/widgetembed/?frameElementId=tv1&symbol=BINANCE%3ABTCUSDT.P&interval=240&theme=dark&style=1&timezone=Asia%2FTaipei&locale=zh_TW&withdateranges=1&studies=STD%3BRSI%2CSTD%3BMACD%2CMASimple%40tv-basicstudies%2CAutoFibRetracement%40tv-basicstudies",
+    cme:"https://s.tradingview.com/widgetembed/?frameElementId=tv2&symbol=CME%3ABTC1!&interval=D&theme=dark&style=1&timezone=Asia%2FTaipei&locale=zh_TW&withdateranges=1",
+    vix:"https://s.tradingview.com/widgetembed/?frameElementId=tv3&symbol=CAPITALCOM%3AVIX&interval=D&theme=dark&style=3&locale=zh_TW&withdateranges=1",
+    nq:"https://s.tradingview.com/widgetembed/?frameElementId=tv4&symbol=CAPITALCOM%3AUS100&interval=D&theme=dark&style=1&locale=zh_TW&withdateranges=1",
+    dxy:"https://s.tradingview.com/widgetembed/?frameElementId=tv5&symbol=CAPITALCOM%3ADXY&interval=D&theme=dark&style=3&locale=zh_TW&withdateranges=1",
+    us10y:"https://s.tradingview.com/widgetembed/?frameElementId=tv6&symbol=FRED%3ADGS10&interval=D&theme=dark&style=3&locale=zh_TW&withdateranges=1",
+    gold:"https://s.tradingview.com/widgetembed/?frameElementId=tv7&symbol=CAPITALCOM%3AGOLD&interval=D&theme=dark&style=3&locale=zh_TW&withdateranges=1",
+  };
+  const f=$("tv-frame");
+  if(f)f.src=urls[id]||urls.btc;
+}
+
+// ════════ PAGE: 籌碼 ════════
+function renderWhale(){
+  const ob_buy=OB.buyPct.toFixed(1),ob_sell=OB.sellPct.toFixed(1);
+  const pvRows=[["R2",PIVOTS.r2,C.red],["R1",PIVOTS.r1,C.red],["P",PIVOTS.p,C.yellow],["S1",PIVOTS.s1,C.green],["S2",PIVOTS.s2,C.green]]
+    .map(([l,v,c],i)=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:${i<4?`1px solid rgba(255,255,255,.06)`:"none"}">
+      <span style="font-size:12px;font-weight:700;color:${c}">${l}</span>
+      <span style="font-size:13px;font-weight:700;color:#F1F5F9;font-family:monospace">${v?"$"+fmt(v):"---"}</span>
+    </div>`).join("");
+
+  const histRows=FUNDING.history.map((h,i)=>`
+    <div style="display:flex;justify-content:space-between;padding:5px 10px;border-bottom:${i<FUNDING.history.length-1?"1px solid rgba(255,255,255,.06)":"none"};font-size:11px">
+      <span style="color:#64748B">${h.time}</span>
+      <span style="color:${h.col};font-family:monospace;font-weight:700">${h.rate}</span>
+    </div>`).join("");
+
+  return `
+    <div class="topbar"><div><div style="font-size:15px;font-weight:800;color:#F1F5F9">主力籌碼</div><div style="font-size:10px;color:#64748B">訂單簿 · Deribit · 資金費率</div></div></div>
+    <div style="height:12px"></div>
+    <div class="card">
+      <div class="card-title">⚡ 合約掛單壓力</div>
+      <div class="ob-bar"><div style="width:${ob_buy}%;background:${C.green}"></div><div style="flex:1;background:${C.red}"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700;margin-bottom:12px">
+        <span style="color:${C.green}">多: ${ob_buy}%</span><span style="color:${C.red}">空: ${ob_sell}%</span>
+      </div>
+      <div class="g2">
+        <div style="background:#161a1e;border:1px solid #2b3139;border-left:3px solid ${C.green};border-radius:8px;padding:10px">
+          <div style="font-size:9px;color:#64748B">🛡️ 最大多頭護盤</div>
+          <div style="font-size:18px;font-weight:800;color:${C.green};font-family:monospace">$${fmt(OB.bid?.price)}</div>
+          <div style="font-size:10px;color:#94A3B8">量: ${OB.bid?.vol?.toFixed(2)??"--"}</div>
+        </div>
+        <div style="background:#161a1e;border:1px solid #2b3139;border-left:3px solid ${C.red};border-radius:8px;padding:10px">
+          <div style="font-size:9px;color:#64748B">🔥 最大空軍壓制</div>
+          <div style="font-size:18px;font-weight:800;color:${C.red};font-family:monospace">$${fmt(OB.ask?.price)}</div>
+          <div style="font-size:10px;color:#94A3B8">量: ${OB.ask?.vol?.toFixed(2)??"--"}</div>
+        </div>
+      </div>
+    </div>
+    <div class="card"><div class="card-title">🎯 機構樞軸點</div>${pvRows}</div>
+    <div class="card">
+      <div class="card-title">🎯 Deribit 期權 PCR</div>
+      <div style="text-align:center;padding:8px 0">
+        <div style="font-size:40px;font-weight:800;color:#F1F5F9;font-family:monospace">${DERIBIT.pcr??"--"}</div>
+        <div style="display:inline-block;margin-top:6px;padding:4px 16px;border-radius:20px;font-size:12px;font-weight:700;color:${DERIBIT.col};background:${DERIBIT.col}18;border:1px solid ${DERIBIT.col}">${DERIBIT.status}</div>
+        <div style="font-size:10px;color:#64748B;margin-top:8px">PCR&gt;1 極度看空→軋空燃料 ｜ PCR&lt;0.6 下殺燃料</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💰 幣安資金費率</div>
+      <div style="text-align:center;padding:6px 0 10px">
+        <div style="font-size:36px;font-weight:800;color:${FUNDING.rateCol};font-family:monospace">${FUNDING.rate??"---"}</div>
+        <div style="display:inline-block;margin-top:6px;padding:4px 16px;border-radius:20px;font-size:12px;font-weight:700;color:${FUNDING.statusCol};background:${FUNDING.statusCol}18;border:1px solid ${FUNDING.statusCol}">${FUNDING.status}</div>
+        <div style="font-size:11px;color:#64748B;margin-top:6px;font-family:monospace">${FUNDING.countdown}</div>
+      </div>
+      ${FUNDING.history.length?`<div style="border-radius:6px;overflow:hidden"><div style="background:#2b3139;padding:5px 10px;font-size:10px;color:#94A3B8;text-align:center">歷史費率</div>${histRows}</div>`:""}
+    </div>`;
+}
+
+// ════════ PAGE: 倉位 ════════
+function renderPosition(){
+  const p=MKT.price;
+  const allPrices=[POS.longSL,POS.tp,POS.flipLong,POS.entry,POS.sl,POS.addShort,p??POS.entry];
+  const mn=Math.min(...allPrices)-1500,mx=Math.max(...allPrices)+1500;
+  const pct=v=>pc(v,mn,mx);
+
+  const levels=[
+    {v:POS.longSL,l:"多止損",c:C.red},{v:POS.tp,l:"空止盈",c:C.green},
+    {v:POS.flipLong,l:"翻多",c:"#3B82F6"},{v:POS.entry,l:"空入場",c:C.yellow},
+    {v:POS.sl,l:"空止損",c:C.red},{v:POS.addShort,l:"加碼空",c:"#A855F7"},
+  ];
+
+  const barLines=levels.map(lv=>`
+    <div style="position:absolute;left:${pct(lv.v)}%;top:0;bottom:0;width:1px;background:${lv.c}88"></div>
+    <div style="position:absolute;left:${pct(lv.v)}%;bottom:-20px;transform:translateX(-50%);font-size:9px;color:${lv.c};white-space:nowrap">${lv.l}</div>
+  `).join("");
+
+  const pricePin=p?`
+    <div style="position:absolute;left:${pct(p)}%;top:-2px;bottom:-2px;width:3px;background:#F1F5F9;border-radius:2px;z-index:10"></div>
+    <div style="position:absolute;left:${pct(p)}%;top:-22px;transform:translateX(-50%);font-size:10px;font-weight:700;color:#F1F5F9;white-space:nowrap;font-family:monospace">$${p.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+  `:"";
+
+  const posRows=[
+    {l:"入場價",v:"$"+POS.entry.toLocaleString(),c:C.yellow},
+    {l:"槓桿",v:POS.lev+"X",c:"#F1F5F9"},
+    {l:"持倉量",v:POS.size+" USDT",c:"#F1F5F9"},
+    {l:"止盈",v:"$"+POS.tp.toLocaleString(),c:C.green},
+    {l:"止損",v:"$"+POS.sl.toLocaleString(),c:C.red},
+  ].map((r,i)=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:${i<4?"1px solid rgba(255,255,255,.06)":"none"}">
+    <span style="font-size:11px;color:#64748B">${r.l}</span>
+    <span style="font-size:13px;font-weight:700;color:${r.c};font-family:monospace">${r.v}</span>
+  </div>`).join("");
+
+  const condRows=[
+    {l:"加碼空單",v:"$"+POS.addShort.toLocaleString(),c:"#A855F7"},
+    {l:"翻多觸發",v:"$"+POS.flipLong.toLocaleString(),c:"#3B82F6"},
+    {l:"多單止盈",v:"$"+POS.longTP.toLocaleString(),c:C.green},
+    {l:"多單止損",v:"$"+POS.longSL.toLocaleString(),c:C.red},
+  ].map((r,i)=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:${i<3?"1px solid rgba(255,255,255,.06)":"none"}">
+    <span style="font-size:11px;color:#64748B">${r.l}</span>
+    <span style="font-size:13px;font-weight:700;color:${r.c};font-family:monospace">${r.v}</span>
+  </div>`).join("");
+
+  return `
+    <div class="topbar" style="justify-content:space-between">
+      <div><div style="font-size:15px;font-weight:800;color:#F1F5F9">倉位管理</div><div style="font-size:10px;color:#64748B">空單監控 · 條件單</div></div>
+      <button onclick="openSettings()" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#A5B4FC;padding:6px 12px;border-radius:8px;font-size:12px">⚙ 設定</button>
+    </div>
+    <div style="height:12px"></div>
+    <div class="card">
+      <div class="card-title">倉位地圖</div>
+      <div class="posbar">
+        <div style="position:absolute;left:0;width:${pct(POS.tp)}%;top:0;bottom:0;background:rgba(16,185,129,.08);border-radius:6px 0 0 6px"></div>
+        <div style="position:absolute;left:${pct(POS.sl)}%;right:0;top:0;bottom:0;background:rgba(239,68,68,.08);border-radius:0 6px 6px 0"></div>
+        ${barLines}${pricePin}
+      </div>
+    </div>
+    <div class="card"><div class="card-title">空單參數</div>${posRows}</div>
+    <div class="card"><div class="card-title">條件單</div>${condRows}</div>`;
+}
+
+// ════════ PAGE: 掛單 ════════
+let ordFilter="全部";
+function renderOrders(){
+  const p=MKT.price;
+  const filters=["全部","開空","平空","開多","平多"];
+  const filterTabs=filters.map(f=>`<button class="tab-btn ${ordFilter===f?"active":""}" onclick="setOrderFilter('${f}')">${f}${ordFilter===f?" ("+getFiltered().length+")":""}</button>`).join("");
+  const sorted=[...getFiltered()].sort((a,b)=>b.price-a.price);
+
+  // Ladder
+  let ladderHtml="";
+  if(p){
+    const prices=ALL_ORDERS.map(o=>o.price);
+    const mn2=Math.min(...prices,p)-1500,mx2=Math.max(...prices,p)+1500;
+    const pct2=v=>pc(v,mn2,mx2);
+    const dots=ALL_ORDERS.map((o,i)=>{
+      const near=p&&Math.abs((o.price-p)/p)<0.02;
+      return`<div style="position:absolute;left:${pct2(o.price)}%;top:50%;transform:translate(-50%,-50%);width:8px;height:8px;border-radius:50%;background:${dirCol(o.dir)};${near?"animation:pulse 1s infinite;box-shadow:0 0 6px "+dirCol(o.dir):""}"></div>
+      <div style="position:absolute;left:${pct2(o.price)}%;bottom:-18px;transform:translateX(-50%);font-size:8px;color:${dirCol(o.dir)};white-space:nowrap">${(o.price/1000).toFixed(1)}K</div>`;
+    }).join("");
+    ladderHtml=`<div class="card" style="margin-bottom:12px">
+      <div class="card-title">掛單價格梯度</div>
+      <div style="position:relative;height:28px;background:rgba(255,255,255,.03);border-radius:6px;margin-bottom:26px">
+        <div style="position:absolute;left:${pct2(p)}%;top:0;bottom:0;width:2px;background:#F1F5F9;border-radius:1px"></div>
+        <div style="position:absolute;left:${pct2(p)}%;top:-18px;transform:translateX(-50%);font-size:9px;font-weight:700;color:#F1F5F9;white-space:nowrap;font-family:monospace">NOW $${p.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+        ${dots}
+      </div>
+    </div>`;
+  }
+
+  // PnL badge
+  const pnlBadge=p?`<span style="font-size:12px;font-weight:700;color:${p<POS.entry?C.green:C.red};font-family:monospace">${((POS.entry-p)/POS.entry*100*POS.lev).toFixed(2)}%</span>`:"";
+
+  const orderCards=sorted.map(o=>{
+    const d=p?((o.price-p)/p*100):null;
+    const near=p&&Math.abs((o.price-p)/p)<0.02;
+    const dc=dirCol(o.dir);
+    return`<div class="order-card" style="border-color:${near?dc+"55":"rgba(255,255,255,.06)"};border-left-color:${dc};background:${near?dc+"10":"rgba(255,255,255,.03)"}">
+      ${near?`<div style="font-size:9px;color:${dc};font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:${dc};display:inline-block;animation:pulse 1s infinite"></span>⚡ 接近觸發！${d?.toFixed(2)}%</div>`:""}
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;color:${dc};background:${dc}12">${o.dir}</span>
+          <span style="font-size:10px;color:#64748B">${o.type}</span>
+          ${o.reduceOnly?`<span style="font-size:9px;color:#A855F7;background:rgba(168,85,247,.12);padding:1px 6px;border-radius:4px">只減倉</span>`:""}
+        </div>
+        <span style="font-size:9px;color:#64748B;font-family:monospace">2026-${o.date}</span>
+      </div>
+      <div class="g3">
+        <div><div style="font-size:9px;color:#64748B">價格</div><div style="font-size:15px;font-weight:800;color:#F1F5F9;font-family:monospace">$${o.price.toLocaleString()}</div></div>
+        <div><div style="font-size:9px;color:#64748B">數量(U)</div><div style="font-size:14px;font-weight:700;color:#94A3B8;font-family:monospace">${o.size.toLocaleString()}</div></div>
+        <div><div style="font-size:9px;color:#64748B">距現價</div><div style="font-size:14px;font-weight:700;color:${d==null?C.muted:d>0?C.red:C.green};font-family:monospace">${d!=null?(d>0?"+":"")+d.toFixed(2)+"%":"—"}</div></div>
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:#64748B">觸發：<span style="color:#94A3B8;font-family:monospace">${o.trigger}</span></div>
+    </div>`;
+  }).join("");
+
+  return `
+    <div class="topbar"><div>
+      <div style="font-size:15px;font-weight:800;color:#F1F5F9">條件單總覽</div>
+      <div style="font-size:10px;color:#64748B">📸 2026-03-09 07:44 · 共${ALL_ORDERS.length}筆</div>
+    </div></div>
+    <div style="height:12px"></div>
+    <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:12px;padding:12px 14px;margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="background:${C.red};color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:4px">空</span>
+          <span style="font-size:13px;font-weight:700;color:#F1F5F9">BTCUSDT 永續 · 全倉 5X</span>
+        </div>
+        ${pnlBadge}
+      </div>
+      <div class="g3">
+        <div style="background:rgba(0,0,0,.25);border-radius:8px;padding:7px 10px"><div style="font-size:9px;color:#64748B">開倉均價</div><div style="font-size:13px;font-weight:700;color:${C.yellow};font-family:monospace">$${POS.entry.toLocaleString()}</div></div>
+        <div style="background:rgba(0,0,0,.25);border-radius:8px;padding:7px 10px"><div style="font-size:9px;color:#64748B">持倉</div><div style="font-size:13px;font-weight:700;color:#F1F5F9;font-family:monospace">${POS.size} U</div></div>
+        <div style="background:rgba(0,0,0,.25);border-radius:8px;padding:7px 10px"><div style="font-size:9px;color:#64748B">強平</div><div style="font-size:13px;font-weight:700;color:${C.red};font-family:monospace">$${(POS.liquidation||85761).toLocaleString()}</div></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:5px;margin-bottom:10px;overflow-x:auto;padding-bottom:2px">${filterTabs}</div>
+    ${ladderHtml}
+    ${orderCards}
+    <div style="margin-top:16px;padding:10px 14px;background:rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.2);border-radius:10px;font-size:10px;color:#818CF8;line-height:1.8">
+      📸 截圖幣安條件單傳給 Claude → 自動更新 ALL_ORDERS 陣列
+    </div>`;
+}
+function getFiltered(){ return ordFilter==="全部"?ALL_ORDERS:ALL_ORDERS.filter(o=>o.dir===ordFilter); }
+function setOrderFilter(f){ ordFilter=f; renderPage(); }
+
+// ════════ SETTINGS ════════
+const MF_DEFS=[
+  {key:"f2sig",label:"因子2 · ETF資金流",nk:"f2note"},
+  {key:"f3sig",label:"因子3 · 地緣政治",nk:"f3note"},
+  {key:"f5sig",label:"因子5 · 鏈上行為",nk:"f5note"},
+];
+function openSettings(){
+  $("s_entry").value=POS.entry;$("s_size").value=POS.size;
+  $("s_tp").value=POS.tp;$("s_sl").value=POS.sl;$("s_lev").value=POS.lev;
+  $("s-factors").innerHTML=MF_DEFS.map(f=>`
+    <div style="border-bottom:1px solid rgba(255,255,255,.04);padding-bottom:10px;margin-bottom:10px">
+      <div style="font-size:11px;color:#CBD5E1;margin-bottom:6px">${f.label}</div>
+      <div style="display:flex;gap:4px;margin-bottom:6px">
+        ${["偏空","中性","偏多"].map(sig=>{
+          const sel=POS[f.key]===sig;
+          const cls=sel?(sig==="偏空"?"sel-bear":sig==="偏多"?"sel-bull":"sel-neutral"):"";
+          return`<button class="sig-btn ${cls}" onclick="selSig(this,'${f.key}','${sig}')">${sig}</button>`;
+        }).join("")}
+      </div>
+      <input style="width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:4px 8px;color:#94A3B8;font-size:11px;outline:none" id="s_${f.nk}" value="${POS[f.nk]||""}" placeholder="備註...">
+    </div>`).join("");
+  $("settings-overlay").classList.add("open");
+}
+function closeSettings(){$("settings-overlay").classList.remove("open")}
+function selSig(btn,key,val){
+  const par=btn.parentElement;
+  par.querySelectorAll(".sig-btn").forEach(b=>{b.className="sig-btn"});
+  btn.className="sig-btn "+(val==="偏空"?"sel-bear":val==="偏多"?"sel-bull":"sel-neutral");
+  POS[key]=val;
+}
+function saveSettings(){
+  POS.entry=parseFloat($("s_entry").value)||POS.entry;
+  POS.size=parseFloat($("s_size").value)||POS.size;
+  POS.tp=parseFloat($("s_tp").value)||POS.tp;
+  POS.sl=parseFloat($("s_sl").value)||POS.sl;
+  POS.lev=parseFloat($("s_lev").value)||POS.lev;
+  MF_DEFS.forEach(f=>{const n=$("s_"+f.nk);if(n)POS[f.nk]=n.value});
+  try{localStorage.setItem("btc5",JSON.stringify(POS))}catch(e){}
+  closeSettings();renderPage();
+}
+function resetSettings(){
+  if(confirm("確定重置？")){Object.assign(POS,DEFAULTS);try{localStorage.removeItem("btc5")}catch(e){}openSettings();}
+}
+
+// ── Init ─────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  connectWS();
+  fetchREST();
+  fetchWhale();
+  setInterval(fetchREST,30000);
+  setInterval(fetchWhale,60000);
+  renderPage();
+});
 </script>
 
 </body>
