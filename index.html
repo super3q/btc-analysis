@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTC Macro Kelly App (Ultimate Real Data)</title>
+    <title>BTC Macro Kelly App (Ultimate Real Data + Sanity Check)</title>
     
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
@@ -95,13 +95,19 @@
             };
         }
 
-        // ── Real API Data Engine (Crypto + Macro via Proxy) ───────────
+        // ── 升級版：包含 Sanity Check 的 Real API Data Engine ───────────
         function useRealData() {
             const [data, setData] = useState(null);
             const [lastUpdate, setLastUpdate] = useState(null);
             const [isLoading, setIsLoading] = useState(true);
 
-            // 透過 AllOrigins 代理間接抓取 Yahoo Finance 宏觀數據
+            // 使用 useRef 儲存上一次的「合理宏觀數據」，作為對比基準
+            const lastValidMacro = useRef({
+                vix: 18.5, sp500Change: 0, dxy: 104.2, us10y: 4.35, gold: 2350
+            });
+            // 記錄哪些指標出現異常
+            const anomalyFlags = useRef({}); 
+
             const fetchMacroFromYahoo = async (symbol) => {
                 try {
                     const yfUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=1d&range=2d`;
@@ -114,14 +120,32 @@
                         changePct: ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100
                     };
                 } catch (e) {
-                    console.warn(`宏觀數據抓取失敗 (${symbol})`);
                     return null;
                 }
             };
 
+            // 核心 Sanity Check 函數 (偏離 > 10% 或極端異常值則阻擋)
+            const checkSanity = (key, newVal, oldVal, absoluteMin, absoluteMax) => {
+                if (newVal == null || isNaN(newVal)) {
+                    anomalyFlags.current[key] = true;
+                    return oldVal; // 抓取失敗用舊值
+                }
+                if (newVal < absoluteMin || newVal > absoluteMax) {
+                    anomalyFlags.current[key] = true; // 觸發絕對值防呆
+                    return oldVal;
+                }
+                const deviation = Math.abs(newVal - oldVal) / oldVal;
+                if (deviation > 0.10) { // 偏離大於 10%
+                    anomalyFlags.current[key] = true;
+                    return oldVal; // 捨棄異常飆升/暴跌，保留上次正常值
+                }
+                anomalyFlags.current[key] = false; // 恢復正常
+                return newVal;
+            };
+
             const fetchData = useCallback(async () => {
                 try {
-                    // 1. 同時發起 真實加密貨幣 API 請求
+                    // 1. 真實加密貨幣 API 請求
                     const [tickerRes, fundingRes, oiRes, lsRes, fngRes, deribitRes] = await Promise.allSettled([
                         fetch('https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT').then(r => r.json()),
                         fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT').then(r => r.json()),
@@ -131,35 +155,27 @@
                         fetch('https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency=BTC&kind=option').then(r => r.json())
                     ]);
 
-                    // 2. 同時發起 真實宏觀數據 請求 (Yahoo Finance 繞道)
+                    // 2. 宏觀數據 請求
                     const [vixRes, spxRes, dxyRes, us10yRes, goldRes] = await Promise.all([
-                        fetchMacroFromYahoo('%5EVIX'),     // VIX (^VIX)
-                        fetchMacroFromYahoo('%5EGSPC'),    // S&P 500 (^GSPC)
-                        fetchMacroFromYahoo('DX-Y.NYB'),   // DXY
-                        fetchMacroFromYahoo('%5ETNX'),     // US10Y (^TNX)
-                        fetchMacroFromYahoo('GC=F')        // Gold
+                        fetchMacroFromYahoo('%5EVIX'),
+                        fetchMacroFromYahoo('%5EGSPC'),
+                        fetchMacroFromYahoo('DX-Y.NYB'),
+                        fetchMacroFromYahoo('%5ETNX'),
+                        fetchMacroFromYahoo('GC=F')
                     ]);
 
-                    // 預設防呆基準值
                     let btcPrice = 68000, priceChange24h = 0, volume24h = 0, funding = 0, openInterest = 0;
                     let longShortRatio = 1, fearGreed = 50, fearGreedLabel = "Neutral", pcr = 0;
-                    let vix = 18.5, sp500Change = 0, dxy = 104.2, us10y = 4.35, gold = 2350;
 
-                    // 解析幣安等幣圈數據
+                    // 解析幣圈數據
                     if (tickerRes.status === 'fulfilled' && tickerRes.value) {
                         btcPrice = parseFloat(tickerRes.value.lastPrice);
                         priceChange24h = parseFloat(tickerRes.value.priceChangePercent);
                         volume24h = parseFloat(tickerRes.value.quoteVolume) / 1e9;
                     }
-                    if (fundingRes.status === 'fulfilled' && fundingRes.value) {
-                        funding = parseFloat(fundingRes.value.lastFundingRate);
-                    }
-                    if (oiRes.status === 'fulfilled' && oiRes.value) {
-                        openInterest = (parseFloat(oiRes.value.openInterest) * btcPrice) / 1e9;
-                    }
-                    if (lsRes.status === 'fulfilled' && lsRes.value && lsRes.value.length > 0) {
-                        longShortRatio = parseFloat(lsRes.value[0].longShortRatio);
-                    }
+                    if (fundingRes.status === 'fulfilled' && fundingRes.value) funding = parseFloat(fundingRes.value.lastFundingRate);
+                    if (oiRes.status === 'fulfilled' && oiRes.value) openInterest = (parseFloat(oiRes.value.openInterest) * btcPrice) / 1e9;
+                    if (lsRes.status === 'fulfilled' && lsRes.value && lsRes.value.length > 0) longShortRatio = parseFloat(lsRes.value[0].longShortRatio);
                     if (fngRes.status === 'fulfilled' && fngRes.value && fngRes.value.data) {
                         fearGreed = parseInt(fngRes.value.data[0].value);
                         fearGreedLabel = fngRes.value.data[0].value_classification;
@@ -173,21 +189,40 @@
                         if (callOI > 0) pcr = putOI / callOI;
                     }
 
-                    // 解析 Yahoo 宏觀數據
-                    if (vixRes) vix = vixRes.price;
-                    if (spxRes) sp500Change = spxRes.changePct;
-                    if (dxyRes) dxy = dxyRes.price;
-                    if (us10yRes) us10y = us10yRes.price / 10; // 殖利率還原
-                    if (goldRes) gold = goldRes.price;
+                    // 解析宏觀數據 (套用 Sanity Check)
+                    const prev = lastValidMacro.current;
+                    let newVix = vixRes ? vixRes.price : prev.vix;
+                    let newSpx = spxRes ? spxRes.changePct : prev.sp500Change;
+                    let newDxy = dxyRes ? dxyRes.price : prev.dxy;
+                    let newUs10y = us10yRes ? (us10yRes.price / 10) : prev.us10y; // 處理 Yahoo TNX 放大 10 倍問題
+                    let newGold = goldRes ? goldRes.price : prev.gold;
 
-                    const etfFlowDaily = (Math.random() - 0.3) * 300; // 靜態替代無免費API部分
+                    // 執行過濾 (防呆閾值設定)
+                    const safeVix = checkSanity('vix', newVix, prev.vix, 9, 100);
+                    // S&P changePct 可能會因為正負號跳動大，單獨處理，只擋極端值
+                    let safeSpx = newSpx;
+                    if (newSpx == null || isNaN(newSpx) || newSpx > 10 || newSpx < -10) {
+                        anomalyFlags.current['sp500Change'] = true;
+                        safeSpx = prev.sp500Change;
+                    } else {
+                        anomalyFlags.current['sp500Change'] = false;
+                    }
+                    const safeDxy = checkSanity('dxy', newDxy, prev.dxy, 80, 130);
+                    const safeUs10y = checkSanity('us10y', newUs10y, prev.us10y, 1.0, 8.0);
+                    const safeGold = checkSanity('gold', newGold, prev.gold, 1500, 3500);
+
+                    // 更新記憶體
+                    lastValidMacro.current = { vix: safeVix, sp500Change: safeSpx, dxy: safeDxy, us10y: safeUs10y, gold: safeGold };
+
+                    const etfFlowDaily = (Math.random() - 0.3) * 300; 
 
                     setData({
                         btcPrice, priceChange24h, volume24h, fearGreed, fearGreedLabel, funding,
                         openInterest, longShortRatio, volatility: 2.5, btcDominance: 53.5, 
                         maxPain: Math.round(btcPrice / 1000) * 1000, 
-                        vix, sp500Change, dxy, us10y, gold, pcr, etfFlowDaily,
-                        hashRate: 600, exchangeReserve: 2.1, etfFlowWeekly: etfFlowDaily * 4 
+                        vix: safeVix, sp500Change: safeSpx, dxy: safeDxy, us10y: safeUs10y, gold: safeGold, pcr, etfFlowDaily,
+                        hashRate: 600, exchangeReserve: 2.1, etfFlowWeekly: etfFlowDaily * 4,
+                        anomalies: { ...anomalyFlags.current } // 將異常狀態拷貝傳給 UI
                     });
                     
                     setLastUpdate(new Date());
@@ -200,7 +235,7 @@
 
             useEffect(() => {
                 fetchData();
-                const interval = setInterval(fetchData, 30000); // 30秒輪詢避免觸發代理限流
+                const interval = setInterval(fetchData, 30000); 
                 return () => clearInterval(interval);
             }, [fetchData]);
 
@@ -264,12 +299,20 @@
             );
         }
 
-        function MacroTile({ label, value, status, note="" }) {
-            const color = status === "ok" ? "#00ff88" : status === "warn" ? "#ffaa00" : "#ff4444";
+        // ── 升級版 MacroTile (支援異常標黃示警) ───────────────────
+        function MacroTile({ label, value, status, note="", isAnomaly=false }) {
+            const color = isAnomaly ? "#F0B90B" : (status === "ok" ? "#00ff88" : status === "warn" ? "#ffaa00" : "#ff4444");
+            const borderStyle = isAnomaly ? "1px dashed #F0B90B" : "1px solid #1a1a28";
+            
             return (
-                <div style={styles.macroTile}>
-                    <span style={styles.macroTileLabel}>{label} {note && <span style={{fontSize:8,color:"#666"}}>{note}</span>}</span>
-                    <span style={{ ...styles.macroTileValue, color }}>{value}</span>
+                <div style={{ ...styles.macroTile, border: borderStyle }}>
+                    <span style={{...styles.macroTileLabel, color: isAnomaly ? "#F0B90B" : "rgba(255,255,255,0.4)"}}>
+                        {label} {isAnomaly && "⚠️"} {note && <span style={{fontSize:8,color:"#666"}}>{note}</span>}
+                    </span>
+                    <span style={{ ...styles.macroTileValue, color }}>
+                        {value}
+                    </span>
+                    {isAnomaly && <span style={{fontSize:9, color:"#F0B90B"}}>Data Error Filtered</span>}
                 </div>
             );
         }
@@ -340,11 +383,11 @@
                         <div style={styles.macroQuickGrid}>
                             <MacroTile label="資金費率" value={`${(data.funding * 100).toFixed(4)}%`} status={data.funding > 0.015 ? "danger" : data.funding < 0 ? "warn" : "ok"} note="(Binance)" />
                             <MacroTile label="Deribit PCR" value={data.pcr.toFixed(2)} status={data.pcr > 0.9 ? "warn" : "ok"} note="(Deribit)"/>
-                            <MacroTile label="VIX" value={data.vix.toFixed(1)} status={data.vix > 25 ? "danger" : data.vix > 18 ? "warn" : "ok"} note="(YF API)"/>
-                            <MacroTile label="S&P 500" value={`${data.sp500Change > 0 ? "+" : ""}${data.sp500Change.toFixed(2)}%`} status={data.sp500Change > 0 ? "ok" : "danger"} note="(YF API)"/>
-                            <MacroTile label="DXY" value={data.dxy.toFixed(1)} status={data.dxy > 105 ? "danger" : "ok"} note="(YF API)"/>
-                            <MacroTile label="US10Y" value={`${data.us10y.toFixed(2)}%`} status={data.us10y > 4.5 ? "danger" : "ok"} note="(YF API)"/>
-                            <MacroTile label="Gold" value={`$${data.gold.toFixed(0)}`} status="ok" note="(YF API)"/>
+                            <MacroTile label="VIX" value={data.vix.toFixed(1)} status={data.vix > 25 ? "danger" : data.vix > 18 ? "warn" : "ok"} note="(YF API)" isAnomaly={data.anomalies?.vix}/>
+                            <MacroTile label="S&P 500" value={`${data.sp500Change > 0 ? "+" : ""}${data.sp500Change.toFixed(2)}%`} status={data.sp500Change > 0 ? "ok" : "danger"} note="(YF API)" isAnomaly={data.anomalies?.sp500Change}/>
+                            <MacroTile label="DXY" value={data.dxy.toFixed(1)} status={data.dxy > 105 ? "danger" : "ok"} note="(YF API)" isAnomaly={data.anomalies?.dxy}/>
+                            <MacroTile label="US10Y" value={`${data.us10y.toFixed(2)}%`} status={data.us10y > 4.5 ? "danger" : "ok"} note="(YF API)" isAnomaly={data.anomalies?.us10y}/>
+                            <MacroTile label="Gold" value={`$${data.gold.toFixed(0)}`} status="ok" note="(YF API)" isAnomaly={data.anomalies?.gold}/>
                             <MacroTile label="ETF 日流" value={`${data.etfFlowDaily > 0 ? "+" : ""}$${(data.etfFlowDaily).toFixed(0)}M`} status={data.etfFlowDaily > 0 ? "ok" : "danger"} note="(Sim)"/>
                         </div>
                     </div>
@@ -443,7 +486,7 @@
                             <div style={styles.logoMark}><span style={styles.logoIcon}>◆</span></div>
                             <div>
                                 <h1 style={styles.title}>BTC MACRO INTELLIGENCE</h1>
-                                <p style={styles.subtitle}>Kelly Criterion Advisory Engine <span style={{color:"#00ff88"}}>v3.0 (Real API)</span></p>
+                                <p style={styles.subtitle}>Kelly Criterion Advisory Engine <span style={{color:"#00ff88"}}>v3.1 (Sanity Filter)</span></p>
                             </div>
                         </div>
                         <div style={styles.headerRight}>
@@ -512,8 +555,8 @@
             signalDetail: { fontSize: 12, color: "rgba(255,255,255,0.5)", flex: 1 },
             signalWeight: { fontSize: 10, fontWeight: 700 },
             macroQuickGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 },
-            macroTile: { background: "#0a0a12", borderRadius: 8, padding: "10px", border: "1px solid #1a1a28", display: "flex", flexDirection: "column", gap: 4 },
-            macroTileLabel: { fontSize: 10, color: "rgba(255,255,255,0.4)", letterSpacing: 1 },
+            macroTile: { background: "#0a0a12", borderRadius: 8, padding: "10px", display: "flex", flexDirection: "column", gap: 4 },
+            macroTileLabel: { fontSize: 10, letterSpacing: 1 },
             macroTileValue: { fontSize: 14, fontWeight: 700 },
             sectionHeader: { marginBottom: 20 },
             sectionTitle: { fontSize: 18, fontWeight: 800, color: "#fff", margin: 0 },
@@ -549,5 +592,4 @@
         root.render(<BTCMacroKellyApp />);
     </script>
 </body>
-
 </html>
