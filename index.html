@@ -2,592 +2,566 @@
 
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTC Macro Kelly v4 — 五因子教學引擎</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet"/>
-    <style>
-        *{box-sizing:border-box;margin:0;padding:0}
-        body{background:#06060c;color:#d4d4d8;font-family:'IBM Plex Mono','Noto Sans TC',monospace;-webkit-font-smoothing:antialiased}
-        #root{min-height:100vh}
-        ::-webkit-scrollbar{width:5px}
-        ::-webkit-scrollbar-track{background:#0a0a12}
-        ::-webkit-scrollbar-thumb{background:#1e1e30;border-radius:3px}
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-        @keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes glow{0%,100%{box-shadow:0 0 6px rgba(0,255,136,.25)}50%{box-shadow:0 0 16px rgba(0,255,136,.5)}}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BTC AI">
+<meta name="theme-color" content="#050810">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<title>BTC AI 量化顧問</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#050810;--bg2:#080C14;--card:rgba(255,255,255,.03);--bd:rgba(255,255,255,.07);
+  --mt:#64748B;--tx:#94A3B8;--wh:#F1F5F9;
+  --gr:#10B981;--rd:#EF4444;--yl:#F59E0B;--bl:#6366F1;--pu:#A855F7;
+  --tl:#00D4BC;--cy:#06B6D4;
+}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:-apple-system,'SF Pro Display','PingFang TC',sans-serif;overscroll-behavior:none}
+.mono{font-family:'JetBrains Mono',monospace}
+::-webkit-scrollbar{width:0}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input{font-family:'JetBrains Mono',monospace;box-sizing:border-box}
+#app{max-width:520px;margin:0 auto;min-height:100dvh;background:var(--bg)}
+#hdr{position:sticky;top:0;z-index:100;background:rgba(5,8,16,.96);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(99,102,241,.2);padding:8px 14px;
+  display:flex;justify-content:space-between;align-items:center}
+#screen{min-height:calc(100dvh - 56px - 52px);overflow-y:auto}
+.sp{padding:0 12px 80px}
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;
+  background:rgba(5,8,16,.97);border-top:1px solid rgba(99,102,241,.2);
+  display:flex;height:56px;z-index:200;backdrop-filter:blur(20px);
+  padding-bottom:env(safe-area-inset-bottom,0)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 0}
+.nb .ni{font-size:18px;line-height:1}
+.nb .nl{font-size:9px;color:var(--mt);transition:color .2s}
+.nb.on .nl{color:var(--tl);font-weight:700}
+.nb .nd{width:20px;height:2px;border-radius:1px;background:linear-gradient(90deg,var(--bl),var(--tl));display:none}
+.nb.on .nd{display:block}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.ct{font-size:10px;color:var(--mt);letter-spacing:1.5px;margin-bottom:8px;text-transform:uppercase}
+.tbar{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--bd);
+  padding:11px 14px 9px;margin:0 -12px;display:flex;justify-content:space-between;align-items:center}
+.ai-card{background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(168,85,247,.05));
+  border:1px solid rgba(99,102,241,.35);border-radius:14px;padding:14px 16px;margin-bottom:10px;position:relative}
+.ai-badge{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
+  color:var(--bl);background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);
+  padding:3px 10px;border-radius:20px;margin-bottom:10px;letter-spacing:.5px}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--bl);animation:bounce .8s infinite;display:inline-block}
+.ai-dot:nth-child(2){animation-delay:.15s}
+.ai-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.verdict-card{border-radius:12px;padding:14px 16px;margin-bottom:10px;text-align:center}
+.verdict-score{font-size:52px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1}
+.kelly-big{font-size:32px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:4px;
+  background:rgba(255,255,255,.05);border:1px solid var(--bd);color:var(--mt);margin:2px}
+.chip.ok{color:var(--gr);background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.2)}
+.chip.err{color:var(--rd);background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px}
+.alert{border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:12px;display:flex;align-items:center;gap:8px}
+.ad{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#FCA5A5}
+.aw{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#FDE68A}
+.ao{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#6EE7B7}
+.tab{padding:5px 12px;border-radius:6px;font-size:11px;white-space:nowrap;cursor:pointer;
+  border:1px solid var(--bd);background:transparent;color:var(--mt)}
+.tab.on{background:rgba(99,102,241,.15);border-color:var(--bl);color:#A5B4FC;font-weight:700}
+.mbox{background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:8px;padding:10px 12px}
+.mbox .ml{font-size:10px;color:var(--mt);margin-bottom:3px}
+.mbox .mv{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--wh)}
+#sOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;
+  backdrop-filter:blur(4px);overflow-y:auto;padding:40px 12px}
+#sOverlay.open{display:block}
+#sPanel{background:#0A0F1E;border:1px solid rgba(99,102,241,.3);border-radius:14px;
+  max-width:480px;margin:0 auto;padding:20px 16px}
+.sl{font-size:10px;color:var(--bl);font-weight:700;letter-spacing:1px;margin-bottom:8px;
+  border-bottom:1px solid rgba(99,102,241,.2);padding-bottom:4px;margin-top:14px}
+.fi{width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;padding:7px 9px;color:var(--wh);font-size:13px;outline:none}
+.fi:focus{border-color:rgba(99,102,241,.5)}
+.src-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.src-item{background:rgba(255,255,255,.02);border:1px solid var(--bd);border-radius:8px;padding:8px 10px}
+.scorebar-track{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:6px}
+.scorebar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.anim{animation:fadeIn .25s ease}
+</style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel">
-const{useState,useEffect,useCallback,useRef,useMemo}=React;
+<div id="app">
+  <div id="hdr">
+    <div>
+      <div style="font-size:9px;color:var(--bl);letter-spacing:2px;font-weight:600">BTC AI 量化顧問</div>
+      <div id="hp" class="mono" style="font-size:24px;font-weight:700;color:var(--gr)">載入中...</div>
+      <div id="hc" class="mono" style="font-size:10px"></div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:10px;display:flex;align-items:center;gap:4px;justify-content:flex-end">
+        <span id="wsd" style="width:7px;height:7px;border-radius:50%;background:var(--rd);display:inline-block"></span>
+        <span id="wsl" style="color:var(--rd);font-size:10px">離線</span>
+      </div>
+      <button onclick="triggerAI()" id="ai-btn" style="margin-top:6px;background:linear-gradient(135deg,#6366F1,#8B5CF6);
+        color:#fff;padding:5px 12px;border-radius:20px;font-size:11px;font-weight:700;
+        border:none;box-shadow:0 0 16px rgba(99,102,241,.4);display:flex;align-items:center;gap:4px">
+        <span>✦</span>AI分析
+      </button>
+    </div>
+  </div>
+  <div id="screen"></div>
+  <div id="nav">
+    <button class="nb on" onclick="goPage('ai',this)"><span class="ni">✦</span><span class="nl">AI分析</span><div class="nd"></div></button>
+    <button class="nb" onclick="goPage('data',this)"><span class="ni">📡</span><span class="nl">數據源</span><div class="nd"></div></button>
+    <button class="nb" onclick="goPage('macro',this)"><span class="ni">🌐</span><span class="nl">宏觀</span><div class="nd"></div></button>
+    <button class="nb" onclick="goPage('kelly',this)"><span class="ni">🎯</span><span class="nl">凱利</span><div class="nd"></div></button>
+    <button class="nb" onclick="goPage('arch',this)"><span class="ni">🏗</span><span class="nl">架構</span><div class="nd"></div></button>
+  </div>
+</div>
 
-/* ═══════════════════════════════════════════════════════════════
-
-1. KELLY CRITERION (pure math)
-   ═══════════════════════════════════════════════════════════════ */
-   function kellyFraction(p,b){
-   if(b<=0)return 0;
-   const f=(b*p-(1-p))/b;
-   return Math.max(0,Math.min(f,1));
-   }
-
-/* ═══════════════════════════════════════════════════════════════
-2. FIVE-FACTOR PCA SCORING ENGINE (transparent)
-═══════════════════════════════════════════════════════════════ */
-function scoreFactors(d){
-const factors=[];
-
-```
-// ── F1 美股相關性 (30%) ─────────────────────────
-let s1=0; const d1=[];
-if(d.sp500Change!=null){
-    if(d.sp500Change>0.5){s1+=15;d1.push({t:`S&P +${d.sp500Change.toFixed(2)}% 風險偏好升`,v:'+15'})}
-    else if(d.sp500Change<-0.5){s1-=15;d1.push({t:`S&P ${d.sp500Change.toFixed(2)}% 風險偏好降`,v:'-15'})}
-    else d1.push({t:`S&P ${d.sp500Change>0?'+':''}${d.sp500Change.toFixed(2)}% 中性`,v:'0'})
-}
-if(d.vix!=null){
-    if(d.vix>30){s1-=20;d1.push({t:`VIX=${d.vix.toFixed(1)} 極度恐慌`,v:'-20'})}
-    else if(d.vix>22){s1-=10;d1.push({t:`VIX=${d.vix.toFixed(1)} 偏高`,v:'-10'})}
-    else if(d.vix<15){s1+=10;d1.push({t:`VIX=${d.vix.toFixed(1)} 低波動利好`,v:'+10'})}
-    else d1.push({t:`VIX=${d.vix.toFixed(1)} 正常`,v:'0'})
-}
-factors.push({id:1,name:'美股相關性',en:'US Equity Correlation',w:.30,
-    score:clamp(s1,-30,30),signal:sig(s1,8),details:d1,
-    teach:'BTC 與 S&P 500 的 90 日滾動相關約 0.55。美股大跌時 BTC 幾乎必定連動（流動性撤離）。VIX > 25 代表避險模式，非收益資產承壓。判斷：先看 VIX 定溫度，再看 S&P 確認方向。'});
-
-// ── F2 ETF 資金流 (25%) ─────────────────────────
-let s2=0; const d2=[];
-if(d.etfFlowDaily!=null){
-    if(d.etfFlowDaily>200){s2+=20;d2.push({t:`日淨流入 +$${d.etfFlowDaily.toFixed(0)}M`,v:'+20'})}
-    else if(d.etfFlowDaily>0){s2+=8;d2.push({t:`日淨流入 +$${d.etfFlowDaily.toFixed(0)}M`,v:'+8'})}
-    else if(d.etfFlowDaily>-100){s2-=5;d2.push({t:`日淨流出 $${d.etfFlowDaily.toFixed(0)}M`,v:'-5'})}
-    else{s2-=15;d2.push({t:`日淨流出 $${d.etfFlowDaily.toFixed(0)}M 機構撤離`,v:'-15'})}
-}else{d2.push({t:'⚠ ETF Flow 無免費 API → 手動查 SoSoValue.com',v:'N/A'})}
-factors.push({id:2,name:'ETF 資金流',en:'ETF Fund Flows',w:.25,
-    score:clamp(s2,-25,25),signal:sig(s2,5),details:d2,
-    teach:'2024 年比特幣現貨 ETF 上市後，日淨流入/流出是最直接的機構買賣信號。日流入 > $200M = 機構加倉；連三天流出 = 風險信號。來源：SoSoValue (sosovalue.com) 或 Farside (farside.co.uk/btc)，目前無免費即時 API，需手動查詢補入。'});
-
-// ── F3 地緣政治風險溢價 (15%) ───────────────────
-let s3=0; const d3=[];
-if(d.dxy!=null){
-    if(d.dxy>106){s3-=12;d3.push({t:`DXY=${d.dxy.toFixed(1)} 強美元壓 BTC`,v:'-12'})}
-    else if(d.dxy<100){s3+=10;d3.push({t:`DXY=${d.dxy.toFixed(1)} 弱美元利好`,v:'+10'})}
-    else d3.push({t:`DXY=${d.dxy.toFixed(1)} 中性`,v:'0'})
-}
-if(d.us10y!=null){
-    if(d.us10y>4.5){s3-=8;d3.push({t:`10Y=${d.us10y.toFixed(2)}% 高利率吸走熱錢`,v:'-8'})}
-    else if(d.us10y<3.0){s3+=8;d3.push({t:`10Y=${d.us10y.toFixed(2)}% 低利率利好`,v:'+8'})}
-    else d3.push({t:`10Y=${d.us10y.toFixed(2)}% 中性`,v:'0'})
-}
-if(d.gold!=null){
-    if(d.gold>5000){s3-=5;d3.push({t:`Gold=$${d.gold.toFixed(0)} 避險搶手`,v:'-5'})}
-    else d3.push({t:`Gold=$${d.gold.toFixed(0)}`,v:'0'})
-}
-factors.push({id:3,name:'地緣政治風險溢價',en:'Geopolitical Risk Premium',w:.15,
-    score:clamp(s3,-15,15),signal:sig(s3,5),details:d3,
-    teach:'DXY（美元指數）是全球流動性反向指標。美元走強 → BTC 承壓。US 10Y 代表無風險回報，> 4.5% 時資金從 BTC 流向國債。黃金強勢反映地緣緊張（如伊朗局勢），但與 BTC 關係複雜 — 有時同漲（抗法幣），有時反向（流動性搶奪）。'});
-
-// ── F4 衍生品結構 (20%) ─────────────────────────
-let s4=0; const d4=[];
-if(d.funding!=null){
-    const fr=d.funding*100;
-    if(d.funding>0.02){s4-=18;d4.push({t:`費率 ${fr.toFixed(4)}% 過熱！空軍燃料`,v:'-18'})}
-    else if(d.funding>0.01){s4-=8;d4.push({t:`費率 ${fr.toFixed(4)}% 偏高`,v:'-8'})}
-    else if(d.funding<-0.005){s4+=15;d4.push({t:`負費率 ${fr.toFixed(4)}% 軋空燃料`,v:'+15'})}
-    else if(d.funding<0){s4+=8;d4.push({t:`微負費率 ${fr.toFixed(4)}%`,v:'+8'})}
-    else d4.push({t:`費率 ${fr.toFixed(4)}% 正常`,v:'0'})
-}
-if(d.pcr>0){
-    if(d.pcr>1.2){s4+=10;d4.push({t:`PCR=${d.pcr.toFixed(2)} Put 多→底部信號`,v:'+10'})}
-    else if(d.pcr<0.7){s4-=8;d4.push({t:`PCR=${d.pcr.toFixed(2)} 看漲過度`,v:'-8'})}
-    else d4.push({t:`PCR=${d.pcr.toFixed(2)} 中性`,v:'0'})
-}
-if(d.longShortRatio!=null){
-    if(d.longShortRatio>2){s4-=12;d4.push({t:`L/S=${d.longShortRatio.toFixed(2)} 散戶狂多`,v:'-12'})}
-    else if(d.longShortRatio<0.8){s4+=10;d4.push({t:`L/S=${d.longShortRatio.toFixed(2)} 空頭擁擠`,v:'+10'})}
-    else d4.push({t:`L/S=${d.longShortRatio.toFixed(2)} 均衡`,v:'0'})
-}
-factors.push({id:4,name:'衍生品結構',en:'Derivatives Structure',w:.20,
-    score:clamp(s4,-20,20),signal:sig(s4,8),details:d4,
-    teach:'資金費率 > 0.01% = 多頭付費，市場過熱。負費率 = 空頭付費，軋空條件。PCR > 1 = Put 多過 Call，可能接近底部。L/S 反映散戶情緒（通常要反著看）。⚠ 不要只靠 F4 做決策，PCA 排序裡它排第四。'});
-
-// ── F5 鏈上行為 (10%) ──────────────────────────
-let s5=0; const d5=[];
-if(d.fearGreed!=null){
-    if(d.fearGreed<20){s5+=10;d5.push({t:`FGI=${d.fearGreed} 極度恐懼→歷史78%勝率做多`,v:'+10'})}
-    else if(d.fearGreed<35){s5+=5;d5.push({t:`FGI=${d.fearGreed} 恐懼區`,v:'+5'})}
-    else if(d.fearGreed>80){s5-=10;d5.push({t:`FGI=${d.fearGreed} 極度貪婪`,v:'-10'})}
-    else if(d.fearGreed>65){s5-=5;d5.push({t:`FGI=${d.fearGreed} 偏貪婪`,v:'-5'})}
-    else d5.push({t:`FGI=${d.fearGreed} 中性`,v:'0'})
-}
-if(d.btcDominance!=null) d5.push({t:`BTC.D=${d.btcDominance.toFixed(1)}%${d.btcDominance>60?' 資金回流大餅':''}`,v:'info'});
-if(d.exchangeReserve!=null) d5.push({t:`交易所存量 ${d.exchangeReserve.toFixed(1)}M BTC`,v:'info'});
-else d5.push({t:'交易所存量需 CryptoQuant/Glassnode',v:'N/A'});
-factors.push({id:5,name:'鏈上行為',en:'On-chain Behavior',w:.10,
-    score:clamp(s5,-10,10),signal:sig(s5,3),details:d5,
-    teach:'FGI < 20 + 週 RSI < 30 + 負資金費率 + 鯨魚囤幣 → K33 Research 回測 90 天做多勝率 ~78%。交易所存量持續下降 = 長持者囤幣（看多）。BTC Dominance 上升 = 避險資金回流大餅。'});
-
-const raw=factors.reduce((s,f)=>s+f.score,0);
-const composite=clamp(raw*2,-100,100);
-return{factors,composite};
-```
-
-}
-
-function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
-function sig(s,th){return s>th?‘bullish’:s<-th?‘bearish’:‘neutral’}
-
-function deriveTradeParams(cs){
-const dir=cs>12?‘LONG’:cs<-12?‘SHORT’:‘NEUTRAL’;
-const conv=Math.min(Math.abs(cs),100);
-let wr,rr;
-if(dir===‘LONG’){wr=.44+conv*.003;rr=1.2+conv*.02}
-else if(dir===‘SHORT’){wr=.42+conv*.003;rr=1.1+conv*.018}
-else{wr=.5;rr=1}
-wr=Math.min(wr,.70);rr=Math.min(rr,3.5);
-const fk=kellyFraction(wr,rr);
-return{direction:dir,conviction:conv,winRate:wr,rr,fullKelly:fk,halfKelly:fk*.5};
-}
-
-/* ═══════════════════════════════════════════════════════════════
-3. DATA ENGINE (Sanity Check v2)
-═══════════════════════════════════════════════════════════════ */
-function useRealData(){
-const[data,setData]=useState(null);
-const[lastUpdate,setLastUpdate]=useState(null);
-const[isLoading,setIsLoading]=useState(true);
-const[apiSt,setApiSt]=useState({});
-const prev=useRef({vix:20,sp500Change:0,dxy:104,us10y:3.6,gold:4500});
-const anoms=useRef({});
-
-```
-const yf=async(sym)=>{
-    try{
-        const u=`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`;
-        const r=await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,{signal:AbortSignal.timeout(8000)});
-        const j=await r.json();const m=j.chart.result[0].meta;
-        return{price:m.regularMarketPrice,chg:((m.regularMarketPrice-m.chartPreviousClose)/m.chartPreviousClose)*100};
-    }catch{return null}
-};
-
-const sc=(k,v,o,lo,hi,md=.12)=>{
-    if(v==null||isNaN(v)){anoms.current[k]='fail';return o}
-    if(v<lo||v>hi){anoms.current[k]='range';return o}
-    if(o>0&&Math.abs(v-o)/o>md){anoms.current[k]='spike';return o}
-    anoms.current[k]=null;return v;
-};
-
-const fetchData=useCallback(async()=>{
-    const st={};
-    try{
-        const[t,fu,oi,ls,fg,db,cg]=await Promise.allSettled([
-            fetch('https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT',{signal:AbortSignal.timeout(6000)}).then(r=>r.json()),
-            fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT',{signal:AbortSignal.timeout(6000)}).then(r=>r.json()),
-            fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT',{signal:AbortSignal.timeout(6000)}).then(r=>r.json()),
-            fetch('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=1d&limit=1',{signal:AbortSignal.timeout(6000)}).then(r=>r.json()),
-            fetch('https://api.alternative.me/fng/',{signal:AbortSignal.timeout(6000)}).then(r=>r.json()),
-            fetch('https://www.deribit.com/api/v2/public/get_book_summary_by_currency?currency=BTC&kind=option',{signal:AbortSignal.timeout(8000)}).then(r=>r.json()),
-            fetch('https://api.coingecko.com/api/v3/global',{signal:AbortSignal.timeout(8000)}).then(r=>r.json()),
-        ]);
-        const[vR,sR,dR,yR,gR]=await Promise.all([yf('%5EVIX'),yf('%5EGSPC'),yf('DX-Y.NYB'),yf('%5ETNX'),yf('GC=F')]);
-
-        let bp=69000,pc=0,vol=0,fund=0,oiVal=0,lsr=1,fgi=50,fgiL='Neutral',pcr=0,btcD=null,mktCap=null;
-
-        if(t.status==='fulfilled'&&t.value?.lastPrice){bp=+t.value.lastPrice;pc=+t.value.priceChangePercent;vol=+t.value.quoteVolume/1e9;st.ticker='ok'}else st.ticker='fail';
-        if(fu.status==='fulfilled'&&fu.value?.lastFundingRate){fund=+fu.value.lastFundingRate;st.funding='ok'}else st.funding='fail';
-        if(oi.status==='fulfilled'&&oi.value?.openInterest){oiVal=(+oi.value.openInterest*bp)/1e9;st.oi='ok'}else st.oi='fail';
-        if(ls.status==='fulfilled'&&ls.value?.[0]){lsr=+ls.value[0].longShortRatio;st.ls='ok'}else st.ls='fail';
-        if(fg.status==='fulfilled'&&fg.value?.data?.[0]){fgi=+fg.value.data[0].value;fgiL=fg.value.data[0].value_classification;st.fgi='ok'}else st.fgi='fail';
-        if(db.status==='fulfilled'&&db.value?.result){let cO=0,pO=0;db.value.result.forEach(i=>{if(i.instrument_name.includes('-C'))cO+=i.open_interest;if(i.instrument_name.includes('-P'))pO+=i.open_interest});if(cO>0)pcr=pO/cO;st.deribit='ok'}else st.deribit='fail';
-        if(cg.status==='fulfilled'&&cg.value?.data){btcD=cg.value.data.market_cap_percentage?.btc;mktCap=(cg.value.data.total_market_cap?.usd||0)/1e12;st.cg='ok'}else st.cg='fail';
-
-        const p=prev.current;
-        const vix=sc('vix',vR?.price,p.vix,8,90);
-        const dxy=sc('dxy',dR?.price,p.dxy,85,125);
-        const us10y=sc('us10y',yR?.price!=null?yR.price/10:null,p.us10y,.5,8);
-        const gold=sc('gold',gR?.price,p.gold,2500,7000);
-        let spx=sR?.chg;
-        if(spx==null||isNaN(spx)||spx>12||spx<-12){anoms.current.spx='range';spx=p.sp500Change}else anoms.current.spx=null;
-
-        st.vix=anoms.current.vix?'warn':'ok';st.spx=anoms.current.spx?'warn':'ok';
-        st.dxy=anoms.current.dxy?'warn':'ok';st.us10y=anoms.current.us10y?'warn':'ok';
-        st.gold=anoms.current.gold?'warn':'ok';
-
-        prev.current={vix,sp500Change:spx,dxy,us10y,gold};
-
-        setData({btcPrice:bp,priceChange24h:pc,volume24h:vol,fearGreed:fgi,fearGreedLabel:fgiL,funding:fund,
-            openInterest:oiVal,longShortRatio:lsr,pcr,vix,sp500Change:spx,dxy,us10y,gold,btcDominance:btcD,totalMarketCap:mktCap,
-            etfFlowDaily:null,exchangeReserve:null,hashRate:null,anomalies:{...anoms.current}});
-        setApiSt(st);setLastUpdate(new Date());setIsLoading(false);
-    }catch(e){console.error('Fetch:',e)}
-},[]);
-
-useEffect(()=>{fetchData();const iv=setInterval(fetchData,30000);return()=>clearInterval(iv)},[fetchData]);
-return{data,lastUpdate,refresh:fetchData,isLoading,apiSt};
-```
-
-}
-
-/* ═══════════════════════════════════════════════════════════════
-4. UI ATOMS
-═══════════════════════════════════════════════════════════════ */
-const C={bg:’#06060c’,card:’#0c0c16’,cb:’#16162a’,g:’#00ff88’,gD:‘rgba(0,255,136,.12)’,r:’#ff3b5c’,rD:‘rgba(255,59,92,.12)’,y:’#f0b90b’,yD:‘rgba(240,185,11,.12)’,t1:’#e4e4e7’,t2:’#71717a’,t3:’#3f3f54’};
-
-function ScoreArc({score,size=180}){
-const n=(score+100)/200,a=-135+n*270;
-const col=score>20?C.g:score>0?’#6ee7b7’:score>-20?C.y:C.r;
-const r=size*.38,cx=size/2,cy=size/2;
-const p2c=deg=>{const rd=(deg-90)*Math.PI/180;return{x:cx+r*Math.cos(rd),y:cy+r*Math.sin(rd)}};
-const arc=(sa,ea)=>{const s=p2c(ea),e=p2c(sa),l=ea-sa>180?‘1’:‘0’;return`M ${s.x} ${s.y} A ${r} ${r} 0 ${l} 0 ${e.x} ${e.y}`};
-const nd=p2c(a);
-return(
-<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-<defs><filter id="gl"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-<path d={arc(-135,135)} fill="none" stroke="#1a1a2e" strokeWidth={size*.055} strokeLinecap="round"/>
-<path d={arc(-135,a)} fill="none" stroke={col} strokeWidth={size*.055} strokeLinecap="round" filter="url(#gl)"/>
-<circle cx={nd.x} cy={nd.y} r={size*.02} fill={col} filter="url(#gl)"/>
-<text x={cx} y={cy-2} textAnchor="middle" fill="#fff" fontSize={size*.19} fontWeight="900">{score>0?’+’:’’}{score.toFixed(0)}</text>
-<text x={cx} y={cy+size*.11} textAnchor="middle" fill={C.t2} fontSize={size*.055} letterSpacing="3">COMPOSITE</text>
-<text x={size*.13} y={cy+r+16} textAnchor="middle" fill={C.r} fontSize={size*.042}>SHORT</text>
-<text x={size*.87} y={cy+r+16} textAnchor="middle" fill={C.g} fontSize={size*.042}>LONG</text>
-</svg>
-);
-}
-
-function FBar({score,max}){
-const pct=Math.abs(score)/max*100;const neg=score<0;
-return(
-<div style={{display:‘flex’,alignItems:‘center’,gap:6,flex:1}}>
-<div style={{width:28,textAlign:‘right’,fontSize:10,color:neg?C.r:score>0?C.g:C.t3,fontWeight:700,fontFamily:‘monospace’}}>{score>0?’+’:’’}{score.toFixed(0)}</div>
-<div style={{flex:1,height:5,background:’#1a1a2e’,borderRadius:3,position:‘relative’,overflow:‘hidden’}}>
-<div style={{position:‘absolute’,left:neg?`${50-pct/2}%`:‘50%’,width:`${pct/2}%`,height:‘100%’,background:neg?C.r:C.g,borderRadius:3,transition:‘all .5s’}}/>
-<div style={{position:‘absolute’,left:‘50%’,top:0,width:1,height:‘100%’,background:’#333’}}/>
+<div id="sOverlay" onclick="if(event.target===this)closeSetting()">
+<div id="sPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <div style="font-size:15px;font-weight:700;color:var(--wh)">設定交易參數</div>
+    <button onclick="closeSetting()" style="color:var(--mt);font-size:22px">X</button>
+  </div>
+  <div class="sl">倉位參數</div>
+  <div class="g2" style="margin-bottom:8px">
+    <div><div style="font-size:10px;color:var(--mt);margin-bottom:3px">入場價</div><input class="fi" id="s_entry" type="number"></div>
+    <div><div style="font-size:10px;color:var(--mt);margin-bottom:3px">槓桿</div><input class="fi" id="s_lev" type="number"></div>
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div><div style="font-size:10px;color:var(--mt);margin-bottom:3px">止盈目標</div><input class="fi" id="s_tp" type="number"></div>
+    <div><div style="font-size:10px;color:var(--mt);margin-bottom:3px">止損點</div><input class="fi" id="s_sl" type="number"></div>
+  </div>
+  <div class="sl">API Key (選填)</div>
+  <input class="fi" id="s_apikey" type="password" placeholder="sk-ant-... 留空使用示範模式" style="margin-bottom:14px">
+  <button onclick="saveSetting()" style="width:100%;padding:11px;border-radius:8px;border:none;
+    background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;font-size:14px;font-weight:600;cursor:pointer">
+    儲存
+  </button>
 </div>
 </div>
-);
-}
 
-function Spark({data,color=C.g,w=110,h=28}){
-if(!data||data.length<2)return null;
-const mn=Math.min(…data),mx=Math.max(…data),rg=mx-mn||1;
-const pts=data.map((v,i)=>`${(i/(data.length-1))*w},${h-((v-mn)/rg)*h}`).join(’ ’);
-return <svg width={w} height={h}><polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-}
+<script>
+// ══════════════════════════════════════════
+//  DEFAULTS
+// ══════════════════════════════════════════
+const DEFAULTS = { entry:67762.85, tp:66200, sl:72500, lev:5, apikey:"" };
+let CFG = {...DEFAULTS};
+try{const s=localStorage.getItem("btc_ai_cfg");if(s)CFG={...DEFAULTS,...JSON.parse(s)};}catch(e){}
 
-function Chip({label,val,sub,warn}){
-return(<div style={{background:’#0a0a14’,borderRadius:7,padding:‘7px 10px’,border:`1px solid ${warn?C.y+'40':C.cb}`,minWidth:0}}>
-<div style={{fontSize:8,color:warn?C.y:C.t3,letterSpacing:1}}>{label}{warn&&’ ⚠️’}</div>
-<div style={{fontSize:13,fontWeight:700,color:C.t1,marginTop:1}}>{val}</div>
-{sub&&<div style={{fontSize:8,color:C.t2,marginTop:1}}>{sub}</div>}
-</div>);
-}
+const MKT={price:null,change24h:null,vol24h:null,rsi14:null,atr14:null,ma50:null,ma200:null,fundingRate:null,oi:null,fearGreed:null,fearLabel:null,wsOk:false};
+const MACRO={btcDom:null,totalMktCap:null,fg:null,fgLabel:null,fundingRate:null,fundingSign:null,oi:null,loaded:false};
+const srcStatus={};
+let _page="ai",_ftimer=null,_aiResult=null,_aiLoading=false;
 
-function NoChip({label,src}){
-return(<div style={{background:’#0a0a14’,borderRadius:7,padding:‘7px 10px’,border:`1px dashed ${C.t3}`,opacity:.55}}>
-<div style={{fontSize:8,color:C.t3,letterSpacing:1}}>{label}</div>
-<div style={{fontSize:10,color:C.t2,marginTop:2}}>需 {src}</div>
-</div>);
-}
-
-function StBadge({k,v}){
-const col=v===‘ok’?C.g:v===‘fail’?C.r:C.y;
-const sym=v===‘ok’?‘✓’:v===‘fail’?‘✗’:‘⚠’;
-return <span style={{fontSize:8,color:col,background:`${col}15`,padding:‘1px 5px’,borderRadius:3,marginRight:4}}>{k} {sym}</span>;
-}
-
-/* ═══════════════════════════════════════════════════════════════
-5. VIEWS
-═══════════════════════════════════════════════════════════════ */
-
-// ── Dashboard ──
-function DashView({d,fs,cs,tr,sh}){
-const dc=tr.direction===‘LONG’?C.g:tr.direction===‘SHORT’?C.r:C.y;
-return(
-<div style={{display:‘grid’,gridTemplateColumns:‘repeat(2,1fr)’,gap:10,animation:‘slideUp .4s ease’}}>
-{/* Score */}
-<div style={S.c}>
-<div style={S.cl}>AI 綜合評分（五因子加權）</div>
-<div style={{display:‘flex’,flexDirection:‘column’,alignItems:‘center’}}>
-<ScoreArc score={cs} size={175}/>
-<div style={{display:‘flex’,flexDirection:‘column’,alignItems:‘center’,gap:3,padding:‘8px 20px’,borderRadius:8,background:`${dc}10`,border:`1px solid ${dc}30`,marginTop:10}}>
-<span style={{color:dc,fontWeight:800,fontSize:14}}>{tr.direction===‘LONG’?‘▲ 做多傾向’:tr.direction===‘SHORT’?‘▼ 做空傾向’:‘◆ 觀望’}</span>
-<span style={{color:C.t2,fontSize:10}}>信心度 {tr.conviction.toFixed(0)}%</span>
-</div>
-</div>
-</div>
-{/* Price */}
-<div style={S.c}>
-<div style={S.cl}>BTC/USDT 永續 <span style={{color:C.g}}>LIVE</span></div>
-<div style={{fontSize:28,fontWeight:900,color:’#fff’,letterSpacing:-1}}>${d.btcPrice.toLocaleString(‘en’,{maximumFractionDigits:0})}</div>
-<div style={{fontSize:12,fontWeight:600,color:d.priceChange24h>=0?C.g:C.r,marginTop:3}}>{d.priceChange24h>=0?‘▲’:‘▼’} {Math.abs(d.priceChange24h).toFixed(2)}% (24h)</div>
-<div style={{display:‘flex’,gap:5,marginTop:12,flexWrap:‘wrap’}}>
-<Chip label=“Vol 24h” val={`$${d.volume24h.toFixed(1)}B`}/>
-<Chip label=“OI” val={`$${d.openInterest.toFixed(1)}B`}/>
-<Chip label="L/S" val={d.longShortRatio.toFixed(2)}/>
-</div>
-</div>
-{/* FGI */}
-<div style={S.c}>
-<div style={S.cl}>Fear & Greed <span style={{color:C.g}}>LIVE</span></div>
-<div style={{display:‘flex’,flexDirection:‘column’,alignItems:‘center’,gap:5}}>
-<div style={{fontSize:44,fontWeight:900,color:d.fearGreed<30?C.r:d.fearGreed>70?C.g:C.y}}>{d.fearGreed}</div>
-<div style={{fontSize:11,color:C.t2,fontWeight:600}}>{d.fearGreedLabel}</div>
-<Spark data={sh} color={d.fearGreed<30?C.r:d.fearGreed>70?C.g:C.y}/>
-</div>
-</div>
-{/* Kelly */}
-<div style={S.c}>
-<div style={S.cl}>Kelly 建議倉位</div>
-<div style={{display:‘flex’,alignItems:‘center’,justifyContent:‘center’,gap:18}}>
-<div style={{textAlign:‘center’}}><div style={{fontSize:8,color:C.t3,letterSpacing:1}}>Full Kelly</div><div style={{fontSize:24,fontWeight:800}}>{(tr.fullKelly*100).toFixed(1)}%</div></div>
-<div style={{width:1,height:34,background:C.cb}}/>
-<div style={{textAlign:‘center’}}><div style={{fontSize:8,color:C.g,letterSpacing:1}}>Half Kelly ★</div><div style={{fontSize:24,fontWeight:800,color:C.g}}>{(tr.halfKelly*100).toFixed(1)}%</div></div>
-</div>
-<div style={{fontSize:10,color:C.t2,textAlign:‘center’,marginTop:10,lineHeight:1.7}}>WR:{(tr.winRate*100).toFixed(1)}% R/R:{tr.rr.toFixed(2)}<br/><span style={{color:C.y}}>*止損 = 開單前就設好，不當燃料</span></div>
-</div>
-{/* Factor Bars */}
-<div style={{…S.c,gridColumn:‘1/-1’}}>
-<div style={S.cl}>五因子即時分數（透明化：每根 bar = 該因子貢獻）</div>
-<div style={{display:‘flex’,flexDirection:‘column’,gap:8}}>
-{fs.map(f=>(
-<div key={f.id} style={{display:‘flex’,alignItems:‘center’,gap:8}}>
-<div style={{width:22,height:22,borderRadius:5,background:C.cb,display:‘flex’,alignItems:‘center’,justifyContent:‘center’,fontSize:9,fontWeight:800,color:’#fff’,flexShrink:0}}>F{f.id}</div>
-<div style={{width:85,fontSize:10,color:C.t2,flexShrink:0}}>{f.name}</div>
-<FBar score={f.score} max={f.w*100}/>
-<span style={{fontSize:9,fontWeight:700,color:f.signal===‘bullish’?C.g:f.signal===‘bearish’?C.r:C.y,width:55,textAlign:‘right’,flexShrink:0}}>{f.signal.toUpperCase()}</span>
-</div>
-))}
-</div>
-</div>
-{/* Macro Quick */}
-<div style={{…S.c,gridColumn:‘1/-1’}}>
-<div style={S.cl}>宏觀與衍生品速覽</div>
-<div style={{display:‘grid’,gridTemplateColumns:‘repeat(auto-fill,minmax(105px,1fr))’,gap:5}}>
-<Chip label=“資金費率” val={`${(d.funding*100).toFixed(4)}%`} sub=“Binance”/>
-<Chip label="PCR" val={d.pcr.toFixed(2)} sub="Deribit"/>
-<Chip label="VIX" val={d.vix.toFixed(1)} sub="Yahoo" warn={!!d.anomalies?.vix}/>
-<Chip label=“S&P 500” val={`${d.sp500Change>0?'+':''}${d.sp500Change.toFixed(2)}%`} sub=“Yahoo” warn={!!d.anomalies?.spx}/>
-<Chip label="DXY" val={d.dxy.toFixed(1)} sub="Yahoo" warn={!!d.anomalies?.dxy}/>
-<Chip label=“US 10Y” val={`${d.us10y.toFixed(2)}%`} sub=“Yahoo” warn={!!d.anomalies?.us10y}/>
-<Chip label=“Gold” val={`$${d.gold.toFixed(0)}`} sub=“Yahoo” warn={!!d.anomalies?.gold}/>
-{d.btcDominance!=null&&<Chip label=“BTC.D” val={`${d.btcDominance.toFixed(1)}%`} sub=“CoinGecko”/>}
-{d.etfFlowDaily==null&&<NoChip label="ETF 日流" src="SoSoValue"/>}
-{d.exchangeReserve==null&&<NoChip label="交易所存量" src="CryptoQuant"/>}
-</div>
-</div>
-</div>
-);
-}
-
-// ── Matrix ──
-function MatrixView({fs,d}){
-const[exp,setExp]=useState(null);
-return(
-<div style={{display:‘flex’,flexDirection:‘column’,gap:10,animation:‘slideUp .4s ease’}}>
-<div style={{fontSize:10,color:C.t2,padding:‘0 4px’,lineHeight:1.7}}>按 PCA 權重排列。點擊任一因子可展開計分明細與判讀教學。</div>
-{fs.map(f=>{
-const o=exp===f.id;
-const sc=f.signal===‘bullish’?C.g:f.signal===‘bearish’?C.r:C.y;
-return(
-<div key={f.id} style={{…S.c,cursor:‘pointer’,border:`1px solid ${o?sc+'40':C.cb}`,transition:‘border .3s’}} onClick={()=>setExp(o?null:f.id)}>
-<div style={{display:‘flex’,alignItems:‘center’,gap:8}}>
-<div style={{width:32,height:32,borderRadius:7,background:C.cb,display:‘flex’,alignItems:‘center’,justifyContent:‘center’,fontSize:12,fontWeight:800,flexShrink:0}}>F{f.id}</div>
-<div style={{flex:1,minWidth:0}}>
-<div style={{fontSize:12,fontWeight:700,color:’#fff’}}>{f.name} <span style={{fontSize:9,color:C.t3}}>({f.en})</span></div>
-<div style={{fontSize:9,color:C.t3}}>權重 {(f.w*100).toFixed(0)}%</div>
-</div>
-<span style={{padding:‘3px 8px’,borderRadius:5,border:`1px solid ${sc}50`,color:sc,fontSize:10,fontWeight:700,flexShrink:0}}>{f.signal.toUpperCase()}</span>
-<FBar score={f.score} max={f.w*100}/>
-</div>
-{o&&(
-<div style={{marginTop:12,paddingTop:12,borderTop:`1px solid ${C.cb}`}}>
-<div style={{fontSize:9,color:C.t3,letterSpacing:1,marginBottom:6}}>計分明細（加減分邏輯）</div>
-{f.details.map((x,i)=>(
-<div key={i} style={{display:‘flex’,justifyContent:‘space-between’,alignItems:‘center’,padding:‘5px 0’,borderBottom:`1px solid ${C.cb}30`}}>
-<span style={{fontSize:11,color:C.t2}}>{x.t}</span>
-<span style={{fontSize:10,fontWeight:700,color:x.v.startsWith?.(’+’)?C.g:x.v.startsWith?.(’-’)?C.r:C.t3,flexShrink:0,marginLeft:8}}>{x.v}</span>
-</div>
-))}
-<div style={{marginTop:10,padding:10,background:’#0a0a14’,borderRadius:7,border:`1px solid ${C.cb}`}}>
-<div style={{fontSize:9,color:C.g,fontWeight:700,marginBottom:3}}>📖 判讀教學</div>
-<div style={{fontSize:10,color:C.t2,lineHeight:1.8}}>{f.teach}</div>
-</div>
-</div>
-)}
-</div>
-);
-})}
-</div>
-);
-}
-
-// ── Kelly ──
-function KellyView({tr,d,cs}){
-const bal=10000,lev=5,mg=bal*tr.halfKelly,no=mg*lev;
-const ml=tr.halfKelly*(tr.rr>0?1/tr.rr:1)*lev*100;
-return(
-<div style={{display:‘flex’,flexDirection:‘column’,gap:10,animation:‘slideUp .4s ease’}}>
-<div style={S.c}>
-<div style={S.cl}>Kelly Criterion</div>
-<div style={{fontSize:14,color:’#fff’,fontFamily:‘monospace’,textAlign:‘center’,background:’#0a0a14’,padding:14,borderRadius:7,border:`1px solid ${C.cb}`}}>f* = (b·p − q) / b</div>
-<div style={{fontSize:10,color:C.t2,textAlign:‘center’,marginTop:8,lineHeight:1.8}}>b=盈虧比({tr.rr.toFixed(2)}) p=勝率({(tr.winRate*100).toFixed(1)}%) q=敗率({((1-tr.winRate)*100).toFixed(1)}%)<br/><span style={{color:C.y}}>勝率與盈虧比由五因子評分動態推導</span></div>
-</div>
-<div style={{display:‘grid’,gridTemplateColumns:‘1fr 1fr’,gap:10}}>
-<div style={{…S.c,alignItems:‘center’}}><div style={{fontSize:9,color:C.t3}}>Full Kelly</div><div style={{fontSize:22,fontWeight:800}}>{(tr.fullKelly*100).toFixed(2)}%</div></div>
-<div style={{…S.c,alignItems:‘center’,border:`1px solid ${C.g}30`}}><div style={{fontSize:9,color:C.g}}>Half Kelly ★</div><div style={{fontSize:22,fontWeight:800,color:C.g}}>{(tr.halfKelly*100).toFixed(2)}%</div></div>
-</div>
-<div style={S.c}>
-<div style={S.cl}>實戰試算（$10,000 · 5X）</div>
-<div style={{display:‘grid’,gridTemplateColumns:‘repeat(2,1fr)’,gap:7}}>
-{[[‘方向’,tr.direction,tr.direction===‘LONG’?C.g:tr.direction===‘SHORT’?C.r:C.y],[‘保證金(HK)’,`$${mg.toFixed(0)}`,’#fff’],[‘名義價值’,`$${no.toFixed(0)}`,’#fff’],[‘最大虧損’,`${ml.toFixed(1)}%`,C.r]].map(([l,v,c],i)=>(
-<div key={i} style={{background:’#0a0a14’,padding:9,borderRadius:7,border:`1px solid ${C.cb}`}}>
-<div style={{fontSize:8,color:C.t3}}>{l}</div>
-<div style={{fontSize:14,fontWeight:700,color:c,marginTop:2}}>{v}</div>
-</div>
-))}
-</div>
-</div>
-<div style={{…S.c,border:`1px solid ${C.y}30`}}>
-<div style={{fontSize:9,color:C.y,fontWeight:700,marginBottom:5}}>⚠ 每次開單前必讀</div>
-<div style={{fontSize:10,color:C.t2,lineHeight:1.9}}>
-1. Half Kelly 是實戰建議，Quarter Kelly 更保守也完全合理<br/>
-2. 勝率/盈虧比是模型推估，不是確定性<br/>
-3. 開單三數字：預估勝率、R/R、Kelly 倉位 — 缺一不做<br/>
-4. 止損開單時設好 — 不當流動性燃料<br/>
-5. 不要只看 F4 就衝 — PCA 排序它只排第四
-</div>
-</div>
-</div>
-);
-}
-
-// ── Learn ──
-function LearnView({fs}){
-const L=[
-[‘為什麼用五因子？’,‘單一指標容易被噪音誤導。五因子框架的邏輯是 PCA：找出影響 BTC 價格變異最大的獨立因素，按解釋力排序。F1（美股）解釋約 30% 的 BTC 日波動，權重最高。當 F1 和 F4 矛盾時，優先相信 F1。’],
-[‘Base Rate vs Conditional Probability’,‘Base Rate = 隨機時刻做多勝率（~50-52%），這是噪音。Conditional Probability = 當多個獨立信號同時亮燈時的勝率。例如 FGI < 20 + 週 RSI < 30 + 負資金費率 + 鯨魚囤幣 → 90 天做多勝率 ~78%（K33 Research）。關鍵：大部分時候你看到的是噪音，只有條件疊加時才是 Signal。’],
-[‘Kelly Criterion 直覺’,‘Kelly 回答：無限次重複這個賭局，每次該押多少？f* = (bp-q)/b。勝率 60% + 盈虧比 2:1 → Full Kelly ≈ 40%。但現實中勝率有誤差，所以用 Half Kelly 換取更低爆倉風險。Quarter Kelly 更保守但能活更久。’],
-[‘逆勢操作檢查清單’,‘做逆勢前四條件必須全滿足：\n① FGI < 20\n② 週線 RSI < 30\n③ 資金費率為負\n④ 鯨魚錢包在囤幣\n四條件齊 → 78% 勝率。只有 1-2 個 → 不是信號，是噪音。逆勢需要「條件概率」而非「感覺」。’],
-[‘數據信任層級’,‘Tier 1（最可靠）：Binance API — 直連交易所，延遲 < 1s。\nTier 2（可靠有延遲）：Deribit、CoinGecko。\nTier 3（需交叉驗證）：Yahoo Finance 代理 — 經 allorigins.win，可能 1-15 分鐘延遲，有 Sanity Check。\nTier 4（無法自動抓取）：ETF 流（SoSoValue）、鏈上（Glassnode/CryptoQuant）— 需手動查詢。’],
-[‘Sanity Check 防呆’,‘三道過濾：\n① 空值/NaN → 用上次正常值\n② 絕對值範圍：VIX 8-90、Gold $2500-$7000、DXY 85-125\n③ 跳動 > 12% → 剔除\n被過濾的顯示 ⚠️。這不代表市場沒動，而是代理數據可能出錯，建議去 TradingView 手動確認。’],
-[‘如何不靠 AI 評分自己判斷’,‘練習步驟：\n1. 打開五因子矩陣頁面，從 F1 到 F5 逐個看\n2. 每個因子問自己：這是 bullish、bearish 還是 neutral？\n3. 用權重加總：F1(30%) + F2(25%) + F3(15%) + F4(20%) + F5(10%)\n4. 如果 F1 和 F2 方向一致 → 很強的信號\n5. 如果 F1 和 F4 矛盾 → 信 F1\n6. 多數因子中性 → 不做是最好的交易\n目標：最終你看完五因子後，應該能在不看 AI 總分的情況下得出一樣的結論。’],
+const SOURCES=[
+  {id:"binance_ws",   name:"Binance WS",     type:"交易所即時",   tier:"free"},
+  {id:"binance_rest", name:"Binance REST",    type:"K線/OI/費率",  tier:"free"},
+  {id:"binance_fapi", name:"Binance FAPI",    type:"合約深度/費率",tier:"free"},
+  {id:"coingecko",    name:"CoinGecko API",   type:"全域市值/主導率",tier:"free"},
+  {id:"alternative",  name:"Alternative.me",  type:"恐懼貪婪指數", tier:"free"},
+  {id:"deribit",      name:"Deribit API",     type:"期權PCR",      tier:"free"},
+  {id:"messari",      name:"Messari",         type:"鏈上研究報告",  tier:"paid"},
+  {id:"glassnode",    name:"Glassnode",       type:"鏈上指標",      tier:"paid"},
+  {id:"nansen",       name:"Nansen",          type:"鯨魚追蹤",      tier:"paid"},
+  {id:"cryptoquant",  name:"CryptoQuant",     type:"鏈上資金流",    tier:"paid"},
+  {id:"coinmarketcap",name:"CoinMarketCap",   type:"市場聚合數據",  tier:"free"},
+  {id:"theblock",     name:"The Block",       type:"機構研究",      tier:"paid"},
 ];
-return(
-<div style={{display:‘flex’,flexDirection:‘column’,gap:10,animation:‘slideUp .4s ease’}}>
-<div style={{…S.c,border:`1px solid ${C.g}30`}}>
-<div style={{fontSize:12,fontWeight:700,color:C.g,marginBottom:6}}>🎓 學習手冊</div>
-<div style={{fontSize:10,color:C.t2,lineHeight:1.7}}>目標：讀完後你能不看 AI 評分也能自己判斷方向和倉位。</div>
-</div>
-{L.map(([t,c],i)=>(
-<div key={i} style={S.c}>
-<div style={{fontSize:11,fontWeight:700,color:’#fff’,marginBottom:6}}>Lesson {i+1}：{t}</div>
-<div style={{fontSize:10,color:C.t2,lineHeight:1.9,whiteSpace:‘pre-line’}}>{c}</div>
-</div>
-))}
-<div style={S.c}>
-<div style={{fontSize:11,fontWeight:700,color:’#fff’,marginBottom:8}}>各因子教學速查</div>
-{fs.map(f=>(
-<div key={f.id} style={{padding:‘8px 0’,borderBottom:`1px solid ${C.cb}40`}}>
-<div style={{fontSize:10,fontWeight:700,color:C.g}}>F{f.id} {f.name}</div>
-<div style={{fontSize:10,color:C.t2,lineHeight:1.8,marginTop:3}}>{f.teach}</div>
-</div>
-))}
-</div>
-</div>
-);
+SOURCES.forEach(s=>{srcStatus[s.id]="idle";});
+
+const $=id=>document.getElementById(id);
+const C={gr:"#10B981",rd:"#EF4444",yl:"#F59E0B",bl:"#6366F1",pu:"#A855F7",mt:"#64748B",tl:"#00D4BC",cy:"#06B6D4"};
+const fmt=n=>{if(n==null)return"---";if(Math.abs(n)>999999)return"$"+(n/1e12).toFixed(2)+"T";if(Math.abs(n)>999)return n.toLocaleString(undefined,{maximumFractionDigits:0});if(Math.abs(n)>1)return n.toFixed(2);return n.toFixed(4);};
+const sigC=s=>{if(!s)return C.mt;if(s.includes("強烈偏多")||s.includes("極度貪婪"))return C.gr;if(s.includes("偏多"))return C.tl;if(s.includes("強烈偏空"))return C.rd;if(s.includes("偏空"))return C.rd;return C.yl;};
+
+// ── Header ──────────────────────────────────
+function renderHdr(){
+  const p=MKT.price,ch=MKT.change24h;
+  if(p){$("hp").textContent="$"+p.toLocaleString(undefined,{maximumFractionDigits:0});$("hp").style.color=ch<0?C.rd:C.gr;}
+  if(ch!=null){$("hc").textContent=(ch>=0?"+":"")+ch.toFixed(2)+"%";$("hc").style.color=ch>=0?C.gr:C.rd;}
+  $("wsd").style.background=MKT.wsOk?C.gr:C.rd;
+  $("wsd").style.boxShadow=MKT.wsOk?"0 0 6px "+C.gr+"88":"none";
+  $("wsl").textContent=MKT.wsOk?"即時":"離線";
+  $("wsl").style.color=MKT.wsOk?C.gr:C.rd;
 }
 
-/* ═══════════════════════════════════════════════════════════════
-6. APP
-═══════════════════════════════════════════════════════════════ */
-function App(){
-const{data:d,lastUpdate:lu,refresh,isLoading,apiSt}=useRealData();
-const[tab,setTab]=useState(‘dash’);
-const[sh,setSh]=useState(()=>Array.from({length:30},()=>25+Math.random()*50));
-const[showApi,setShowApi]=useState(false);
-
-```
-useEffect(()=>{if(d)setSh(p=>[...p.slice(1),d.fearGreed])},[d?.fearGreed]);
-
-const a=useMemo(()=>{
-    if(!d)return null;
-    const{factors:fs,composite:cs}=scoreFactors(d);
-    const tr=deriveTradeParams(cs);
-    return{fs,cs,tr};
-},[d]);
-
-if(isLoading||!d||!a)return(
-    <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:'100vh',gap:14}}>
-        <div style={{width:36,height:36,borderRadius:'50%',background:C.g,animation:'pulse 1.2s infinite'}}/>
-        <span style={{color:C.g,fontSize:12,fontWeight:600,letterSpacing:2}}>直連全球 API 中...</span>
-    </div>
-);
-
-const tabs=[{id:'dash',l:'即時總覽'},{id:'matrix',l:'五因子矩陣'},{id:'kelly',l:'Kelly 引擎'},{id:'learn',l:'🎓 學習手冊'}];
-
-return(
-    <div style={{maxWidth:940,margin:'0 auto',padding:'0 12px'}}>
-        <header style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 0',borderBottom:`1px solid ${C.cb}`}}>
-            <div style={{display:'flex',alignItems:'center',gap:9}}>
-                <div style={{width:32,height:32,borderRadius:7,background:C.g,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:900,color:'#000',fontSize:13}}>◆</div>
-                <div>
-                    <h1 style={{fontSize:15,fontWeight:800,margin:0,letterSpacing:.5}}>BTC MACRO INTELLIGENCE</h1>
-                    <p style={{fontSize:9,color:C.t3,margin:0}}>五因子 Kelly Engine <span style={{color:C.g}}>v4.0</span></p>
-                </div>
-            </div>
-            <div style={{display:'flex',alignItems:'center',gap:7}}>
-                <div style={{display:'flex',alignItems:'center',gap:4,background:C.gD,padding:'2px 7px',borderRadius:4,cursor:'pointer'}} onClick={()=>setShowApi(!showApi)}>
-                    <span style={{width:6,height:6,borderRadius:'50%',background:C.g,animation:'glow 2s infinite'}}/>
-                    <span style={{fontSize:8,color:C.g,fontWeight:700}}>API</span>
-                </div>
-                <span style={{fontSize:9,color:C.t3}}>{lu?.toLocaleTimeString('zh-TW')}</span>
-                <button onClick={refresh} style={{background:'transparent',border:`1px solid ${C.cb}`,color:'#fff',width:28,height:28,borderRadius:5,cursor:'pointer',fontSize:13,fontFamily:'inherit'}}>↻</button>
-            </div>
-        </header>
-
-        {showApi&&(
-            <div style={{...S.c,marginTop:7,animation:'slideUp .2s ease'}}>
-                <div style={S.cl}>API 連線狀態</div>
-                <div style={{display:'flex',flexWrap:'wrap',gap:4}}>{Object.entries(apiSt).map(([k,v])=><StBadge key={k} k={k} v={v}/>)}</div>
-                <div style={{fontSize:8,color:C.t3,marginTop:6}}>✓ 正常 · ✗ 失敗 · ⚠ Sanity 過濾（用上次正常值）</div>
-            </div>
-        )}
-
-        <nav style={{display:'flex',gap:3,margin:'14px 0',overflowX:'auto'}}>
-            {tabs.map(t=>(
-                <button key={t.id} onClick={()=>setTab(t.id)} style={{background:tab===t.id?'#111118':'transparent',border:tab===t.id?`1px solid ${C.cb}`:'1px solid transparent',color:tab===t.id?'#fff':C.t3,fontSize:11,fontWeight:600,cursor:'pointer',padding:'6px 12px',borderRadius:7,whiteSpace:'nowrap',fontFamily:'inherit'}}>{t.l}</button>
-            ))}
-        </nav>
-
-        <main style={{paddingBottom:50}}>
-            {tab==='dash'&&<DashView d={d} fs={a.fs} cs={a.cs} tr={a.tr} sh={sh}/>}
-            {tab==='matrix'&&<MatrixView fs={a.fs} d={d}/>}
-            {tab==='kelly'&&<KellyView tr={a.tr} d={d} cs={a.cs}/>}
-            {tab==='learn'&&<LearnView fs={a.fs}/>}
-        </main>
-
-        <footer style={{textAlign:'center',padding:'16px 0',borderTop:`1px solid ${C.cb}`,fontSize:9,color:C.t3,lineHeight:1.7}}>
-            即時：Binance Futures · Deribit · CoinGecko · Alternative.me<br/>
-            宏觀：Yahoo Finance via allorigins.win · Sanity Check v2<br/>
-            <span style={{color:C.y}}>⚠ 配合嚴格止損 · 不構成投資建議</span>
-        </footer>
-    </div>
-);
-```
-
+// ── WebSocket ────────────────────────────────
+function connectWS(){
+  try{
+    const ws=new WebSocket("wss://stream.binance.com:9443/ws/btcusdt@ticker");
+    ws.onopen=()=>{MKT.wsOk=true;srcStatus.binance_ws="ok";renderHdr();};
+    ws.onmessage=e=>{const d=JSON.parse(e.data);MKT.price=parseFloat(d.c);MKT.change24h=parseFloat(d.P);MKT.vol24h=parseFloat(d.q);renderHdr();if(_page==="ai"||_page==="kelly")renderPage();};
+    ws.onerror=ws.onclose=()=>{MKT.wsOk=false;srcStatus.binance_ws="err";renderHdr();setTimeout(connectWS,5000);};
+  }catch(e){setTimeout(connectWS,10000);}
 }
 
-const S={
-c:{background:C.card,borderRadius:10,padding:14,border:`1px solid ${C.cb}`,display:‘flex’,flexDirection:‘column’},
-cl:{fontSize:9,fontWeight:700,color:C.t3,letterSpacing:2,textTransform:‘uppercase’,marginBottom:9},
-};
+// ── REST fetch ───────────────────────────────
+async function fetchAll(){
+  // Klines RSI/ATR/MA
+  try{
+    srcStatus.binance_rest="loading";
+    const r=await fetch("https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=1d&limit=201");
+    const k=await r.json();
+    if(Array.isArray(k)&&k.length>50){
+      const c=k.map(x=>+x[4]);
+      let g=0,l=0;
+      for(let i=1;i<=14;i++){const d=c[c.length-15+i]-c[c.length-15+i-1];if(d>0)g+=d;else l-=d;}
+      MKT.rsi14=l===0?100:100-100/(1+(g/14)/(l/14));
+      let atr=0;for(let i=k.length-14;i<k.length;i++){const h=+k[i][2],lo=+k[i][3],p2=+k[i-1][4];atr+=Math.max(h-lo,Math.abs(h-p2),Math.abs(lo-p2));}
+      MKT.atr14=atr/14;
+      MKT.ma50=c.slice(-50).reduce((a,b)=>a+b,0)/50;
+      if(c.length>=200)MKT.ma200=c.slice(-200).reduce((a,b)=>a+b,0)/200;
+    }
+    srcStatus.binance_rest="ok";
+  }catch(e){srcStatus.binance_rest="err";}
 
-ReactDOM.createRoot(document.getElementById(‘root’)).render(<App/>);
+  // Funding
+  try{
+    srcStatus.binance_fapi="loading";
+    const r=await fetch("https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT");
+    const d=await r.json();
+    MKT.fundingRate=parseFloat(d.lastFundingRate);
+    MACRO.fundingRate=(MKT.fundingRate*100).toFixed(4)+"%";
+    MACRO.fundingSign=MKT.fundingRate<0?"偏多":MKT.fundingRate>0.01?"偏空":"中性";
+    srcStatus.binance_fapi="ok";
+  }catch(e){srcStatus.binance_fapi="err";}
+
+  // OI
+  try{
+    const r=await fetch("https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT");
+    const d=await r.json();
+    MKT.oi=parseFloat(d.openInterest);MACRO.oi=MKT.oi;
+  }catch(e){}
+
+  // Fear & Greed
+  try{
+    srcStatus.alternative="loading";
+    const r=await fetch("https://api.alternative.me/fng/?limit=1");
+    const d=await r.json();
+    if(d&&d.data&&d.data[0]){MKT.fearGreed=parseInt(d.data[0].value);MKT.fearLabel=d.data[0].value_classification;MACRO.fg=MKT.fearGreed;MACRO.fgLabel=MKT.fearLabel;}
+    srcStatus.alternative="ok";
+  }catch(e){srcStatus.alternative="err";}
+
+  // CoinGecko global
+  try{
+    srcStatus.coingecko="loading";
+    const r=await fetch("https://api.coingecko.com/api/v3/global");
+    const d=await r.json();
+    if(d&&d.data){MACRO.btcDom=d.data.market_cap_percentage&&d.data.market_cap_percentage.btc?d.data.market_cap_percentage.btc.toFixed(1):null;MACRO.totalMktCap=d.data.total_market_cap&&d.data.total_market_cap.usd?d.data.total_market_cap.usd:null;}
+    srcStatus.coingecko="ok";
+  }catch(e){srcStatus.coingecko="err";}
+
+  MACRO.loaded=true;
+  if(_page==="macro"||_page==="data"||_page==="kelly")renderPage();
+}
+
+// ══════════════════════════════════════════
+//  AI ENGINE
+// ══════════════════════════════════════════
+function buildPrompt(){
+  const p=MKT.price||67000,ch=MKT.change24h||0;
+  const fr=MKT.fundingRate||0,rsi=MKT.rsi14||50;
+  const ma50=MKT.ma50||65000,ma200=MKT.ma200||60000;
+  const fg=MKT.fearGreed||30,btcDom=MACRO.btcDom||50,oi=MKT.oi||300000;
+  const rw=Math.abs(CFG.entry-CFG.tp),rk=Math.abs(CFG.sl-CFG.entry),br=rw/rk;
+  const winEst=rsi<40?0.55:rsi>65?0.40:0.50;
+  const kelly=((br*winEst-(1-winEst))/br*100).toFixed(1);
+  const pnl=MKT.price?((CFG.entry-MKT.price)/CFG.entry*100*CFG.lev).toFixed(2):"N/A";
+
+  return `你是一位加密貨幣量化交易分析師，請基於以下即時市場數據提供中文分析建議。
+
+即時數據（${new Date().toLocaleString("zh-TW")}）：
+BTC價格: $${p.toLocaleString()}, 24h: ${ch>=0?"+":""}${ch.toFixed(2)}%
+RSI(14): ${rsi.toFixed(1)}, MA50: $${(ma50/1000).toFixed(1)}K, MA200: $${(ma200/1000).toFixed(1)}K
+資金費率: ${(fr*100).toFixed(4)}% ${fr<0?"(空頭付費)":"(多頭付費)"}
+恐懼貪婪: ${fg}/100 (${MKT.fearLabel||"Unknown"})
+BTC主導率: ${btcDom}%, 未平倉: ${(oi/1000).toFixed(1)}K BTC
+
+用戶倉位：空單 $${CFG.entry.toLocaleString()} x${CFG.lev}倍, 止盈$${CFG.tp.toLocaleString()}, 止損$${CFG.sl.toLocaleString()}, 浮盈${pnl}%
+凱利公式：R/R=${br.toFixed(2)}:1, 估計勝率${(winEst*100).toFixed(0)}%, 最優倉位${kelly}%
+
+請只回傳JSON，不要markdown：
+{"verdict":"偏多|偏空|中性|強烈偏多|強烈偏空","score":65,"summary":"一句話判斷20字內","signals":[{"factor":"資金費率","signal":"偏多","detail":"費率說明"},{"factor":"市場情緒","signal":"偏多","detail":"F&G說明"},{"factor":"技術動能","signal":"中性","detail":"RSI說明"},{"factor":"主導率","signal":"中性","detail":"主導率說明"},{"factor":"倉位風控","signal":"中性","detail":"倉位說明"}],"risks":["風險1","風險2","風險3"],"actions":["行動建議1","行動建議2"],"kelly_advice":"凱利建議說明","confidence":70}`;
+}
+
+async function triggerAI(){
+  if(_aiLoading)return;
+  _aiLoading=true;_aiResult=null;
+  _page="ai";
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));
+  document.querySelectorAll(".nb")[0].classList.add("on");
+  renderPage();
+  const prompt=buildPrompt();
+  if(!CFG.apikey){await demoMode();}
+  else{await callAPI(prompt,CFG.apikey);}
+  _aiLoading=false;renderPage();
+}
+
+async function demoMode(){
+  await new Promise(r=>setTimeout(r,900));
+  const p=MKT.price||67000,fr=MKT.fundingRate||0,rsi=MKT.rsi14||50,fg=MKT.fearGreed||30;
+  const btcDom=parseFloat(MACRO.btcDom||50);
+  let score=50;
+  if(fr<0)score+=15;if(fg<30)score+=10;if(rsi<35)score+=10;
+  if(MKT.ma50&&MKT.ma200&&MKT.ma50<MKT.ma200)score-=10;
+  if(btcDom>58)score-=5;
+  score=Math.max(20,Math.min(85,score));
+  const vs=["強烈偏空","偏空","中性","偏多","強烈偏多"];
+  const vi=score<35?0:score<45?1:score<55?2:score<65?3:4;
+  const rw=Math.abs(CFG.entry-CFG.tp),rk=Math.abs(CFG.sl-CFG.entry),br=rw/rk;
+  const winEst=rsi<40?0.55:rsi>65?0.40:0.50;
+  const kelly=((br*winEst-(1-winEst))/br*100).toFixed(1);
+  _aiResult={
+    verdict:vs[vi],score:score,
+    summary:fr<0&&fg<35?"負費率+極度恐懼，逆向多頭信號強":"等待方向確認信號",
+    signals:[
+      {factor:"資金費率",signal:fr<0?"偏多":"偏空",detail:"費率"+(fr*100).toFixed(4)+"% "+(fr<0?"空頭付費，統計上多頭占優":"多頭持倉成本偏高")},
+      {factor:"市場情緒",signal:fg<25?"強烈偏多":fg<45?"偏多":"中性",detail:"F&G "+fg+"/100 ("+(MKT.fearLabel||"Unknown")+")"+(fg<30?" 極度恐懼往往是底部信號":"")},
+      {factor:"技術動能",signal:rsi<35?"偏多":rsi>65?"偏空":"中性",detail:"RSI "+rsi.toFixed(1)+(rsi<35?" 超賣反彈概率提升":rsi>65?" 超買注意回調":" 中性區間")},
+      {factor:"BTC主導率",signal:btcDom>55?"偏空":"偏多",detail:"主導率"+btcDom+"% "+(btcDom>55?"資金集中BTC，山寨疲軟":"主導率下降，市場風險偏好升")},
+      {factor:"倉位風控",signal:"中性",detail:"空單入場$"+CFG.entry.toLocaleString()+" 當前浮盈"+(MKT.price?((CFG.entry-MKT.price)/CFG.entry*100*CFG.lev).toFixed(2):"N/A")+"%"},
+    ],
+    risks:["宏觀風險：美聯儲政策收緊","技術面："+(MKT.ma50&&MKT.ma200&&MKT.ma50<MKT.ma200?"仍在死叉格局":"均線多頭排列"),"費率翻轉可能引發踩踏"],
+    actions:[fr<0&&fg<35?"$"+CFG.tp+"附近考慮分批平空翻多":"持倉觀望等待支撐確認","嚴守止損$"+CFG.sl.toLocaleString()+" 不輕易移動"],
+    kelly_advice:"凱利建議使用總資金"+(parseFloat(kelly)>0?kelly:0)+"% R/R="+br.toFixed(2)+":1",
+    confidence:Math.round(50+score/5),
+    _demo:true,
+  };
+}
+
+async function callAPI(prompt,apiKey){
+  try{
+    const resp=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,messages:[{role:"user",content:prompt}]}),
+    });
+    const data=await resp.json();
+    const text=data.content&&data.content[0]?data.content[0].text||"":"";
+    const clean=text.replace(/```json|```/g,"").trim();
+    _aiResult=JSON.parse(clean);
+  }catch(e){console.error(e);await demoMode();}
+}
+
+// ══════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════
+function goPage(p,btn){
+  _page=p;
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  renderPage();
+}
+function renderPage(){
+  const s=$("screen");if(!s)return;
+  const fn={ai:pgAI,data:pgData,macro:pgMacro,kelly:pgKelly,arch:pgArch}[_page];
+  if(fn)s.innerHTML='<div class="sp anim">'+fn()+'</div>';
+}
+
+// ── Quick metrics ─────────────────────────
+function quickMetrics(){
+  return '<div class="card"><div class="ct">即時指標</div><div class="g3" style="gap:8px">'+
+    [{l:"RSI(14)",v:MKT.rsi14?MKT.rsi14.toFixed(1):"—",w:MKT.rsi14&&(MKT.rsi14<30||MKT.rsi14>70)},
+     {l:"F&G指數",v:MKT.fearGreed?MKT.fearGreed+"/100":"—"},
+     {l:"資金費率",v:MKT.fundingRate?(MKT.fundingRate*100).toFixed(4)+"%":"—",good:MKT.fundingRate&&MKT.fundingRate<0},
+     {l:"BTC主導率",v:MACRO.btcDom?MACRO.btcDom+"%":"—"},
+     {l:"未平倉",v:MKT.oi?(MKT.oi/1000).toFixed(1)+"K":"—"},
+     {l:"24h量",v:MKT.vol24h?"$"+(MKT.vol24h/1e9).toFixed(1)+"B":"—"},
+    ].map(i=>'<div class="mbox"><div class="ml">'+i.l+'</div><div class="mv" style="color:'+(i.w?C.rd:i.good?C.gr:"var(--wh)")+'">'+i.v+'</div></div>').join("")+
+  '</div></div>';
+}
+
+// ════════════════════════════════
+//  PAGE: AI分析
+// ════════════════════════════════
+function pgAI(){
+  const tbar='<div class="tbar"><div><div style="font-size:15px;font-weight:800;color:var(--wh)">✦ AI 量化分析</div><div style="font-size:10px;color:var(--mt)">Claude + 五因子 + 凱利公式</div></div><div style="display:flex;gap:6px"><button onclick="openSetting()" style="background:rgba(255,255,255,.06);border:1px solid var(--bd);color:var(--mt);padding:5px 10px;border-radius:7px;font-size:11px">設定</button><button onclick="triggerAI()" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;padding:5px 12px;border-radius:7px;font-size:11px;font-weight:700;border:none;cursor:pointer">更新分析</button></div></div>';
+
+  if(_aiLoading){
+    return tbar+'<div style="height:12px"></div><div class="ai-card"><div class="ai-badge">✦ AI 分析中</div><div style="display:flex;align-items:center;gap:8px;padding:20px;justify-content:center;color:var(--mt)"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="font-size:12px;margin-left:4px">正在整合市場數據分析中...</span></div></div>'+quickMetrics();
+  }
+
+  if(!_aiResult){
+    return tbar+'<div style="height:20px"></div><div style="text-align:center;padding:40px 20px"><div style="font-size:48px;margin-bottom:12px">✦</div><div style="font-size:16px;font-weight:700;color:var(--wh);margin-bottom:8px">AI 量化分析引擎</div><div style="font-size:12px;color:var(--mt);line-height:1.7;margin-bottom:24px">整合 Binance · CoinGecko · Deribit<br>即時宏觀數據 → AI 五因子分析 → 凱利公式建議</div><button onclick="triggerAI()" style="background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;padding:12px 32px;border-radius:24px;font-size:14px;font-weight:700;border:none;cursor:pointer;box-shadow:0 0 24px rgba(99,102,241,.5)">✦ 立即分析</button><div style="font-size:10px;color:var(--mt);margin-top:12px">無需API Key · 示範模式可用</div></div>'+quickMetrics();
+  }
+
+  const r=_aiResult,vc=sigC(r.verdict),score=parseInt(r.score)||50;
+  const verdictH='<div class="verdict-card" style="background:'+vc+'10;border:1px solid '+vc+'33"><div class="verdict-score" style="color:'+vc+'">'+score+'</div><div style="font-size:13px;font-weight:700;color:'+vc+';margin-top:4px">'+r.verdict+'</div><div style="font-size:11px;color:var(--mt);margin-top:6px;line-height:1.5">'+r.summary+'</div><div class="scorebar-track"><div class="scorebar-fill" style="width:'+score+'%;background:linear-gradient(90deg,'+vc+','+vc+'88)"></div></div>'+(r._demo?'<div style="font-size:9px;color:var(--mt);margin-top:6px">示範模式 · 設定API Key啟用真實分析</div>':'')+'</div>';
+
+  const sigH=(r.signals||[]).map(s=>'<div style="border-left:3px solid '+sigC(s.signal)+';padding:8px 10px;margin-bottom:6px;background:rgba(255,255,255,.02);border-radius:0 8px 8px 0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:11px;font-weight:700;color:var(--wh)">'+s.factor+'</span><span class="pill" style="color:'+sigC(s.signal)+';background:'+sigC(s.signal)+'18">'+s.signal+'</span></div><div style="font-size:11px;color:var(--tx);line-height:1.4">'+s.detail+'</div></div>').join("");
+
+  const actH=(r.actions||[]).map(a=>'<div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd)"><span style="color:var(--tl);font-size:14px;flex-shrink:0">▸</span><span style="font-size:12px;color:var(--wh);line-height:1.5">'+a+'</span></div>').join("");
+
+  const riskH=(r.risks||[]).map(rk=>'<div style="font-size:11px;color:#FCA5A5;display:flex;align-items:flex-start;gap:6px;margin-bottom:5px"><span>⚠</span><span>'+rk+'</span></div>').join("");
+
+  return tbar+'<div style="height:12px"></div>'+verdictH+'<div class="ai-card"><div class="ai-badge">✦ AI 五因子信號</div>'+sigH+'</div><div class="card"><div class="ct">建議行動</div>'+actH+'</div><div class="card" style="background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.2)"><div class="ct">主要風險</div>'+riskH+'</div><div class="card" style="background:rgba(99,102,241,.06);border-color:rgba(99,102,241,.2)"><div class="ct">凱利公式建議</div><div style="font-size:13px;color:var(--wh);line-height:1.7">'+(r.kelly_advice||"—")+'</div><div style="font-size:10px;color:var(--mt);margin-top:4px">信心度: '+(r.confidence||"—")+"%</div></div>"+quickMetrics();
+}
+
+// ════════════════════════════════
+//  PAGE: 數據源
+// ════════════════════════════════
+function pgData(){
+  const free=SOURCES.filter(s=>s.tier==="free");
+  const paid=SOURCES.filter(s=>s.tier==="paid");
+  const srcCard=s=>{
+    const st=srcStatus[s.id]||"idle";
+    const dotC=st==="ok"?C.gr:st==="err"?C.rd:st==="loading"?C.yl:C.mt;
+    return '<div class="src-item"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-size:11px;font-weight:700;color:var(--wh)">'+s.name+'</div><span style="width:7px;height:7px;border-radius:50%;background:'+dotC+';display:inline-block;'+(st==="loading"?"animation:pulse 1s infinite":"")+'"></span></div><div style="font-size:9px;color:var(--mt)">'+s.type+'</div><div style="margin-top:4px"><span style="font-size:9px;padding:2px 6px;border-radius:3px;background:'+(s.tier==="free"?"rgba(16,185,129,.15)":"rgba(245,158,11,.15)")+';color:'+(s.tier==="free"?C.gr:C.yl)+'">'+(s.tier==="free"?"免費":"付費")+'</span></div></div>';
+  };
+
+  const tableRows=[
+    ["CoinGecko","市值/價格/全球數據","REST","免費"],
+    ["Binance","K線/合約/費率","WS+REST","免費"],
+    ["Deribit","期權PCR/IV","REST","免費"],
+    ["Alternative.me","恐懼貪婪","REST","免費"],
+    ["CoinMarketCap","聚合行情","REST","免費限制"],
+    ["Messari","機構研究報告","REST","付費"],
+    ["Glassnode","鏈上指標SOPR/MVRV","REST","付費"],
+    ["Nansen","鯨魚錢包追蹤","REST","付費"],
+    ["CryptoQuant","礦工/交易所流量","REST","付費"],
+    ["The Block","機構動態","HTML爬蟲","付費"],
+    ["LookIntoBitcoin","週期指標","HTML爬蟲","免費"],
+    ["Coinglass","清算熱力圖/OI","REST","免費限制"],
+  ].map(([n,t,a,c])=>'<tr style="border-bottom:1px solid rgba(255,255,255,.04)"><td style="padding:6px;font-weight:600;color:var(--wh)">'+n+'</td><td style="padding:6px;color:var(--tx);font-size:10px">'+t+'</td><td style="padding:6px;text-align:center;font-size:10px;color:var(--cy)">'+a+'</td><td style="padding:6px;text-align:center"><span style="font-size:9px;padding:2px 5px;border-radius:3px;background:'+(c==="免費"?"rgba(16,185,129,.15)":"rgba(245,158,11,.15)")+';color:'+(c==="免費"?C.gr:C.yl)+'">'+c+'</span></td></tr>').join("");
+
+  return '<div class="tbar"><div><div style="font-size:15px;font-weight:800;color:var(--wh)">📡 數據源狀態</div><div style="font-size:10px;color:var(--mt)">即時連線監控</div></div></div><div style="height:12px"></div>'+
+    '<div class="card"><div class="ct">🟢 免費數據源（已接入）</div><div class="src-grid">'+free.map(srcCard).join("")+'</div></div>'+
+    '<div class="card" style="border-color:rgba(245,158,11,.2)"><div class="ct">付費數據源（可擴充）</div><div class="src-grid">'+paid.map(srcCard).join("")+'</div><div style="font-size:10px;color:var(--mt);margin-top:8px;line-height:1.6">付費接入方式：設定 API Key → 自動覆蓋同類型數據 → AI 分析精度提升</div></div>'+
+    '<div class="card"><div class="ct">📋 可爬蟲加密分析網站清單</div><div style="overflow-x:auto"><table style="width:100%;font-size:11px;border-collapse:collapse"><thead><tr style="border-bottom:1px solid var(--bd)"><th style="text-align:left;padding:6px;color:var(--mt);font-weight:400">網站</th><th style="text-align:left;padding:6px;color:var(--mt);font-weight:400">資料類型</th><th style="padding:6px;color:var(--mt);font-weight:400">方式</th><th style="padding:6px;color:var(--mt);font-weight:400">費用</th></tr></thead><tbody>'+tableRows+'</tbody></table></div></div>';
+}
+
+// ════════════════════════════════
+//  PAGE: 宏觀
+// ════════════════════════════════
+function pgMacro(){
+  const fr=MKT.fundingRate,rsi=MKT.rsi14,fg=MKT.fearGreed,btcDom=parseFloat(MACRO.btcDom||0);
+
+  const factors=[
+    {name:"資金費率",val:fr!=null?(fr*100).toFixed(4)+"%":"—",sig:fr==null?"載入中":fr<-0.005?"強烈偏多":fr<0?"偏多":fr>0.01?"偏空":"中性",det:fr!=null?(fr<0?"空頭付費 · 做多統計優勢":"多頭付費 · 空頭佔優")+" · 年化"+(fr*100*3*365).toFixed(0)+"%":""},
+    {name:"恐懼貪婪",val:fg?fg+"/100":"—",sig:fg==null?"載入中":fg<20?"強烈偏多":fg<40?"偏多":fg>80?"強烈偏空":fg>60?"偏空":"中性",det:fg?"("+(MKT.fearLabel||"")+")"+(fg<30?" · 低於30時90天做多勝率72%":""):""},
+    {name:"BTC主導率",val:MACRO.btcDom?MACRO.btcDom+"%":"—",sig:!MACRO.btcDom?"載入中":btcDom>60?"風險偏低":btcDom>50?"中性":"山寨季信號",det:MACRO.btcDom?"主導率"+MACRO.btcDom+"%"+(btcDom>55?" · 資金集中BTC":" · 資金外流山寨"):""},
+    {name:"RSI動能",val:rsi?rsi.toFixed(1):"—",sig:rsi==null?"載入中":rsi<30?"強烈偏多":rsi<45?"偏多":rsi>70?"偏空":rsi>60?"偏空":"中性",det:rsi?(rsi<30?"超賣反彈概率高":rsi>70?"超買注意回調":"動能中性區間"):""},
+    {name:"均線結構",val:MKT.ma50&&MKT.ma200?(MKT.ma50/1000).toFixed(1)+"K / "+(MKT.ma200/1000).toFixed(1)+"K":"—",sig:MKT.ma50&&MKT.ma200?MKT.ma50>MKT.ma200?"偏多":"偏空":"載入中",det:MKT.ma50&&MKT.ma200?"MA50 vs MA200 · "+(MKT.ma50>MKT.ma200?"黃金交叉多頭":"死亡交叉空頭"):""},
+    {name:"未平倉合約",val:MKT.oi?(MKT.oi/1000).toFixed(1)+"K BTC":"—",sig:"中性",det:MKT.oi?"OI高 = 市場分歧大 · 波動風險高":""},
+  ];
+
+  const bull=factors.filter(f=>f.sig.includes("偏多")).length;
+  const bear=factors.filter(f=>f.sig.includes("偏空")).length;
+  const oc=bear>bull?C.rd:bull>bear?C.gr:C.yl;
+
+  const factorsH=factors.map(f=>'<div style="border-left:3px solid '+sigC(f.sig)+';padding:9px 11px;margin-bottom:6px;background:rgba(255,255,255,.025);border-radius:0 8px 8px 0"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px"><span style="font-size:12px;font-weight:700;color:var(--wh)">'+f.name+'</span><span class="pill" style="color:'+sigC(f.sig)+';background:'+sigC(f.sig)+'18">'+f.sig+'</span></div><div class="mono" style="font-size:16px;font-weight:700;color:var(--wh);margin-bottom:2px">'+f.val+'</div>'+(f.det?'<div style="font-size:10px;color:var(--tx);line-height:1.4">'+f.det+'</div>':'')+'</div>').join("");
+
+  const mcH=MACRO.totalMktCap?'<div class="mbox" style="margin-bottom:10px"><div class="ml">全球加密市值</div><div class="mv">$'+(MACRO.totalMktCap/1e12).toFixed(2)+'T</div></div>':"";
+
+  const aiMethodsH='<div class="card" style="border-color:rgba(99,102,241,.2)"><div class="ct">AI 分析方法庫</div>'+
+    [["LLM情境分析","用 Claude/GPT 解讀新聞政策，生成多空情境概率"],
+     ["LSTM價格預測","深度學習時間序列，預測未來N日走勢分佈"],
+     ["情緒NLP","爬取Twitter/Reddit計算Bull/Bear比，預測波動"],
+     ["強化學習RL","在模擬環境訓練Agent學習最優進出場策略"],
+     ["XGBoost因子模型","技術+鏈上+宏觀因子標準化，訓練勝率分類器"],
+     ["Autoencoder異常偵測","識別非正常交易和鯨魚異常流動信號"],
+    ].map(([m,d])=>'<div style="display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd)"><span style="color:var(--bl);font-size:14px;flex-shrink:0">◈</span><div><div style="font-size:12px;font-weight:700;color:var(--wh)">'+m+'</div><div style="font-size:10px;color:var(--tx);margin-top:2px;line-height:1.4">'+d+'</div></div></div>').join("")+'</div>';
+
+  return '<div class="tbar"><div><div style="font-size:15px;font-weight:800;color:var(--wh)">🌐 宏觀即時數據</div><div style="font-size:10px;color:var(--mt)">多源融合 · AI因子評分</div></div><button onclick="fetchAll().then(()=>renderPage())" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#A5B4FC;padding:5px 12px;border-radius:7px;font-size:11px">更新</button></div><div style="height:12px"></div><div style="border-radius:10px;padding:10px 14px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;background:'+oc+'10;border:1px solid '+oc+'33"><span style="font-size:12px;color:var(--tx)">宏觀信號綜合</span><span style="font-size:14px;font-weight:700;color:'+oc+'">'+(bear>bull?"偏空":bull>bear?"偏多":"中性")+' ('+bear+'空/'+bull+'多)</span></div>'+mcH+'<div class="card"><div class="ct">六大宏觀因子</div>'+factorsH+'</div>'+aiMethodsH;
+}
+
+// ════════════════════════════════
+//  PAGE: 凱利公式
+// ════════════════════════════════
+function pgKelly(){
+  const p=MKT.price,rsi=MKT.rsi14,fr=MKT.fundingRate,fg=MKT.fearGreed;
+  let winEst=0.50,winNote="中性RSI → 基準勝率";
+  if(rsi!=null&&rsi<30){winEst=0.60;winNote="RSI超賣 → 勝率+10%";}
+  else if(rsi!=null&&rsi>70){winEst=0.38;winNote="RSI超買 → 勝率-12%";}
+  if(fr!=null&&fr<-0.005){winEst=Math.min(0.72,winEst+0.08);winNote+=" · 費率負 +8%";}
+  if(fg!=null&&fg<25){winEst=Math.min(0.74,winEst+0.06);winNote+=" · 極恐 +6%";}
+
+  const rw=Math.abs(CFG.entry-CFG.tp),rk=Math.abs(CFG.sl-CFG.entry),br=rw/rk;
+  const kelly=(br*winEst-(1-winEst))/br;
+  const half=kelly/2,quarter=kelly/4;
+  const pnlPct=p?((CFG.entry-p)/CFG.entry*100*CFG.lev):null;
+
+  const scenariosH=[
+    {name:"全凱利",k:kelly,note:"理論最優，波動極大",col:C.rd},
+    {name:"半凱利",k:half,note:"風險收益平衡，推薦使用",col:C.yl},
+    {name:"1/4凱利",k:quarter,note:"保守穩健",col:C.gr},
+  ].map(s=>'<div style="background:'+s.col+'08;border:1px solid '+s.col+'22;border-radius:10px;padding:12px 14px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:10px;color:var(--mt)">'+s.name+'</div><div class="kelly-big" style="color:'+s.col+';">'+(s.k>0?(s.k*100).toFixed(1)+"%":"不開倉")+'</div><div style="font-size:10px;color:var(--tx);margin-top:2px">'+s.note+'</div></div>'+(s.k>0?'<div style="text-align:right"><div style="font-size:9px;color:var(--mt)">R/R='+br.toFixed(2)+':1</div><div style="font-size:9px;color:var(--mt)">勝率='+(winEst*100).toFixed(0)+'%</div></div>':'')+'</div></div>').join("");
+
+  const formulaH='<div class="ai-card"><div class="ai-badge">✦ 計算過程</div><div class="mono" style="font-size:11px;color:var(--tx);line-height:2;background:rgba(0,0,0,.3);border-radius:8px;padding:12px;margin-bottom:10px">f* = (b × p - q) / b\nb = R/R比 = '+br.toFixed(2)+'\np = 勝率 = '+(winEst*100).toFixed(0)+'%\nq = 敗率 = '+((1-winEst)*100).toFixed(0)+'%\nf* = ('+br.toFixed(2)+' × '+winEst.toFixed(2)+' - '+(1-winEst).toFixed(2)+') / '+br.toFixed(2)+' = '+(kelly*100).toFixed(1)+'%</div><div style="font-size:11px;color:var(--tx);line-height:1.6"><span style="color:var(--yl)">勝率估算依據：</span>'+winNote+'</div></div>';
+
+  const posH=pnlPct!=null?'<div class="card" style="background:'+(pnlPct>0?"rgba(16,185,129,.06)":"rgba(239,68,68,.06)")+';border-color:'+(pnlPct>0?C.gr:C.rd)+'22"><div class="ct">現有空單狀態</div><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:10px;color:var(--mt)">入場 $'+CFG.entry.toLocaleString()+' · '+CFG.lev+'X</div><div class="mono" style="font-size:22px;font-weight:700;color:'+(pnlPct>0?C.gr:C.rd)+'">'+(pnlPct>0?"+":"")+pnlPct.toFixed(2)+'%</div></div><div style="text-align:right"><div class="mono" style="font-size:12px;color:'+C.gr+'">TP $'+CFG.tp.toLocaleString()+'</div><div class="mono" style="font-size:12px;color:'+C.rd+'">SL $'+CFG.sl.toLocaleString()+'</div></div></div></div>':'<div class="card"><div class="ct">倉位設定</div><div style="font-size:12px;color:var(--mt)">請設定入場/止盈/止損以計算</div><button onclick="openSetting()" style="margin-top:8px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#A5B4FC;padding:6px 14px;border-radius:7px;font-size:12px">設定</button></div>';
+
+  const warnsH='<div class="card" style="border-color:rgba(239,68,68,.2)"><div class="ct">使用注意</div>'+
+    ["凱利假設勝率穩定，加密市場波動劇烈，建議使用半凱利或更低",
+     "槓桿交易：顯示%為保證金佔比，實際風險 = 倉位 × 槓桿倍數",
+     "永遠設定止損，凱利公式不抵禦黑天鵝事件",
+     "建議結合RSI+費率+情緒多因子動態調整勝率估算值"].map(t=>'<div style="font-size:11px;color:#FCA5A5;display:flex;gap:6px;margin-bottom:6px"><span>⚠</span><span>'+t+'</span></div>').join("")+'</div>';
+
+  return '<div class="tbar"><div><div style="font-size:15px;font-weight:800;color:var(--wh)">🎯 凱利公式速算</div><div style="font-size:10px;color:var(--mt)">動態勝率 · 最優倉位建議</div></div><button onclick="openSetting()" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#A5B4FC;padding:5px 12px;border-radius:7px;font-size:11px">設定</button></div><div style="height:12px"></div>'+posH+formulaH+'<div class="card"><div class="ct">倉位方案</div>'+scenariosH+'</div>'+warnsH;
+}
+
+// ════════════════════════════════
+//  PAGE: 架構
+// ════════════════════════════════
+function pgArch(){
+  const layers=[
+    {title:"📡 數據採集層",col:C.cy,items:["Binance WebSocket → 即時價格/24h統計","Binance FAPI REST → 資金費率/OI/K線/深度","CoinGecko API → 全球市值/BTC主導率","Alternative.me → 恐懼貪婪指數","Deribit API → 期權PCR/IV偏斜","可擴充：Glassnode · Nansen · CryptoQuant"]},
+    {title:"🔧 數據處理層",col:C.yl,items:["RSI(14) · ATR(14) · MA50/200 本地計算","資金費率年化換算 · 倒數計時器","訂單簿鯨魚牆偵測（Top50流動性分析）","機構樞軸點計算（PP公式 4H K線）","六大宏觀因子標準化評分"]},
+    {title:"🤖 AI 分析層",col:C.bl,items:["Claude API (Sonnet) → 主要分析引擎","結構化Prompt → 強制JSON格式輸出","情境分析：多/空/中性概率分佈","動態勝率估算（RSI+費率+F&G多因子）","凱利公式最優倉位自動計算","五信號融合 → 最終評分+建議"]},
+    {title:"📱 展示層（本APP）",col:C.gr,items:["純 Vanilla JS · 零框架依賴","單一HTML · GitHub Pages 一鍵部署","底部導航5頁：AI/數據源/宏觀/凱利/架構","Sticky Header 即時WS價格","LocalStorage 持久化設定","TradingView iframe 圖表嵌入"]},
+    {title:"🔄 擴充路線圖",col:C.pu,items:["接入 Glassnode/CryptoQuant 付費API","Node.js 後端代理隱藏API Key","LSTM 模型 → Python FastAPI 微服務","Telegram/LINE Bot 警報推送","多幣種支持（ETH/SOL/BNB）","回測引擎驗證凱利歷史績效"]},
+  ];
+
+  const layersH=layers.map(l=>'<div class="card" style="border-color:'+l.col+'22;border-left:3px solid '+l.col+'"><div style="font-size:12px;font-weight:800;color:'+l.col+';margin-bottom:10px">'+l.title+'</div>'+l.items.map(i=>'<div style="display:flex;gap:7px;margin-bottom:6px"><span style="color:'+l.col+';font-size:11px;flex-shrink:0">▸</span><span style="font-size:11px;color:var(--tx);line-height:1.4">'+i+'</span></div>').join("")+'</div>').join("");
+
+  const flowH='<div class="ai-card"><div class="ai-badge">✦ 數據流程圖</div><div class="mono" style="font-size:10px;color:var(--tx);line-height:2;background:rgba(0,0,0,.3);border-radius:8px;padding:12px">'+
+    '數據源 ──→ 處理層 ──→ AI引擎\n'+
+    '  ↓           ↓          ↓\n'+
+    'WS即時價格  RSI/ATR    Prompt建構\n'+
+    'REST K線    五因子評分  JSON結構化\n'+
+    'F&G指數     凱利公式    信號+建議\n'+
+    '                        ↓\n'+
+    '                 展示層 (本APP)'+
+  '</div></div>';
+
+  const stackH='<div class="card" style="border-color:rgba(99,102,241,.2)"><div class="ct">技術棧</div><div class="g2" style="gap:8px">'+
+    [["前端","Vanilla JS · HTML5 · CSS Vars"],["AI引擎","Anthropic Claude API"],["圖表","TradingView iframe"],["數據源","Binance WS/REST · CoinGecko"],["部署","GitHub Pages · Single HTML"],["字體","JetBrains Mono · SF Pro"]].map(([k,v])=>'<div class="mbox"><div class="ml">'+k+'</div><div style="font-size:11px;color:var(--wh);font-weight:600;margin-top:2px">'+v+'</div></div>').join("")+'</div></div>';
+
+  return '<div class="tbar"><div><div style="font-size:15px;font-weight:800;color:var(--wh)">🏗 系統架構</div><div style="font-size:10px;color:var(--mt)">投資APP完整設計</div></div></div><div style="height:12px"></div>'+flowH+layersH+stackH;
+}
+
+// ════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════
+function openSetting(){
+  $("s_entry").value=CFG.entry;$("s_tp").value=CFG.tp;
+  $("s_sl").value=CFG.sl;$("s_lev").value=CFG.lev;
+  $("s_apikey").value=CFG.apikey||"";
+  $("sOverlay").classList.add("open");
+}
+function closeSetting(){$("sOverlay").classList.remove("open");}
+function saveSetting(){
+  CFG.entry=parseFloat($("s_entry").value)||CFG.entry;
+  CFG.tp=parseFloat($("s_tp").value)||CFG.tp;
+  CFG.sl=parseFloat($("s_sl").value)||CFG.sl;
+  CFG.lev=parseFloat($("s_lev").value)||CFG.lev;
+  CFG.apikey=($("s_apikey").value||"").trim();
+  try{localStorage.setItem("btc_ai_cfg",JSON.stringify(CFG));}catch(e){}
+  closeSetting();renderPage();
+}
+
+// ── Init ────────────────────────────────────
+document.addEventListener("DOMContentLoaded",function(){
+  connectWS();
+  fetchAll();
+  setInterval(fetchAll,30000);
+  renderPage();
+});
 </script>
 
 </body>
